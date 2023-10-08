@@ -19,11 +19,21 @@ const getLoginUserFromCredentials = async ({
   password: string;
 }): Promise<LoginResponse | null> => {
   if (!email || !password)
-    new AppError("Incorrect email or password", StatusCodes.BAD_GATEWAY);
+    throw new AppError("CredentialsSigninMissing", StatusCodes.BAD_GATEWAY);
+
   const user = await User.findOne({
     email,
   }).select("+password");
-  if (user && (await user.validatePassword(password, user.password)))
+
+  if (!user) return null;
+
+  if (user.provider !== EProviders.credentials)
+    throw new AppError("OAuthAccountNotLinked", StatusCodes.BAD_GATEWAY);
+
+  if (
+    user.provider === EProviders.credentials &&
+    (await user.validatePassword(password, user.password))
+  )
     return {
       id: user._id.toString(),
       name: user.name,

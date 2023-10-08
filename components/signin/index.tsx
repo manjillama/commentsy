@@ -1,12 +1,8 @@
 import React from "react";
-import SignInForm from "./signin-form";
-import OAuthProviders from "./oauth-providers";
+import { getProviders } from "next-auth/react";
+import SignInWrapper from "./signin-wrapper";
 
-export default function SignIn() {
-  return (
-    <div>
-      <OAuthProviders />
-      <SignInForm />
-    </div>
-  );
+export default async function SignIn() {
+  const providers = await getProviders();
+  return <SignInWrapper providers={providers} />;
 }

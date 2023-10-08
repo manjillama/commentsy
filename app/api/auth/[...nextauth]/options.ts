@@ -18,20 +18,17 @@ export const options: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user, account, profile }) {
-      if (user)
-        (token as any).avatarBackgroundColor = (
-          user as any
-        ).avatarBackgroundColor;
+      if (user) token.avatarBackgroundColor = user.avatarBackgroundColor;
       token.id = token.sub;
 
       return token;
     },
     async session({ session, user, token }) {
       if (session.user) {
-        (session.user as any).id = token.id;
-        (session.user as any).avatarBackgroundColor =
-          token.avatarBackgroundColor;
+        session.user.id = token.id;
+        session.user.avatarBackgroundColor = token.avatarBackgroundColor;
       }
+
       return session;
     },
   },
