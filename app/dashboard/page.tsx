@@ -1,22 +1,17 @@
 import { getServerSession } from "next-auth";
 import React from "react";
 import { options } from "../api/auth/[...nextauth]/options";
-import SignoutButton from "@/components/signout-button";
-import AppDashboard from "@/components/app-dashboard";
 import Link from "next/link";
 
-const Dashboard = async () => {
+export default async function DashboardPage() {
   const session = await getServerSession(options);
-  console.log("Current session dashboard", session);
+  console.log("From dashboard: (Server session)", session);
 
   return (
-    <div>
-      <Link href="/">Home</Link>
-      <div>{session?.user?.name}</div>
-      <SignoutButton />
-      <AppDashboard />
+    <div className="container mx-auto px-[15px] py-4">
+      <h1 className="text-4xl font-bold">
+        👋 Welcome {session?.user?.name?.split(" ")[0]}!
+      </h1>
     </div>
   );
-};
-
-export default Dashboard;
+}

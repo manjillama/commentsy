@@ -1,13 +1,20 @@
-import { useRouter } from "next/navigation";
+"use client";
+import { Alert, Spinner } from "@/components/ui";
+import { post } from "@/utils/api";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { Alert, Spinner } from "../ui";
+import { NEXT_AUTH_ERRORS } from "../signin/signin-form";
 
-export default function SignInForm() {
+export default function SignUpForm() {
   const router = useRouter();
-  const [formProps, setFormProps] = useState({ email: "", password: "" });
+  const [formProps, setFormProps] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<any[]>([]);
 
   const handleChange = (event: React.FormEvent<HTMLInputElement>) => {
     const { name, type, checked } = event.currentTarget;
@@ -23,28 +30,53 @@ export default function SignInForm() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setError("");
-    const res = await signIn("credentials", { redirect: false, ...formProps });
-    console.log("Signin response", res);
+
+    const data = await post("/api/signup", formProps);
+    if (data.status === "success") {
+      const res = await signIn("credentials", {
+        redirect: false,
+        ...formProps,
+      });
+      if (res) {
+        if (!res.error) {
+          const queryParams = new URLSearchParams(
+            res.url ? res.url.split("?")[1] : ""
+          );
+          router.push(queryParams.get("callbackUrl") ?? "/dashboard");
+        } else {
+          setErrors([
+            (NEXT_AUTH_ERRORS as any)[res.error] ?? "Something went wrong.",
+          ]);
+        }
+      } else setErrors(["Something went wrong."]);
+    } else setErrors(data.errors);
 
     setIsSubmitting(false);
-    if (res) {
-      if (!res.error) {
-        const queryParams = new URLSearchParams(
-          res.url ? res.url.split("?")[1] : ""
-        );
-        router.push(queryParams.get("callbackUrl") ?? "/dashboard");
-      } else {
-        setError(
-          (NEXT_AUTH_ERRORS as any)[res.error] ?? "Something went wrong."
-        );
-      }
-    } else setError("Something went wrong.");
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 my-4">
-      {error && <Alert>{error}</Alert>}
+      {errors.length ? (
+        <Alert>
+          <ul className="pl-4 list-disc">
+            {errors.map((error) => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        </Alert>
+      ) : null}
+      <div>
+        <label className="space-y-2">
+          <span>Your full name</span>
+          <input
+            className="border border-neutral-300 w-full rounded-lg p-3"
+            name="name"
+            type="text"
+            value={formProps.name}
+            onChange={handleChange}
+          />
+        </label>
+      </div>
       <div>
         <label className="space-y-2">
           <span>Email</span>
@@ -66,6 +98,8 @@ export default function SignInForm() {
             type="password"
             value={formProps.password}
             onChange={handleChange}
+            minLength={8}
+            required
           />
         </label>
       </div>
@@ -83,15 +117,8 @@ export default function SignInForm() {
             <Spinner />
           </div>
         )}
-        Log in
+        Sign up
       </button>
     </form>
   );
 }
-
-export const NEXT_AUTH_ERRORS = {
-  CredentialsSignin: "Incorrect email or password",
-  CredentialsSigninMissing: "Please provide both email and password",
-  OAuthAccountNotLinked:
-    "You signed up using another option. Please use same login option that you used before",
-};

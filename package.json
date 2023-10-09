@@ -2,7 +2,6 @@
   "name": "commentsy",
   "description": "Add comments to your site in just few minutes",
   "version": "0.1.0",
-  "private": true,
   "author": "Manjil Tamang <hello@manjiltamang.com> (https://manjiltamang.com/)",
   "scripts": {
     "dev": "next dev",

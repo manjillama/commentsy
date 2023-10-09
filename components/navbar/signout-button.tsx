@@ -10,7 +10,11 @@ const SignoutButton = () => {
     signOut({ redirect: false }).then(() => router.push("/"));
   };
 
-  return <button onClick={handleSignout}>Sign out</button>;
+  return (
+    <button className="px-4 py-2 block" onClick={handleSignout}>
+      Sign out
+    </button>
+  );
 };
 
 export default SignoutButton;
