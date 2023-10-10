@@ -6,7 +6,7 @@ export function Alert({ children }: { children: React.ReactNode }) {
     color: "#ff6166",
   };
   return (
-    <div style={style} className="p-3 text-sm rounded-lg">
+    <div style={style} className="p-3 rounded-lg">
       {children}
     </div>
   );

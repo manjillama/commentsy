@@ -1,10 +1,5 @@
-import {
-  ClientSafeProvider,
-  LiteralUnion,
-  getProviders,
-  signIn,
-} from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import { ClientSafeProvider, LiteralUnion, signIn } from "next-auth/react";
+import React from "react";
 import Image from "next/image";
 import { BuiltInProviderType } from "next-auth/providers/index";
 
@@ -31,7 +26,7 @@ function OAuthProvider({ provider }: { provider: ClientSafeProvider }) {
   return (
     <button
       onClick={() => signIn(provider.id)}
-      className="flex items-center space-x-4 p-3 justify-center border border-neutral-300 w-full rounded-lg hover:bg-neutral-100"
+      className="flex items-center space-x-4 p-3 justify-center bg-white border border-neutral-300 w-full rounded-lg hover:bg-neutral-100"
     >
       <Image
         src={`/images/${provider.name.toLowerCase()}-logo.svg`}

@@ -106,10 +106,7 @@ export default function SignUpForm() {
 
       <button
         disabled={isSubmitting}
-        style={{
-          opacity: isSubmitting ? 0.6 : 1,
-        }}
-        className="bg-black h-14 text-white w-full rounded-lg p-3 relative"
+        className="bg-black h-14 text-white w-full rounded-lg p-3 relative hover:opacity-75 disabled:opacity-60"
         type="submit"
       >
         {isSubmitting && (
