@@ -26,7 +26,7 @@ export default function SignInWrapper({ providers }: Props) {
           <hr className="my-4" />
           <button
             onClick={() => setShowSignInUsingCredentials(true)}
-            className="w-full text-sky-600 hover:underline"
+            className="w-full text-blue-600 hover:underline"
           >
             Continue with credentials
           </button>
@@ -36,7 +36,7 @@ export default function SignInWrapper({ providers }: Props) {
           <SignInForm />
           <button
             onClick={() => setShowSignInUsingCredentials(false)}
-            className="w-full text-sky-600 hover:underline"
+            className="w-full text-blue-600 hover:underline"
           >
             Other login options
           </button>

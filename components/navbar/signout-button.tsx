@@ -11,7 +11,10 @@ const SignoutButton = () => {
   };
 
   return (
-    <button className="px-4 py-2 block" onClick={handleSignout}>
+    <button
+      className="w-full text-left px-4 py-2 hover:bg-neutral-100"
+      onClick={handleSignout}
+    >
       Sign out
     </button>
   );
