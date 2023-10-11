@@ -1,9 +1,9 @@
 import { Schema } from "mongoose";
 import { nanoid } from "nanoid";
 import createModel from "@/lib/createModel";
-import { IApp } from "@/interfaces/IApp";
+import { IAppDocument } from "@/interfaces/IApp";
 
-const appSchema = new Schema<IApp>(
+const appSchema = new Schema<IAppDocument>(
   {
     code: {
       type: String,
@@ -53,6 +53,6 @@ const appSchema = new Schema<IApp>(
   }
 );
 
-const App = createModel<IApp>("App", appSchema);
+const App = createModel<IAppDocument>("App", appSchema);
 
 export default App;

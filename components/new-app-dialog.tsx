@@ -3,6 +3,9 @@ import { FormEvent, useState } from "react";
 import { Alert, Dialog, Spinner } from "./ui";
 import { post } from "@/utils/api";
 import { TrashIcon } from "@radix-ui/react-icons";
+import { AppDispatch } from "@/store";
+import { useDispatch } from "react-redux";
+import { pushUserApp } from "@/slices/userAppsSlice";
 
 export default function NewAppDialog() {
   const [open, setOpen] = useState(false);
@@ -13,6 +16,7 @@ export default function NewAppDialog() {
     authorizedOrigins: [""],
   });
   const [errors, setErrors] = useState<string[]>([]);
+  const dispatch: AppDispatch = useDispatch();
 
   const handleChange = (
     event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -33,7 +37,10 @@ export default function NewAppDialog() {
     const data = await post("/api/apps", formProps);
 
     if (data.status !== "success") setErrors(data.errors);
-    else setOpen(false);
+    else {
+      dispatch(pushUserApp(data.data));
+      setOpen(false);
+    }
 
     setIsSubmitting(false);
   };
@@ -154,7 +161,6 @@ function AuthorizedOriginsField({
     const newOrigins = [...authorizedOrigins];
     newOrigins.splice(index, 1);
     const value = newOrigins;
-    console.log("Val", value);
 
     const event = {
       currentTarget: {

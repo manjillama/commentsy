@@ -6,10 +6,8 @@ const anonymousRoutes = ["/", "/signin", "/signup"];
 const publicFileRegex = /\.(.*)$/;
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const response = NextResponse.next();
-    const { pathname } = req.nextUrl;
-
     return response;
   },
   {
@@ -30,3 +28,33 @@ export default withAuth(
     pages: { signIn: "/signin", error: "/signin" },
   }
 );
+
+// const embedMiddleware = async (req: NextRequestWithAuth) => {
+//   const { pathname } = req.nextUrl;
+//   const referer = req.headers.get("referer");
+
+//   if (!pathname.startsWith("/embed")) return null;
+//   if (!referer) return null;
+
+//   const baseReferer = new URL(referer).host;
+//   const host = req.headers.get("host");
+
+//   const { searchParams } = new URL(req.url);
+//   const identifier = searchParams.get("identifier");
+//   const appCode = (pathname.match(/\/embed\/(.+)/) ?? [])[1];
+//   console.log("Identifier", identifier);
+//   console.log("App code", appCode);
+
+//   await dbConnect();
+
+//   if (baseReferer !== host)
+//     return Response.json(
+//       {
+//         status: "fail",
+//         message: "Embedding not allowed from this domain.",
+//       },
+//       { status: 401 }
+//     );
+
+//   return null;
+// };

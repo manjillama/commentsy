@@ -1,6 +1,7 @@
 import mongoose, { ObjectId } from "mongoose";
 
-export interface IApp extends mongoose.Document {
+export interface IApp {
+  _id: string;
   name: string;
   code: string;
   userId: string | ObjectId;
@@ -11,3 +12,4 @@ export interface IApp extends mongoose.Document {
   createdAt: Date;
   updatedAt: Date;
 }
+export interface IAppDocument extends mongoose.Document, Omit<IApp, "_id"> {}
