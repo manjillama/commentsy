@@ -9,11 +9,10 @@ import { NavLink } from "../ui";
 export default function Navbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  console.log("From Navbar: (Client session)", session);
 
   return (
     <nav className="border-b border-neutral-200 bg-white">
-      <div className="container mx-auto px-[15px] py-4 flex justify-between items-center">
+      <div className="max-w-screen-2xl mx-auto px-[15px] py-4 flex justify-between items-center">
         <h1 className="font-bold text-xl">
           <Link href="/">Commentsy</Link>
         </h1>
@@ -54,7 +53,7 @@ export default function Navbar() {
                       </DropdownMenu.Item>
                       <DropdownMenu.Item className="outline-none">
                         <NavLink
-                          className="block outline-none px-4 py-2 hover:bg-neutral-100"
+                          className="text-neutral-500 block outline-none px-4 py-2 hover:bg-neutral-100"
                           href="/dashboard"
                         >
                           Dashboard
@@ -62,7 +61,7 @@ export default function Navbar() {
                       </DropdownMenu.Item>
                       <DropdownMenu.Item className="outline-none">
                         <NavLink
-                          className="block outline-none px-4 py-2 hover:bg-neutral-100"
+                          className="text-neutral-500 block outline-none px-4 py-2 hover:bg-neutral-100"
                           href="/profile"
                         >
                           Profile

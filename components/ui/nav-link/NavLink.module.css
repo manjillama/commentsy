@@ -1,3 +1,4 @@
 .active {
   @apply bg-neutral-100;
+  color: #000;
 }

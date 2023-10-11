@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Schema } from "mongoose";
 import bcrypt from "bcrypt";
 import {
   AVATAR_BACKGROUND_COLORS,
@@ -22,6 +22,7 @@ const userSchema = new Schema<IUser>(
     },
     name: {
       type: String,
+      maxLength: 50,
       required: [true, "Missing name"],
     },
     email: {
@@ -30,6 +31,7 @@ const userSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
+      maxlength: 320,
       match: [
         /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
         "Please enter a valid email address",

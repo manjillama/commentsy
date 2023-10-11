@@ -1,20 +1,16 @@
 // Ref: https://stackoverflow.com/questions/67560587/how-to-protect-routes-in-next-js-next-auth
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
 const anonymousRoutes = ["/", "/signin", "/signup"];
 const publicFileRegex = /\.(.*)$/;
 
 export default withAuth(
   function middleware(req) {
+    const response = NextResponse.next();
     const { pathname } = req.nextUrl;
-    console.log("Middleware pathname:", pathname);
-    if (pathname.startsWith("/embed"))
-      return Response.json(
-        { status: "fail", message: "Unauthorized" },
-        {
-          status: 401,
-        }
-      );
+
+    return response;
   },
   {
     callbacks: {

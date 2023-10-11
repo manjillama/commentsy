@@ -58,7 +58,13 @@ export default function SignUpForm() {
     <form onSubmit={handleSubmit} className="space-y-4 my-4">
       {errors.length ? (
         <Alert>
-          <ul className="pl-4 list-disc">
+          <ul
+            style={
+              errors.length > 1
+                ? { listStyleType: "disc", paddingLeft: "1rem" }
+                : {}
+            }
+          >
             {errors.map((error) => (
               <li key={error}>{error}</li>
             ))}

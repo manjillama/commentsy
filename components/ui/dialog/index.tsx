@@ -21,10 +21,11 @@ export const Dialog = ({
       {triggerText}
     </RadixDialog.Trigger>
     <RadixDialog.Portal>
-      <RadixDialog.Overlay className={styles.dialogOverlay} />
-      <RadixDialog.Content className={styles.dialogContent}>
-        {children}
-      </RadixDialog.Content>
+      <RadixDialog.Overlay className={styles.dialogOverlay}>
+        <RadixDialog.Content className={styles.dialogContent}>
+          {children}
+        </RadixDialog.Content>
+      </RadixDialog.Overlay>
     </RadixDialog.Portal>
   </RadixDialog.Root>
 );

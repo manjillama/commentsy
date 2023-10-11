@@ -1,7 +1,6 @@
 .ldsSpinner {
   display: inline-block;
   position: relative;
-  transform: scale(0.3);
   top: -15px;
 }
 .ldsSpinner div {

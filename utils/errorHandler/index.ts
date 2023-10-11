@@ -20,7 +20,9 @@ function sendError(error: AppError) {
 
   const errorResponse = {
     status: error.status,
-    message: error.isOperational ? error.message : "Something went wrong",
+    message: error.isOperational
+      ? error.message
+      : "Uh oh! Something went wrong",
     errors: error.isOperational ? error.errors : [],
     stack: error.stack,
   };
