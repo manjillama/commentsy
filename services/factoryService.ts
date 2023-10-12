@@ -4,6 +4,7 @@ import APIFeatures, { parseQueryFilter } from "@/utils/apiFeatures";
 
 type Find<T> = {
   populate: (options: any) => Find<T>;
+  lean: () => Find<T>;
   exec: () => Promise<[T[], number, number]>;
 };
 /**
@@ -27,6 +28,10 @@ function find<T extends Document>(model: Model<T>, query: any): Find<T> {
   return {
     populate(options: any) {
       features.query.populate(options);
+      return this;
+    },
+    lean() {
+      features.query.lean();
       return this;
     },
     async exec() {

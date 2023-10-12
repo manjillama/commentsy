@@ -4,11 +4,11 @@ import OE from "./operationalErrors";
 import { StatusCodes } from "http-status-codes";
 
 export default function catchAsync(
-  asyncFunction: (req: Request) => Promise<Response>
+  asyncFunction: (req: Request, params?: any) => Promise<Response>
 ) {
-  return async (req: Request) => {
+  return async (req: Request, params?: any) => {
     try {
-      return await asyncFunction(req);
+      return await asyncFunction(req, params);
     } catch (error: any) {
       return sendError(error);
     }

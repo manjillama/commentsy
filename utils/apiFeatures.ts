@@ -1,11 +1,5 @@
 import moment from "moment-timezone";
-import {
-  Document,
-  FilterQuery,
-  Query,
-  QueryWithHelpers,
-  Types,
-} from "mongoose";
+import { Document, FilterQuery, Query, Types } from "mongoose";
 import { config } from "../config";
 
 /**
@@ -110,6 +104,8 @@ export default class APIFeatures<T extends Document> {
 
   // 4) PAGINATION
   paginate(size: number): APIFeatures<T> {
+    // Capping max size to 40
+    size = size > 40 ? 40 : size;
     const page = +this.queryString.page || 1;
     const skip = (page - 1) * size;
     // skip: skip results (offset) and limit: number of results per page

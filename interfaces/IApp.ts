@@ -1,12 +1,11 @@
 import mongoose, { ObjectId } from "mongoose";
-
+import { IUser } from "./IUser";
 export interface IApp {
   _id: string;
   name: string;
   code: string;
-  userId: string | ObjectId;
+  user: string | ObjectId | IUser;
   description: string;
-  likes: number;
   authorizedOrigins: Array<string>;
   commentStyles: string;
   createdAt: Date;

@@ -8,26 +8,22 @@ const appSchema = new Schema<IAppDocument>(
     code: {
       type: String,
       unique: true,
-      default: nanoid(12),
+      default: () => nanoid(12),
     },
     name: {
       type: String,
       maxLength: 20,
       required: [true, "Missing app name"],
     },
-    userId: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Missing user (userId)"],
+      required: [true, "Missing user id (user)"],
     },
     description: {
       type: String,
       maxLength: 120,
       required: [true, "Missing app description"],
-    },
-    likes: {
-      type: Number,
-      default: 0,
     },
     authorizedOrigins: {
       type: [String],

@@ -3,11 +3,11 @@ import bcrypt from "bcrypt";
 import {
   AVATAR_BACKGROUND_COLORS,
   EProviders,
-  IUser,
+  IUserDocument,
 } from "@/interfaces/IUser";
 import createModel from "@/lib/createModel";
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<IUserDocument>(
   {
     provider: {
       type: String,
@@ -53,6 +53,10 @@ const userSchema = new Schema<IUser>(
         values: AVATAR_BACKGROUND_COLORS,
         message: "{VALUE} is not supported",
       },
+      validate: {
+        validator: (color: string) => /^#[0-9A-Fa-f]{6}$/.test(color),
+        message: () => `Invalid HEX color code for avatar background`,
+      },
       default:
         AVATAR_BACKGROUND_COLORS[
           (Math.random() * AVATAR_BACKGROUND_COLORS.length) | 0
@@ -64,7 +68,7 @@ const userSchema = new Schema<IUser>(
   }
 );
 
-userSchema.pre<IUser>("save", async function (next) {
+userSchema.pre<IUserDocument>("save", async function (next) {
   if (!this.isModified("password")) return next();
   if (this.provider === EProviders.credentials)
     this.password = await bcrypt.hash(this.password, 12);
@@ -77,6 +81,6 @@ userSchema.methods.validatePassword = function (
   return bcrypt.compare(candidatePassword, hashedPassword);
 };
 
-const User = createModel<IUser>("User", userSchema);
+const User = createModel<IUserDocument>("User", userSchema);
 
 export default User;

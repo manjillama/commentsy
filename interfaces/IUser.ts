@@ -19,7 +19,8 @@ export const AVATAR_BACKGROUND_COLORS = [
 ] as const;
 export type AvatarBackgroundColorType =
   (typeof AVATAR_BACKGROUND_COLORS)[number];
-export interface IUser extends mongoose.Document {
+export interface IUser {
+  _id: string;
   provider: EProviders;
   name: string;
   email: string;
@@ -28,6 +29,8 @@ export interface IUser extends mongoose.Document {
   avatarBackgroundColor: AvatarBackgroundColorType;
   createdAt: Date;
   updatedAt: Date;
+}
+export interface IUserDocument extends mongoose.Document, Omit<IUser, "_id"> {
   validatePassword(
     candidatePassword: string,
     hashedPassword: string
