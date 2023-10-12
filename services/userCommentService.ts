@@ -85,21 +85,25 @@ const removeComment = async ({
   if (userComment.isRemoved)
     throw new AppError("Comment is already removed", StatusCodes.BAD_REQUEST);
 
-  Group.findById(userComment.group).then((group) => {
-    if (group) {
-      group.commentsCount = group.commentsCount - 1;
-      group.save();
-    }
-  });
+  let totalCommentsCountToBeDecreased = 0;
 
   if (userComment.parent) {
+    totalCommentsCountToBeDecreased = 1;
     Comment.findById(userComment.parent).then((parentComment) => {
       if (parentComment) {
         parentComment.repliesCount = parentComment.repliesCount - 1;
         parentComment.save();
       }
     });
-  }
+  } else totalCommentsCountToBeDecreased = userComment.repliesCount + 1;
+
+  Group.findById(userComment.group).then((group) => {
+    if (group) {
+      group.commentsCount =
+        group.commentsCount - totalCommentsCountToBeDecreased;
+      group.save();
+    }
+  });
 
   userComment.isRemoved = true;
   userComment.save();
