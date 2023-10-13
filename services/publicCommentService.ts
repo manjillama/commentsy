@@ -46,7 +46,7 @@ const getAllGroupComments = async ({
     app: app?._id,
     identifier: groupIdentifier,
   })
-    .select("identifier likesCount commentsCount -_id")
+    .select("identifier likesCount commentsCount")
     .lean();
 
   if (!group)

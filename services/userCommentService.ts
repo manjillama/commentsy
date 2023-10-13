@@ -3,6 +3,7 @@ import Comment from "@/models/Comment";
 import Group from "@/models/Collection";
 import AppError from "@/utils/appError";
 import { StatusCodes } from "http-status-codes";
+import { ICommentDocument } from "@/interfaces/IComment";
 
 const createComment = async ({
   appCode,
@@ -76,9 +77,13 @@ const removeComment = async ({
 
   let userComment = await Comment.findOne({ _id: commentId, user: userId });
 
+  await removeCommentUsingDocument(userComment);
+};
+
+const removeCommentUsingDocument = (userComment: ICommentDocument | null) => {
   if (!userComment)
     throw new AppError(
-      "Comment with that id not found or doesn't belongs to current user",
+      "Comment with that id not found or user doesn't have sufficient permission for this action.",
       StatusCodes.BAD_REQUEST
     );
 
@@ -106,7 +111,7 @@ const removeComment = async ({
   });
 
   userComment.isRemoved = true;
-  userComment.save();
+  return userComment.save();
 };
 
 export default { createComment, removeComment };

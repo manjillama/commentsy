@@ -2,7 +2,7 @@
 
 import { IComment } from "@/interfaces/IComment";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   data: {
@@ -19,6 +19,8 @@ export default function EmbedComments({ data }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
+  const [commentData, setCommentData] = useState(data);
+  const ref = useRef(null);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -34,7 +36,14 @@ export default function EmbedComments({ data }: Props) {
     setCurrentPage(Number(searchParams.get("page")) || 1);
   }, [searchParams]);
 
-  const { total, size } = data;
+  useEffect(() => {
+    window.parent.postMessage(
+      { type: "commentsyResize", height: ref.current?.["offsetHeight"] },
+      "*"
+    );
+  }, [commentData]);
+
+  const { total, size } = commentData;
 
   const totalPage = Math.ceil(total / size);
 
@@ -49,9 +58,24 @@ export default function EmbedComments({ data }: Props) {
     router.push(`${pathname}?${query}`);
   };
 
+  const handleFetchNextComments = () => {
+    fetch("https://jsonplaceholder.typicode.com/users")
+      .then((data) => data.json())
+      .then((data) =>
+        console.log("Data", setCommentData({ ...commentData, ...data }))
+      );
+  };
+
   return (
-    <div>
+    <div ref={ref}>
       <div>
+        <div>
+          <a href="http://localhost:3000/signin" target="_blank">
+            Send me to commentsy
+          </a>
+        </div>
+        <button onClick={handleFetchNextComments}>Press me</button>
+        <hr />
         <p>Current page: {currentPage}</p>
         <button
           onClick={() => handlePagination("prev")}
@@ -65,7 +89,8 @@ export default function EmbedComments({ data }: Props) {
         >
           Next page
         </button>
-        <pre>{JSON.stringify(data, null, 2)}</pre>
+        <hr />
+        <pre>{JSON.stringify(commentData, null, 2)}</pre>
       </div>
     </div>
   );
