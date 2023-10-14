@@ -2,7 +2,7 @@ import SignUpForm from "@/components/signup";
 import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
 import { redirect } from "next/navigation";
-import { withNavbar } from "@/hoc";
+import { withSiteLayout } from "@/hoc";
 
 async function SignUpPage() {
   const session = await getServerSession(options);
@@ -11,4 +11,4 @@ async function SignUpPage() {
   return <SignUpForm />;
 }
 
-export default withNavbar(SignUpPage);
+export default withSiteLayout(SignUpPage);

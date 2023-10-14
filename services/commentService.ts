@@ -77,10 +77,27 @@ const removeComment = async ({
 
   let userComment = await Comment.findOne({ _id: commentId, user: userId });
 
-  await removeCommentUsingDocument(userComment);
+  await _removeCommentUsingDocument(userComment);
 };
 
-const removeCommentUsingDocument = (userComment: ICommentDocument | null) => {
+const getAllGroupComments = async ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  if (!userId || !groupId)
+    throw new AppError(
+      "Missing group id (groupId) or user id",
+      StatusCodes.BAD_REQUEST
+    );
+  return Comment.find({ user: userId, group: groupId });
+};
+
+export default { createComment, removeComment, getAllGroupComments };
+
+const _removeCommentUsingDocument = (userComment: ICommentDocument | null) => {
   if (!userComment)
     throw new AppError(
       "Comment with that id not found or user doesn't have sufficient permission for this action.",
@@ -113,5 +130,3 @@ const removeCommentUsingDocument = (userComment: ICommentDocument | null) => {
   userComment.isRemoved = true;
   return userComment.save();
 };
-
-export default { createComment, removeComment };

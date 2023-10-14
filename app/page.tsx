@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { options } from "./api/auth/[...nextauth]/options";
 import { redirect } from "next/navigation";
-import { withNavbar } from "@/hoc";
+import { withSiteLayout } from "@/hoc";
 
 async function HomePage() {
   const session = await getServerSession(options);
@@ -15,4 +15,4 @@ async function HomePage() {
   );
 }
 
-export default withNavbar(HomePage);
+export default withSiteLayout(HomePage);

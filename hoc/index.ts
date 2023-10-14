@@ -1,1 +1,1 @@
-export * from "./withNavbar";
+export * from "./with-site-layout";

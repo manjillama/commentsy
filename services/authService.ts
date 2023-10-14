@@ -53,7 +53,7 @@ const getLoginUserFromCredentials = async ({
  * @param  {`${EProviders}`} provider
  * @returns {IUser} user
  */
-const handlePreOAuthUserSignIn = async (
+const handlePostOAuthUserSignIn = async (
   email: string,
   name: string,
   provider: `${EProviders}`
@@ -83,4 +83,4 @@ const handlePreOAuthUserSignIn = async (
   };
 };
 
-export default { getLoginUserFromCredentials, handlePreOAuthUserSignIn };
+export default { getLoginUserFromCredentials, handlePostOAuthUserSignIn };

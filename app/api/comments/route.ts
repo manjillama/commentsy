@@ -1,5 +1,5 @@
 import dbConnect from "@/lib/dbConnect";
-import userCommentService from "@/services/userCommentService";
+import commentService from "@/services/commentService";
 import AppError from "@/utils/appError";
 import catchAsync from "@/utils/errorHandler";
 import { getServerSession } from "next-auth";
@@ -38,7 +38,7 @@ export const POST = catchAsync(async function (req: Request) {
 
   const { appCode, identifier, comment, parentCommentId } = await req.json();
 
-  const userComment = await userCommentService.createComment({
+  const userComment = await commentService.createComment({
     appCode,
     groupIdentifier: identifier,
     parentCommentId,
@@ -60,7 +60,7 @@ export const DELETE = catchAsync(async function (req: Request) {
 
   const { commentId } = await req.json();
 
-  await userCommentService.removeComment({
+  await commentService.removeComment({
     commentId,
     userId: session.user.id as string,
   });

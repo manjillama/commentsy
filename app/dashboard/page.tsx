@@ -1,10 +1,5 @@
-import { getServerSession } from "next-auth";
-import Link from "next/link";
-import { options } from "../api/auth/[...nextauth]/options";
 import NewAppDialog from "@/components/new-app-dialog";
-import { withNavbar } from "@/hoc";
-import dbConnect from "@/lib/dbConnect";
-import appService from "@/services/appService";
+import { withSiteLayout } from "@/hoc";
 import UserApps from "@/components/user-apps";
 
 async function DashboardPage() {
@@ -24,4 +19,4 @@ async function DashboardPage() {
   );
 }
 
-export default withNavbar(DashboardPage);
+export default withSiteLayout(DashboardPage);

@@ -2,7 +2,7 @@ import { getServerSession } from "next-auth";
 import { options } from "../api/auth/[...nextauth]/options";
 import SignIn from "@/components/signin";
 import { redirect } from "next/navigation";
-import { withNavbar } from "@/hoc";
+import { withSiteLayout } from "@/hoc";
 
 async function SignInPage() {
   const session = await getServerSession(options);
@@ -11,4 +11,4 @@ async function SignInPage() {
   return <SignIn />;
 }
 
-export default withNavbar(SignInPage);
+export default withSiteLayout(SignInPage);

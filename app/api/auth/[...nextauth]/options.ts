@@ -3,7 +3,7 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { keys } from "@/config";
-import userService from "@/services/userService";
+import authService from "@/services/authService";
 import dbConnect from "@/lib/dbConnect";
 
 export const options: NextAuthOptions = {
@@ -38,7 +38,7 @@ export const options: NextAuthOptions = {
       clientSecret: keys.GITHUB_SECRET as string,
       async profile({ email, name }) {
         await dbConnect();
-        const user = userService.handlePreOAuthUserSignIn(
+        const user = authService.handlePostOAuthUserSignIn(
           email,
           name,
           "github"
@@ -51,7 +51,7 @@ export const options: NextAuthOptions = {
       clientSecret: keys.GOOGLE_CLIENT_SECRET as string,
       async profile({ email, name }) {
         await dbConnect();
-        const user = userService.handlePreOAuthUserSignIn(
+        const user = authService.handlePostOAuthUserSignIn(
           email,
           name,
           "google"
@@ -69,7 +69,7 @@ export const options: NextAuthOptions = {
         await dbConnect();
 
         const { email, password } = credentials as any;
-        const user = await userService.getLoginUserFromCredentials({
+        const user = await authService.getLoginUserFromCredentials({
           email,
           password,
         });
