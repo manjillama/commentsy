@@ -1,7 +1,9 @@
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import appGroupCommentService from "@/services/appPostCommentService";
+import AppError from "@/utils/appError";
 import catchAsync from "@/utils/errorHandler";
+import { StatusCodes } from "http-status-codes";
 import { getServerSession } from "next-auth";
 
 export const GET = catchAsync(async function (
@@ -10,7 +12,11 @@ export const GET = catchAsync(async function (
 ) {
   await dbConnect();
   const session = await getServerSession(options);
-
+  if (!session)
+    throw new AppError(
+      "You need to be logged in to post a comment",
+      StatusCodes.FORBIDDEN
+    );
   const comments = await appGroupCommentService.getAllAppGroupComments({
     userId: session?.user.id as string,
     groupId: id,

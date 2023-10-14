@@ -1,8 +1,7 @@
 "use client";
-
 import { IComment } from "@/interfaces/IComment";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { get } from "@/utils/api";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   data: {
@@ -15,26 +14,11 @@ type Props = {
   };
 };
 export default function EmbedComments({ data }: Props) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [commentData, setCommentData] = useState(data);
+  const [isCommentLoading, setIsCommentLoading] = useState(false);
+
   const ref = useRef(null);
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, String(value));
-
-      return params.toString();
-    },
-    [searchParams]
-  );
-
-  useEffect(() => {
-    setCurrentPage(Number(searchParams.get("page")) || 1);
-  }, [searchParams]);
 
   useEffect(() => {
     window.parent.postMessage(
@@ -47,44 +31,43 @@ export default function EmbedComments({ data }: Props) {
 
   const totalPage = Math.ceil(total / size);
 
-  const handlePagination = (dir: "prev" | "next") => {
-    let query = "";
-    if (dir === "prev") {
-      query = createQueryString(
-        "page",
-        String(currentPage > 1 ? currentPage - 1 : 1)
-      );
-    } else query = createQueryString("page", String(currentPage + 1));
-    router.push(`${pathname}?${query}`);
-  };
+  /** @todo Loader */
+  const handleFetchNextComments = async () => {
+    setIsCommentLoading(true);
 
-  const handleFetchNextComments = () => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((data) => data.json())
-      .then((data) =>
-        console.log("Data", setCommentData({ ...commentData, ...data }))
-      );
+    const data = await get<{
+      comments: IComment[];
+      total: number;
+      size: number;
+    }>(
+      `/api/comments?identifier=${commentData.identifier}&page=${
+        currentPage + 1
+      }`
+    );
+
+    if (data.status === "success") {
+      setCommentData({
+        ...commentData,
+        comments: [...commentData.comments, ...data.data.comments],
+      });
+      setCurrentPage(currentPage + 1);
+    }
+    setIsCommentLoading(false);
   };
 
   return (
     <div ref={ref}>
       <div>
+        {isCommentLoading && <span>Loading...</span>}
         <div>
           <a href="http://localhost:3000/signin" target="_blank">
             Send me to commentsy
           </a>
         </div>
-        <button onClick={handleFetchNextComments}>Press me</button>
         <hr />
         <p>Current page: {currentPage}</p>
         <button
-          onClick={() => handlePagination("prev")}
-          disabled={currentPage <= 1}
-        >
-          Previous page
-        </button>
-        <button
-          onClick={() => handlePagination("next")}
+          onClick={() => handleFetchNextComments()}
           disabled={currentPage >= totalPage}
         >
           Next page

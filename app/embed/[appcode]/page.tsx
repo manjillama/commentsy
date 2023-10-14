@@ -50,7 +50,7 @@ async function getCommentsData(
 
   await dbConnect();
 
-  const data = await publicCommentService.getAllGroupComments({
+  const data = await publicCommentService.getAllGroupCommentsInitData({
     appCode,
     groupIdentifier,
     refererUrl: referer,

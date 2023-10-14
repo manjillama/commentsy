@@ -5,6 +5,27 @@ import catchAsync from "@/utils/errorHandler";
 import { getServerSession } from "next-auth";
 import { options } from "../auth/[...nextauth]/options";
 import { StatusCodes } from "http-status-codes";
+import { NextRequest } from "next/server";
+import publicCommentService from "@/services/publicCommentService";
+
+export const GET = catchAsync(async function (req: NextRequest) {
+  await dbConnect();
+
+  const searchParams = req.nextUrl.searchParams;
+  const { identifier, ...params } = Object.fromEntries(searchParams);
+
+  const [comments, total, size] =
+    await publicCommentService.getAllGroupComments(identifier, params);
+
+  return Response.json({
+    status: "success",
+    data: {
+      comments,
+      total,
+      size,
+    },
+  });
+});
 
 export const POST = catchAsync(async function (req: Request) {
   await dbConnect();

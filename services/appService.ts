@@ -4,7 +4,7 @@ import App from "@/models/App";
 import AppError from "@/utils/appError";
 import { StatusCodes } from "http-status-codes";
 
-const getAppsByUserId = async (userId: string) => {
+const getAppsByUserId = async (userId: string): Promise<IApp[]> => {
   return JSON.parse(JSON.stringify(await App.find({ user: userId }).lean()));
 };
 

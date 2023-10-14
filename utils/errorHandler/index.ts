@@ -2,13 +2,14 @@ import { config } from "@/config";
 import AppError from "../appError";
 import OE from "./operationalErrors";
 import { StatusCodes } from "http-status-codes";
+import { NextRequest } from "next/server";
 
 export default function catchAsync(
-  asyncFunction: (req: Request, params?: any) => Promise<Response>
+  asyncFunction: (req: NextRequest, data?: any) => Promise<Response>
 ) {
-  return async (req: Request, params?: any) => {
+  return async (req: NextRequest, data?: any) => {
     try {
-      return await asyncFunction(req, params);
+      return await asyncFunction(req, data);
     } catch (error: any) {
       return sendError(error);
     }

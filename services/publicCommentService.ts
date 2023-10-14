@@ -1,10 +1,12 @@
+import _ from "lodash";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
 import Group from "@/models/Collection";
 import factoryService from "./factoryService";
-import { IComment } from "@/interfaces/IComment";
-import _ from "lodash";
+import { IComment, ICommentDocument } from "@/interfaces/IComment";
 import { IGroup } from "@/interfaces/IGroup";
+import AppError from "@/utils/appError";
+import { StatusCodes } from "http-status-codes";
 
 export type ClientGroupCommentsReturnType =
   | {
@@ -23,7 +25,7 @@ export type ClientGroupCommentsReturnType =
       };
     };
 
-const getAllGroupComments = async ({
+const getAllGroupCommentsInitData = async ({
   appCode,
   groupIdentifier,
   refererUrl,
@@ -71,20 +73,10 @@ const getAllGroupComments = async ({
       message: "Authorization error, URI mismatch",
     };
 
-  const query = _.pick(searchParams, ["limit", "page", "sort"]);
-
-  const [comments, total, size] = await factoryService
-    .find(Comment, {
-      ...query,
-      // limit: 20,
-      isRemoved: false,
-      parent: null,
-      group: group._id,
-      fields: "_id, repliesCount, comment, createdAt, isRemoved",
-    })
-    .populate({ path: "user", select: "name -_id" })
-    .lean()
-    .exec();
+  const [comments, total, size] = await _fetchCommentsWithGroupId(
+    group._id,
+    searchParams
+  );
 
   return {
     status: "success",
@@ -99,4 +91,62 @@ const getAllGroupComments = async ({
   };
 };
 
-export default { getAllGroupComments };
+const getAllGroupComments = async (
+  groupIdentifier: string,
+  queryParams: any
+): Promise<[ICommentDocument[], number, number]> => {
+  const group = await Group.findOne({
+    identifier: groupIdentifier,
+  }).lean();
+
+  if (!group)
+    throw new AppError(
+      "Comments group with that id was not found",
+      StatusCodes.BAD_REQUEST
+    );
+
+  return _fetchCommentsWithGroupId(group._id, queryParams);
+};
+
+const getAllCommentReplies = async (
+  parentCommentId: string,
+  queryParams: any
+): Promise<[ICommentDocument[], number, number]> => {
+  return _fetchCommentRepliesWithParentId(parentCommentId, queryParams);
+};
+
+const _fetchCommentRepliesWithParentId = (
+  parentCommentId: string,
+  queryParams: any
+): Promise<[ICommentDocument[], number, number]> => {
+  return _fetchComments({ parent: parentCommentId }, queryParams);
+};
+
+const _fetchCommentsWithGroupId = (
+  groupId: string,
+  queryParams: any
+): Promise<[ICommentDocument[], number, number]> => {
+  return _fetchComments({ parent: null, group: groupId }, queryParams);
+};
+
+const _fetchComments = (options: any, queryParams: any) => {
+  const query = _.pick(queryParams, ["limit", "page", "sort"]) as {};
+
+  return factoryService
+    .find(Comment, {
+      limit: 1,
+      ...query,
+      ...options,
+      isRemoved: false,
+      fields: "_id, repliesCount, comment, createdAt",
+    })
+    .populate({ path: "user", select: "name -_id" })
+    .lean()
+    .exec();
+};
+
+export default {
+  getAllGroupCommentsInitData,
+  getAllGroupComments,
+  getAllCommentReplies,
+};
