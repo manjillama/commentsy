@@ -14,7 +14,7 @@ export const GET = catchAsync(async function (
   const session = await getServerSession(options);
   if (!session)
     throw new AppError(
-      "You need to be logged in to post a comment",
+      "You need to be logged in to commentsy",
       StatusCodes.FORBIDDEN
     );
   const comments = await userCommentService.getAllGroupComments({

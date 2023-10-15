@@ -35,7 +35,7 @@ const appSchema = new Schema<IAppDocument>(
           );
         },
         message: () =>
-          `Invalid origin: URIs must not contain a path or end with "/".`,
+          `Invalid origin: URIs is required and must not contain a path or end with "/".`,
       },
     },
     commentStyles: {

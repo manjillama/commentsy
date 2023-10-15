@@ -31,10 +31,17 @@ export default function UserApps() {
         <div key={app._id} className="w-full md:w-4/12 p-2 h-auto flex-col">
           <Link
             href={`/apps/${app._id}`}
-            className="bg-white block p-4 border border-neutral-200 rounded-lg h-full hover:shadow-md transition-shadow duration-300	"
+            className="bg-white block p-4 border border-neutral-200 rounded-lg h-full hover:shadow-md transition-shadow duration-300"
           >
-            <div className="flex items-baseline space-x-4 mb-4">
-              <Image src="/next.svg" alt="logo" width={50} height={50} />
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="h-[32px] w-[32px] bg-black rounded-full px-[6px] pt-[11px]">
+                <Image
+                  src="/commentsy-white.svg"
+                  alt="logo"
+                  width={30}
+                  height={15}
+                />
+              </div>
               <div>
                 <div className="text-lg">{app.name}</div>
                 <div

@@ -1,4 +1,4 @@
-import NewAppDialog from "@/components/new-app-dialog";
+import NewAppDialog from "@/components/app-form/new-app-dialog";
 import { withSiteLayout } from "@/hoc";
 import UserApps from "@/components/user-apps";
 
