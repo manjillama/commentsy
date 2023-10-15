@@ -1,23 +1,25 @@
 import Link, { LinkProps } from "next/link";
 import { usePathname } from "next/navigation";
-import styles from "./NavLink.module.css";
+import { CSSProperties } from "react";
 export const NavLink = ({
   href,
   children,
   className,
+  activeStyle,
   ...props
-}: LinkProps & { children?: React.ReactNode; className?: string }) => {
+}: LinkProps & {
+  children?: React.ReactNode;
+  className?: string;
+  activeStyle: CSSProperties;
+}) => {
   const currentRoute = usePathname();
 
   return (
     <Link
       href={href}
       {...props}
-      className={
-        currentRoute === href
-          ? `${styles.active} ${className ?? ""}`
-          : className ?? ""
-      }
+      style={currentRoute === href ? activeStyle : {}}
+      className={className}
     >
       {children}
     </Link>

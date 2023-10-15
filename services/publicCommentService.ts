@@ -1,7 +1,7 @@
 import _ from "lodash";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
-import Group from "@/models/Collection";
+import Group from "@/models/Group";
 import factoryService from "./factoryService";
 import { IComment, ICommentDocument } from "@/interfaces/IComment";
 import { IGroup } from "@/interfaces/IGroup";

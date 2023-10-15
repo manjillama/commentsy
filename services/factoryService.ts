@@ -10,7 +10,7 @@ type Find<T> = {
 /**
  * @param  {Model<T>} model
  * @param  {any} query
- * @returns Find
+ * @returns [collection, total, size]
  */
 function find<T extends Document>(model: Model<T>, query: any): Find<T> {
   const { limit } = query;

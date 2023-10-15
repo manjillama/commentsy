@@ -25,7 +25,7 @@ export default function Navbar() {
               className="w-auto h-auto"
             />
           </div>
-          <h1 className="font-bold text-xl flex">Commentsy </h1>
+          <h1 className=" text-xl flex">commentsy </h1>
         </Link>
 
         <ul className="flex space-x-4 items-center">
@@ -82,6 +82,10 @@ export default function Navbar() {
                       </DropdownMenu.Item>
                       <DropdownMenu.Item className="outline-none">
                         <NavLink
+                          activeStyle={{
+                            backgroundColor: "#f5f5f5",
+                            color: "#000",
+                          }}
                           className="text-neutral-500 block outline-none px-4 py-2 hover:bg-neutral-100"
                           href="/dashboard"
                         >
@@ -90,6 +94,10 @@ export default function Navbar() {
                       </DropdownMenu.Item>
                       <DropdownMenu.Item className="outline-none">
                         <NavLink
+                          activeStyle={{
+                            backgroundColor: "#f5f5f5",
+                            color: "#000",
+                          }}
                           className="text-neutral-500 block outline-none px-4 py-2 hover:bg-neutral-100"
                           href="/account"
                         >

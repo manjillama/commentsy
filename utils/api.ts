@@ -9,6 +9,7 @@ async function get<T>(url: string): Promise<
     const response = await fetch(url);
     return await response.json();
   } catch (error) {
+    console.error(error);
     return {
       status: "error",
       message: "Uh oh! Something went wrong",
@@ -39,6 +40,7 @@ async function post<T>(
     });
     return await response.json();
   } catch (error) {
+    console.error(error);
     return {
       status: "error",
       message: "Uh oh! Something went wrong",
@@ -69,6 +71,7 @@ async function patch<T>(
     });
     return await response.json();
   } catch (error) {
+    console.error(error);
     return {
       status: "error",
       message: "Uh oh! Something went wrong",

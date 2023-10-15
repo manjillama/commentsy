@@ -1,6 +1,6 @@
 import App from "@/models/App";
 import Comment from "@/models/Comment";
-import Group from "@/models/Collection";
+import Group from "@/models/Group";
 import AppError from "@/utils/appError";
 import { StatusCodes } from "http-status-codes";
 import { ICommentDocument } from "@/interfaces/IComment";
@@ -36,7 +36,7 @@ const createComment = async ({
 
   if (!group)
     throw new AppError(
-      "Comments group with that identifier and app id not found",
+      "Comments group with that identifier and app not found",
       StatusCodes.BAD_REQUEST
     );
 
@@ -77,27 +77,12 @@ const removeComment = async ({
 
   let userComment = await Comment.findOne({ _id: commentId, user: userId });
 
-  await _removeCommentUsingDocument(userComment);
+  await _removeCommentAndCleanUp(userComment);
 };
 
-const getAllGroupComments = async ({
-  userId,
-  groupId,
-}: {
-  userId: string;
-  groupId: string;
-}) => {
-  if (!userId || !groupId)
-    throw new AppError(
-      "Missing group id (groupId) or user id",
-      StatusCodes.BAD_REQUEST
-    );
-  return Comment.find({ user: userId, group: groupId });
-};
+export default { createComment, removeComment };
 
-export default { createComment, removeComment, getAllGroupComments };
-
-const _removeCommentUsingDocument = (userComment: ICommentDocument | null) => {
+const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
   if (!userComment)
     throw new AppError(
       "Comment with that id not found or user doesn't have sufficient permission for this action.",

@@ -13,10 +13,10 @@ export default function UserApps() {
       <div>
         <p>
           Want to build something that integrates with your website or mobile
-          app and allows your users to add comments? Create a new Commentsy App
+          app and allows your users to post comments? Create a new Commentsy App
           to get started, follow our integration guide and start engaging with
-          your audiences in just few minutes. You can also read more about it in
-          our{" "}
+          your audiences in just a few minutes. You can also read more about it
+          in our{" "}
           <Link className="text-blue-600 hover:underline" href="/docs">
             developer documentation
           </Link>

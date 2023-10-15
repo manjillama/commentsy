@@ -31,7 +31,12 @@ export default function Footer() {
             </p>
           </div>
           <div>
-            <Link className="hover:text-black" target="_blank" href="">
+            <Link
+              href="https://www.buymeacoffee.com/manjiltamang"
+              className="hover:text-black"
+              target="_blank"
+              rel="noreferrer"
+            >
               Buy me a coffee ✨
             </Link>
           </div>

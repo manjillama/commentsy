@@ -1,8 +1,6 @@
 "use client";
-import { withSiteLayout } from "@/hoc";
 import { RootState } from "@/store";
 import AppError from "@/utils/appError";
-import Link from "next/link";
 import { useSelector } from "react-redux";
 
 export default function App({ params: { id } }: { params: { id: string } }) {
@@ -14,6 +12,7 @@ export default function App({ params: { id } }: { params: { id: string } }) {
     <div>
       <header className="border-b py-12">
         <div className="max-w-screen-lg px-[15px] mx-auto">
+          <span className="text-sm text-neutral-500">{app.code}</span>
           <h1 className="text-4xl mb-3">{app.name}</h1>
           <p className="text-neutral-500">{app.description}</p>
         </div>
