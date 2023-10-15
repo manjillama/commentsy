@@ -27,7 +27,7 @@ export default async function Comments({
   if (data.status === "fail") return data.message;
 
   return (
-    <div>
+    <div className="bg-white">
       <h1>{session?.user.name ?? "stranger"}</h1>
       <EmbedComments data={data.data} />
     </div>

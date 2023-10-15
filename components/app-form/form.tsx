@@ -208,6 +208,7 @@ function AuthorizedOriginsField({
               onChange={(e: any) => onChange(e.currentTarget.value, i)}
             />
             <button
+              type="button"
               onClick={() => removeFieldAtIndex(i)}
               className="hover:bg-neutral-200 p-2 h-[32px] w-[32px] rounded-full text-center"
             >

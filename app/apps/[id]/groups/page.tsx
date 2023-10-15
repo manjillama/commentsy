@@ -39,7 +39,16 @@ export default function Groups({ params: { id } }: { params: { id: string } }) {
         {fetching ? (
           <div>Loading...</div>
         ) : (
-          groups.map((group) => <div key={group._id}>{group.identifier}</div>)
+          <div>
+            {!groups.length && (
+              <p className="text-neutral-500">
+                There are no groups created yet.
+              </p>
+            )}
+            {groups.map((group) => (
+              <div key={group._id}>{group.identifier}</div>
+            ))}
+          </div>
         )}
       </div>
     </div>

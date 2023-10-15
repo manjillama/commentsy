@@ -33,10 +33,12 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/react-syntax-highlighter": "^15.5.8",
     "autoprefixer": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
     "postcss": "latest",
+    "react-syntax-highlighter": "^15.5.0",
     "tailwindcss": "latest",
     "typescript": "latest"
   }
