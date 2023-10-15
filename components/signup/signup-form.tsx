@@ -1,6 +1,6 @@
 "use client";
 import { Alert, Spinner } from "@/components/ui";
-import { post } from "@/utils/api";
+import api from "@/utils/api";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -31,7 +31,7 @@ export default function SignUpForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const data = await post("/api/signup", formProps);
+    const data = await api.post("/api/signup", formProps);
     if (data.status === "success") {
       const res = await signIn("credentials", {
         redirect: false,

@@ -40,6 +40,7 @@ export default function UserApps() {
                   alt="logo"
                   width={30}
                   height={15}
+                  className="w-auto h-auto"
                 />
               </div>
               <div>

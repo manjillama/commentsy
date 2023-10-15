@@ -1,6 +1,6 @@
 "use client";
 import { IComment } from "@/interfaces/IComment";
-import { get } from "@/utils/api";
+import api from "@/utils/api";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -35,7 +35,7 @@ export default function EmbedComments({ data }: Props) {
   const handleFetchNextComments = async () => {
     setIsCommentLoading(true);
 
-    const data = await get<{
+    const data = await api.get<{
       comments: IComment[];
       total: number;
       size: number;

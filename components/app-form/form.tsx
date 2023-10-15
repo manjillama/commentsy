@@ -7,6 +7,7 @@ import { TrashIcon } from "@radix-ui/react-icons";
 import { AppDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { pushUserApp, refetchUserApps } from "@/slices/userAppsSlice";
+import Toast from "../ui/toast";
 
 type Props =
   | { from: "dialog"; type: "new"; setOpen: (open: boolean) => void }
@@ -24,7 +25,7 @@ type FormProps = {
 };
 export default function AppForm(props: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formProps, setFormProps] = useState<FormProps>(
     (props as any).initialFormProps ?? {
       name: "",
@@ -48,107 +49,105 @@ export default function AppForm(props: Props) {
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    dispatch(refetchUserApps());
     e.preventDefault();
     setIsSubmitting(true);
-
     let data;
-
     if (props.type === "new") data = await api.post("/api/apps", formProps);
     else data = await api.patch(`/api/apps/${props.appId}`, formProps);
-
     if (data.status !== "success") setErrors(data.errors);
     else {
       props.type === "new"
         ? dispatch(pushUserApp(data.data))
         : dispatch(refetchUserApps());
       if (props.from === "dialog") props.setOpen(false);
+      setShowSuccessToast(true);
     }
-
     setIsSubmitting(false);
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit}>
-      {errors.length ? (
-        <Alert>
-          <ul
-            style={
-              errors.length > 1
-                ? { listStyleType: "disc", paddingLeft: "1rem" }
-                : {}
-            }
-          >
-            {errors.map((error) => (
-              <li key={error}>{error}</li>
-            ))}
-          </ul>
-        </Alert>
-      ) : null}
-      <div>
-        <label className="space-y-2">
-          <span className="text-neutral-500">App name*</span>
-          <input
-            autoComplete="off"
-            className="border border-neutral-300 w-full rounded-lg p-3"
-            name="name"
-            type="text"
-            value={formProps.name}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
-      <AuthorizedOriginsField
-        handleChange={handleChange}
-        authorizedOrigins={formProps.authorizedOrigins}
-      />
-      <hr />
-      <div>
-        <label className="space-y-2">
-          <span className="text-neutral-500">Description*</span>
-          <textarea
-            className="border border-neutral-300 w-full rounded-lg p-3"
-            name="description"
-            value={formProps.description}
-            onChange={handleChange}
-          />
-        </label>
-      </div>
+    <div>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {errors.length ? (
+          <Alert>
+            <ul
+              style={
+                errors.length > 1
+                  ? { listStyleType: "disc", paddingLeft: "1rem" }
+                  : {}
+              }
+            >
+              {errors.map((error) => (
+                <li key={error}>{error}</li>
+              ))}
+            </ul>
+          </Alert>
+        ) : null}
+        <div>
+          <label className="space-y-2">
+            <span className="text-neutral-500">App name*</span>
+            <input
+              autoComplete="off"
+              className="border border-neutral-300 w-full rounded-lg p-3"
+              name="name"
+              type="text"
+              value={formProps.name}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+        <AuthorizedOriginsField
+          handleChange={handleChange}
+          authorizedOrigins={formProps.authorizedOrigins}
+        />
+        <hr />
+        <div>
+          <label className="space-y-2">
+            <span className="text-neutral-500">Description*</span>
+            <textarea
+              className="border border-neutral-300 w-full rounded-lg p-3"
+              name="description"
+              value={formProps.description}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
 
-      <div className="flex justify-between">
-        {props.from === "dialog" && (
+        <div className="flex justify-between">
+          {props.from === "dialog" && (
+            <div>
+              <button
+                className="py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
+                onClick={() => props.setOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div />
           <div>
             <button
-              className="py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
-              onClick={() => props.setOpen(false)}
+              disabled={isSubmitting}
+              className="flex space-x-2 py-2 px-4 bg-black border border-neutral-200 text-white rounded-lg hover:opacity-75 disabled:opacity-75 relative"
+              type="submit"
             >
-              Cancel
+              {isSubmitting && (
+                <div className="h-[20px] w-[20px] text-left ">
+                  <Spinner size="sm" />
+                </div>
+              )}
+              <span>{props.type === "new" ? "Create app" : "Save"}</span>
             </button>
           </div>
-        )}
-        <div />
-        <div>
-          <button
-            disabled={isSubmitting}
-            className="py-2 px-6 block bg-black border border-neutral-200 text-white rounded-lg hover:opacity-75 disabled:opacity-75 relative"
-            type="submit"
-          >
-            {isSubmitting && (
-              <div
-                style={{
-                  marginLeft: -18,
-                  marginTop: 2,
-                }}
-                className="absolute"
-              >
-                <Spinner size="sm" />
-              </div>
-            )}
-            {props.type === "new" ? "Create app" : "Save"}
-          </button>
         </div>
-      </div>
-    </form>
+      </form>
+      {showSuccessToast && (
+        <Toast
+          message="Your app has been updated."
+          onOpenChange={setShowSuccessToast}
+        />
+      )}
+    </div>
   );
 }
 

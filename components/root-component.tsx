@@ -1,11 +1,11 @@
 import AuthProvider from "@/context/auth-provider";
-import { Inter } from "next/font/google";
 import { getServerSession } from "next-auth";
 import ReduxProvider from "@/context/redux-provider";
 import { preloadedState } from "@/store";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import appService from "@/services/appService";
+import ToastProvider from "@/context/toast-provider";
 
 export default async function RootComponent({
   children,
@@ -20,7 +20,9 @@ export default async function RootComponent({
 
   return (
     <ReduxProvider preloadedState={preloadedState}>
-      <AuthProvider session={session}>{children}</AuthProvider>
+      <AuthProvider session={session}>
+        <ToastProvider>{children}</ToastProvider>
+      </AuthProvider>
     </ReduxProvider>
   );
 }
