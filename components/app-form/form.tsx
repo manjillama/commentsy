@@ -51,6 +51,7 @@ export default function AppForm(props: Props) {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setErrors([]);
     let data;
     if (props.type === "new") data = await api.post("/api/apps", formProps);
     else data = await api.patch(`/api/apps/${props.appId}`, formProps);

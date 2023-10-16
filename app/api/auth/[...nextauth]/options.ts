@@ -28,8 +28,11 @@ export const options: NextAuthOptions = {
         session.user.id = token.id;
         session.user.avatarBackgroundColor = token.avatarBackgroundColor;
       }
-
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      return url;
     },
   },
   providers: [

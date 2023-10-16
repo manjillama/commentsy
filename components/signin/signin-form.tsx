@@ -25,8 +25,6 @@ export default function SignInForm() {
     setIsSubmitting(true);
     setError("");
     const res = await signIn("credentials", { redirect: false, ...formProps });
-    console.log("Signin response", res);
-
     setIsSubmitting(false);
     if (res) {
       if (!res.error) {

@@ -29,7 +29,7 @@ function sendError(error: AppError) {
   };
 
   // Add error stack response only in development mode
-  process.env.NODE_ENV !== config.ENVS.DEV && delete errorResponse.stack;
+  process.env.NODE_ENV !== config.envs.dev && delete errorResponse.stack;
 
   return Response.json(errorResponse, {
     status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,

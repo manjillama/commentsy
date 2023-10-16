@@ -6,7 +6,7 @@ export default function createModel<T, TModel = Model<T>>(
   schema: Schema<T>
 ): TModel {
   let createdModel: TModel;
-  if (process.env.NODE_ENV === config.ENVS.DEV) {
+  if (process.env.NODE_ENV === config.envs.dev) {
     // In development mode, use a global variable so that the value
     // is preserved across module reloads caused by HMR (Hot Module Replacement).
     // @ts-ignore

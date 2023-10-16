@@ -2,6 +2,7 @@ import { ClientSafeProvider, LiteralUnion, signIn } from "next-auth/react";
 import React from "react";
 import Image from "next/image";
 import { BuiltInProviderType } from "next-auth/providers/index";
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   providers: Record<
@@ -23,9 +24,14 @@ export default function OAuthProviders({ providers }: Props) {
 }
 
 function OAuthProvider({ provider }: { provider: ClientSafeProvider }) {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
+  const handleOAuthSignIn = async () => {
+    signIn(provider.id, { callbackUrl: callbackUrl ?? "/dashboard" });
+  };
   return (
     <button
-      onClick={() => signIn(provider.id)}
+      onClick={handleOAuthSignIn}
       className="flex items-center space-x-4 p-3 justify-center bg-white border border-neutral-300 w-full rounded-lg hover:bg-neutral-100"
     >
       <Image

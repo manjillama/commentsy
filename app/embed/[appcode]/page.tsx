@@ -27,9 +27,9 @@ export default async function Comments({
   if (data.status === "fail") return data.message;
 
   return (
-    <div className="bg-white">
-      <h1>{session?.user.name ?? "stranger"}</h1>
-      <EmbedComments data={data.data} />
+    <div>
+      <h1>{session?.user.name ?? "Stranger"}</h1>
+      <EmbedComments data={data.data} user={session?.user} />
     </div>
   );
 }
@@ -40,7 +40,7 @@ async function getCommentsData(
   searchParams?: any
 ): Promise<ClientGroupCommentsReturnType> {
   const headersList = headers();
-  const referer = headersList.get("referer");
+  const referer = headersList.get("referer") ?? "http://localhost:3000";
 
   if (!referer)
     return {

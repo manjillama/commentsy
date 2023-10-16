@@ -1,9 +1,10 @@
 const config = {
-  ENVS: {
-    PROD: "production",
-    DEV: "development",
-    STAGE: "staging",
-    TEST: "test",
+  siteUrl: process.env.SITE_URL,
+  envs: {
+    prod: "production",
+    dev: "development",
+    stage: "staging",
+    test: "test",
   },
   defaultTimeZone: "Asia/Kathmandu",
 };
