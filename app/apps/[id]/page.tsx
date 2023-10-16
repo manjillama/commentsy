@@ -32,19 +32,27 @@ export default function App({ params: { id } }: { params: { id: string } }) {
 
   const jsCode = `<script>
   /**
+   * Important!!! Do not modify this code
    * Paste this JavaScript code snippet as it is inside your HTML <head> tag
    * or
-   * Add this JS code into an external JavaScript file then include it inside your HTML <head> tag
+   * Paste it into an external JavaScript file then include it inside your HTML <head> tag
    **/
   window.addEventListener("message", (event) => {
     const iframe = document.getElementById("commentsyIframe");
-    if (
-      iframe &&
-      event.data &&
-      event.data.type === "commentsyResize" &&
-      event.data.height
-    ) {
-      iframe.style.height = \`\${event.data.height}px\`;
+    if (iframe && event.data) {
+      if (event.data.type === "commentsyResize" && event.data.height) {
+        iframe.style.height = \`\${event.data.height}px\`;
+      }
+      if (event.data.type === "commentsyPostComment") {
+        iframe.contentWindow.postMessage(
+          {
+            type: "commentsyParentSiteData",
+            title: document.title,
+            url: window.location.href.split("?")[0],
+          },
+          "*"
+        );
+      }
     }
   });
 </script>`;
@@ -75,7 +83,8 @@ export default function App({ params: { id } }: { params: { id: string } }) {
         </div>
         <br />
         2. Place the following JavaScript code inside your HTML head tag. It
-        dynamically adjusts the iframe height based on the content inside.
+        dynamically adjusts the iframe height based on the content inside and
+        passes your current URL and page title to commentsy.
         <div className="relative">
           <CopyButton textToCopy={jsCode} />
           <SyntaxHighlighter language="html">{jsCode}</SyntaxHighlighter>

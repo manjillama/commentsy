@@ -13,7 +13,6 @@ function AppLayout({
       <Submenu
         menuLinks={[
           { url: `/apps/${id}`, name: "App" },
-          { url: `/apps/${id}/groups`, name: "Groups" },
           { url: `/apps/${id}/comments`, name: "Comments" },
           { url: `/apps/${id}/appearance`, name: "Appearance" },
           { url: `/apps/${id}/settings`, name: "Settings" },

@@ -21,6 +21,12 @@ export default function EmbedComments({ data }: Props) {
   const ref = useRef(null);
 
   useEffect(() => {
+    window.addEventListener("message", function (event) {
+      if (event.data && event.data.type === "commentsyParentSiteData")
+        console.log(
+          "Message received from the parent: " + JSON.stringify(event.data)
+        );
+    });
     window.parent.postMessage(
       { type: "commentsyResize", height: ref.current?.["offsetHeight"] },
       "*"
@@ -55,16 +61,16 @@ export default function EmbedComments({ data }: Props) {
     setIsCommentLoading(false);
   };
 
+  const handleCommentPost = () => {
+    window.parent.postMessage({ type: "commentsyPostComment" }, "*");
+  };
+
   return (
     <div ref={ref}>
       <div>
         {isCommentLoading && <span>Loading...</span>}
-        <div>
-          <a href="http://localhost:3000/signin" target="_blank">
-            Send me to commentsy
-          </a>
-        </div>
         <hr />
+        <button onClick={handleCommentPost}>Add a comment</button>
         <p>Current page: {currentPage}</p>
         <button
           onClick={() => handleFetchNextComments()}
