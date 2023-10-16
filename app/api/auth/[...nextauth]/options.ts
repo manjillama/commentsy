@@ -11,6 +11,17 @@ export const options: NextAuthOptions = {
     signIn: "/signin",
     error: "/signin",
   },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       if ((user as any).provider !== account?.provider)
