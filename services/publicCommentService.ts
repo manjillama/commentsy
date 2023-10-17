@@ -16,6 +16,7 @@ export type ClientGroupCommentsReturnType =
   | {
       status: "success";
       data: {
+        appCode: string;
         identifier: string;
         likesCount: number;
         commentsCount: number;
@@ -81,6 +82,7 @@ const getAllGroupCommentsInitData = async ({
   return {
     status: "success",
     data: {
+      appCode,
       identifier: group.identifier,
       likesCount: group.likesCount,
       commentsCount: group.commentsCount,
@@ -134,13 +136,13 @@ const _fetchComments = (options: any, queryParams: any) => {
 
   return factoryService
     .find(Comment, {
-      limit: 1,
+      limit: 4,
       ...query,
       ...options,
       isRemoved: false,
       fields: "_id, repliesCount, comment, createdAt",
     })
-    .populate({ path: "user", select: "name -_id" })
+    .populate({ path: "user", select: "name avatarBackgroundColor -_id" })
     .lean()
     .exec();
 };

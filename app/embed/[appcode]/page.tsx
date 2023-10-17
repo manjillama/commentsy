@@ -1,5 +1,5 @@
 import { options } from "@/app/api/auth/[...nextauth]/options";
-import EmbedComments from "@/components/embed-comments/page";
+import EmbedComments from "@/components/embed-comments";
 import dbConnect from "@/lib/dbConnect";
 import publicCommentService, {
   ClientGroupCommentsReturnType,
@@ -26,12 +26,7 @@ export default async function Comments({
 
   if (data.status === "fail") return data.message;
 
-  return (
-    <div>
-      <h1>{session?.user.name ?? "Stranger"}</h1>
-      <EmbedComments data={data.data} user={session?.user} />
-    </div>
-  );
+  return <EmbedComments data={data.data} user={session?.user} />;
 }
 
 async function getCommentsData(

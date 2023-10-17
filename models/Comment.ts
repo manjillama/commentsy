@@ -4,6 +4,11 @@ import { ICommentDocument } from "@/interfaces/IComment";
 
 const commentSchema = new Schema<ICommentDocument>(
   {
+    app: {
+      type: Schema.Types.ObjectId,
+      ref: "App",
+      required: [true, "Missing app id (app)"],
+    },
     group: {
       type: Schema.Types.ObjectId,
       ref: "Group",
@@ -17,6 +22,23 @@ const commentSchema = new Schema<ICommentDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: [true, "Missing user id (user)"],
+    },
+    pageTitle: {
+      type: String,
+      required: [true, "Missing page title"],
+    },
+    pageUrl: {
+      type: String,
+      required: [true, "Missing page url"],
+      validate: {
+        validator: function (url: string) {
+          return /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(
+            url
+          );
+        },
+        message: () =>
+          `Invalid origin: URIs is required and must not contain a path or end with "/".`,
+      },
     },
     repliesCount: {
       type: Number,

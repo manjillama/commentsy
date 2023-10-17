@@ -1,10 +1,14 @@
 import mongoose, { ObjectId } from "mongoose";
+import { IUser } from "./IUser";
 
 export interface IComment {
   _id: string;
+  app: string | ObjectId;
   group: string | ObjectId;
-  user: string | ObjectId;
+  user: string | ObjectId | IUser;
   parent: string | ObjectId;
+  pageTitle: string;
+  pageUrl: string;
   repliesCount: number;
   comment: string;
   isRemoved: boolean;

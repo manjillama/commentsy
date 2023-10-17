@@ -36,11 +36,14 @@ export const POST = catchAsync(async function (req: Request) {
       StatusCodes.FORBIDDEN
     );
 
-  const { appCode, identifier, comment, parentCommentId } = await req.json();
+  const { appCode, identifier, comment, parentCommentId, pageTitle, pageUrl } =
+    await req.json();
 
   const userComment = await commentService.createComment({
     appCode,
     groupIdentifier: identifier,
+    pageTitle,
+    pageUrl,
     parentCommentId,
     comment,
     userId: session.user.id as string,

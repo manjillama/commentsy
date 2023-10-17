@@ -21,7 +21,7 @@ export default withAuth(
             pathname.startsWith("/static") || // exclude static files
             pathname.startsWith("/embed") || // exclude embed route
             publicFileRegex.test(pathname) || // exclude all files in the public folder
-            anonymousRoutes.includes(pathname)
+            anonymousRoutes.some((path) => pathname.startsWith(path))
         );
       },
     },
