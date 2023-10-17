@@ -1,9 +1,12 @@
 import { Session } from "next-auth";
 import Avatar from "../ui/avatar";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./EmbedComments.module.css";
 import api from "@/utils/api";
 import { CommentData } from ".";
+import { Spinner } from "../ui";
+import { IComment } from "@/interfaces/IComment";
+import { IUser } from "@/interfaces/IUser";
 
 export type ParentSiteData = {
   title: string;
@@ -12,36 +15,23 @@ export type ParentSiteData = {
 export default function InputComment({
   user,
   commentData,
+  setCommentData,
   parentCommentId,
   parentSiteData,
-  triggerCalcEmbedContentHeight,
-  setTriggetCalcEmbedContentHeight,
 }: {
   commentData: CommentData;
+  setCommentData: (commentData: CommentData) => void;
   parentCommentId?: string;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
-  triggerCalcEmbedContentHeight: number;
-  setTriggetCalcEmbedContentHeight: (count: number) => void;
 }) {
+  const [submitting, setSubmitting] = useState(false);
   const [comment, setComment] = useState("");
   const [isInputFocused, setIsInputFocused] = useState(false);
-  const redirectToLoginIfUserNotLoggedIn = () => {
-    if (user || !parentSiteData) return;
-    setIsInputFocused(true);
-    if (window.top)
-      window.top.location.href = `${process.env.NEXT_PUBLIC_SITE_URL}/signin?callbackUrl=${parentSiteData.url}`;
-  };
-
-  useEffect(() => {
-    setTriggetCalcEmbedContentHeight(triggerCalcEmbedContentHeight + 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isInputFocused]);
 
   const handleSubmit = async () => {
-    console.log("parentSiteData", parentSiteData);
-
-    await api.post("/api/comments", {
+    setSubmitting(true);
+    const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
       identifier: commentData.identifier,
       comment,
@@ -49,7 +39,31 @@ export default function InputComment({
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
     });
+    setSubmitting(false);
+    if (data.status === "success") {
+      data.data.user = user as IUser;
+      const newComments = [...commentData.comments];
+      newComments.unshift(data.data);
+      setCommentData({
+        ...commentData,
+        comments: newComments,
+      });
+    }
   };
+
+  const redirectToLoginIfUserNotLoggedIn = () => {
+    // if (user || !parentSiteData) return;
+    // setIsInputFocused(true);
+    // if (window.top)
+    //   window.top.location.href = `${process.env.NEXT_PUBLIC_SITE_URL}/signin?callbackUrl=${parentSiteData.url}`;
+  };
+
+  if (submitting)
+    return (
+      <div className="h-[32px] w-[32px] mb-8">
+        <Spinner theme="dark" />
+      </div>
+    );
 
   return (
     <div className="flex space-x-3 mb-8">
@@ -57,16 +71,22 @@ export default function InputComment({
         <Avatar user={user} />
       </div>
       <div className="w-full">
-        <div
-          onInput={(e) => setComment(e.currentTarget.innerHTML)}
-          placeholder="Add a comment..."
-          onFocus={() => {
-            setIsInputFocused(true);
-            redirectToLoginIfUserNotLoggedIn();
-          }}
-          contentEditable
-          className={`${styles.commentInput} border border-neutral-300 rounded-lg p-3`}
-        />
+        <div className={styles.growWrap}>
+          <textarea
+            onChange={(e) => setComment(e.currentTarget.value)}
+            placeholder="Add a comment..."
+            onInput={(e) => {
+              if (e.currentTarget.parentNode)
+                (e.currentTarget.parentNode as any).dataset.replicatedValue =
+                  e.currentTarget.value;
+            }}
+            onFocus={() => {
+              setIsInputFocused(true);
+              redirectToLoginIfUserNotLoggedIn();
+            }}
+            className={`w-full border border-neutral-300 rounded-lg p-3`}
+          />
+        </div>
         {isInputFocused && (
           <div className="flex mt-4">
             <div className="flex space-x-2">

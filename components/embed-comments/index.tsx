@@ -19,13 +19,17 @@ type Props = {
   user?: Session["user"];
   data: CommentData;
 };
+export type PageParams = {
+  currentPage: number;
+  sort: "-createdAt";
+};
 export default function EmbedComments({ data, user }: Props) {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [params, setParams] = useState<PageParams>({
+    currentPage: 1,
+    sort: "-createdAt",
+  });
   const [commentData, setCommentData] = useState(data);
-  const [isCommentLoading, setIsCommentLoading] = useState(false);
   const [parentSiteData, setParentSiteData] = useState<ParentSiteData>(null);
-  const [triggerCalcEmbedContentHeight, setTriggetCalcEmbedContentHeight] =
-    useState(0);
   const ref = useRef(null);
 
   let [isThirdPartyCookieEnabled, setIsThirdPartyCookieEnabled] =
@@ -45,57 +49,48 @@ export default function EmbedComments({ data, user }: Props) {
   }, []);
 
   useEffect(() => {
-    window.parent.postMessage(
-      { type: "commentsyResize", height: ref.current?.["offsetHeight"] },
-      "*"
-    );
-  }, [triggerCalcEmbedContentHeight, commentData]);
-
-  const { total, size } = commentData;
-
-  const totalPage = Math.ceil(total / size);
+    function resizeParentEmbedWindow() {
+      window.parent.postMessage(
+        { type: "commentsyResize", height: ref.current?.["offsetHeight"] },
+        "*"
+      );
+    }
+    resizeParentEmbedWindow();
+    const interval = setInterval(() => {
+      resizeParentEmbedWindow();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div ref={ref} className="bg-white">
       <span suppressHydrationWarning>
         {isThirdPartyCookieEnabled ? "Yes" : "No"}
       </span>
-      <h2 className="font-semibold mb-6">203 comments</h2>
+      {totalCommentsCount(commentData.total)}
       <InputComment
+        setCommentData={setCommentData}
         commentData={commentData}
         user={user}
         parentSiteData={parentSiteData}
-        setTriggetCalcEmbedContentHeight={setTriggetCalcEmbedContentHeight}
-        triggerCalcEmbedContentHeight={triggerCalcEmbedContentHeight}
       />
       <CommentList comments={commentData.comments} />
       <FetchMoreComments
-        isCommentLoading={isCommentLoading}
         commentData={commentData}
-        currentPage={currentPage}
+        params={params}
+        setParams={setParams}
         setCommentData={setCommentData}
-        setCurrentPage={setCurrentPage}
-        setIsCommentLoading={setIsCommentLoading}
       />
     </div>
   );
 }
 
-/**
-<div ref={ref}>
-      <div>
-        {isCommentLoading && <span>Loading...</span>}
-        <hr />
-        <button onClick={handleCommentPost}>Add a comment</button>
-        <p>Current page: {currentPage}</p>
-        <button
-          onClick={() => handleFetchNextComments()}
-          disabled={currentPage >= totalPage}
-        >
-          Next page
-        </button>
-        <hr />
-        <pre>{JSON.stringify(commentData, null, 2)}</pre>
-      </div>
-    </div>
- */
+function totalCommentsCount(commentCount: number) {
+  let countMessage = "";
+  if (commentCount <= 0) countMessage = "No comments";
+
+  if (commentCount === 1) countMessage = "1 comment";
+  else countMessage = `${commentCount} comments`;
+
+  return <h2 className="font-semibold mb-6">{countMessage}</h2>;
+}

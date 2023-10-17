@@ -1,24 +1,23 @@
 import { IComment } from "@/interfaces/IComment";
-import Avatar from "../ui/avatar";
 import api from "@/utils/api";
-import { CommentData } from ".";
+import { CommentData, PageParams } from ".";
+import { useEffect, useState } from "react";
 
 type Props = {
-  isCommentLoading: boolean;
-  setIsCommentLoading: (loading: boolean) => void;
   commentData: CommentData;
   setCommentData: (commentData: CommentData) => void;
-  currentPage: number;
-  setCurrentPage: (page: number) => void;
+  params: PageParams;
+  setParams: (params: PageParams) => void;
 };
 export default function FetchMoreComments({
-  isCommentLoading,
-  setIsCommentLoading,
   commentData,
   setCommentData,
-  currentPage,
-  setCurrentPage,
+  params,
+  setParams,
 }: Props) {
+  const [isCommentLoading, setIsCommentLoading] = useState(false);
+  const [hasAllCommentFetched, setHasAllCommentFetched] = useState(false);
+
   const handleFetchNextComments = async () => {
     setIsCommentLoading(true);
     const data = await api.get<{
@@ -27,19 +26,36 @@ export default function FetchMoreComments({
       size: number;
     }>(
       `/api/comments?identifier=${commentData.identifier}&page=${
-        currentPage + 1
-      }`
+        params.currentPage + 1
+      }&sort=${params.sort}`
     );
 
     if (data.status === "success") {
-      setCommentData({
-        ...commentData,
-        comments: [...commentData.comments, ...data.data.comments],
-      });
-      setCurrentPage(currentPage + 1);
+      const newComments = data.data.comments;
+      if (newComments.length > 0) {
+        setCommentData({
+          ...commentData,
+          comments: [...commentData.comments, ...newComments],
+        });
+        setParams({
+          ...params,
+          currentPage: params.currentPage + 1,
+        });
+      } else setHasAllCommentFetched(true);
     }
     setIsCommentLoading(false);
   };
 
-  return <div>{isCommentLoading && <span>Loading...</span>}</div>;
+  if (hasAllCommentFetched || commentData.comments.length < commentData.size)
+    return null;
+
+  return (
+    <div>
+      {isCommentLoading ? (
+        <div>Loading...</div>
+      ) : (
+        <button onClick={handleFetchNextComments}>Load more</button>
+      )}
+    </div>
+  );
 }

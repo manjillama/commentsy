@@ -18,8 +18,8 @@ export default function Settings({
     <div className="bg-white min-h-screen">
       <header className="border-b py-12">
         <div className="max-w-screen-lg mx-auto px-[15px]">
-          <h1 className="text-4xl mb-3">App settings</h1>
-          <p className="text-neutral-500">{app.name}</p>
+          <span className="text-sm text-neutral-500">{app.name}</span>
+          <h1 className="text-4xl my-3">App settings</h1>
         </div>
       </header>
       <div className="max-w-screen-lg mx-auto px-[15px] py-12">

@@ -22,7 +22,10 @@ export default async function Comments({
 }: Props) {
   const session = await getServerSession(options);
 
-  const data = await getCommentsData(appcode, identifier, searchParams);
+  const data = await getCommentsData(appcode, identifier, {
+    sort: "-createdAt",
+    ...searchParams,
+  });
 
   if (data.status === "fail") return data.message;
 

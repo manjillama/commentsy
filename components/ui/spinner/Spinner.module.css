@@ -17,6 +17,11 @@
   width: 6px;
   height: 18px;
   border-radius: 20%;
+}
+.ldsSpinnerDark div:after {
+  background: #000;
+}
+.ldsSpinnerLight div:after {
   background: #fff;
 }
 .ldsSpinner div:nth-child(1) {

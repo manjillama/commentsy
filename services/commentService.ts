@@ -94,6 +94,18 @@ const createComment = async ({
       StatusCodes.BAD_REQUEST
     );
 
+  const userComment = new Comment({
+    app: app._id,
+    group: group._id,
+    parent: parentCommentId,
+    user: userId,
+    pageTitle,
+    pageUrl,
+    comment,
+  });
+
+  await userComment.validate();
+
   group.commentsCount = group.commentsCount + 1;
   group.save();
 
@@ -106,17 +118,7 @@ const createComment = async ({
     });
   }
 
-  const userComment = await Comment.create({
-    app: app._id,
-    group: group._id,
-    parent: parentCommentId,
-    user: userId,
-    pageTitle,
-    pageUrl,
-    comment,
-  });
-
-  return userComment;
+  return userComment.save();
 };
 
 const removeComment = async ({

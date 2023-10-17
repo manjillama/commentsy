@@ -17,11 +17,16 @@ export default function Appearance({
     <div className="bg-white min-h-screen">
       <header className="border-b py-12">
         <div className="max-w-screen-lg mx-auto px-[15px]">
-          <h1 className="text-4xl mb-3">Appearance</h1>
-          <p className="text-neutral-500">{app.name}</p>
+          <p className="text-sm text-neutral-500">{app.name}</p>
+          <h1 className="text-4xl my-3">Appearance</h1>
+          <p className="text-neutral-800">
+            Customize how your audience will see your comments
+          </p>
         </div>
       </header>
-      <div className="max-w-screen-lg mx-auto px-[15px] py-12">@Todo</div>
+      <div className="max-w-screen-lg mx-auto px-[15px] py-12">
+        Coming soon.
+      </div>
     </div>
   );
 }

@@ -36,8 +36,11 @@ export default function Comments({
     <div className="bg-white min-h-screen">
       <header className="border-b py-12">
         <div className="max-w-screen-lg mx-auto px-[15px]">
-          <h1 className="text-4xl mb-3">Comments</h1>
-          <p className="text-neutral-500">{app.name}</p>
+          <span className="text-sm text-neutral-500">{app.name}</span>
+          <h1 className="text-4xl my-3">Comments</h1>
+          <p className="text-neutral-800">
+            Moderate, view all your app comments
+          </p>
         </div>
       </header>
       <div className="max-w-screen-lg mx-auto px-[15px] py-12">
@@ -52,8 +55,9 @@ export default function Comments({
             )}
             {comments.map((comment) => (
               <div key={comment._id}>
+                <div>{(comment.user as any).name}</div>
                 <div>{comment.pageTitle}</div>
-                <div dangerouslySetInnerHTML={{ __html: comment.comment }} />
+                <div className="whitespace-pre-wrap">{comment.comment}</div>
                 <div>{getRelativeTimeString(new Date(comment.createdAt))}</div>
               </div>
             ))}
