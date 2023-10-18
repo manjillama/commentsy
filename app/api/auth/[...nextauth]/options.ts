@@ -21,23 +21,6 @@ export const options: NextAuthOptions = {
         secure: true,
       },
     },
-    callbackUrl: {
-      name: `next-auth.callback-url`,
-      options: {
-        sameSite: "lax",
-        path: "/",
-        secure: false,
-      },
-    },
-    csrfToken: {
-      name: `next-auth.csrf-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: false,
-      },
-    },
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
