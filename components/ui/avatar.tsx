@@ -1,15 +1,21 @@
 import { Session } from "next-auth";
 import Image from "next/image";
 
-export default function Avatar({ user }: { user?: Session["user"] }) {
+export default function Avatar({
+  user,
+  size,
+}: {
+  user?: Session["user"];
+  size?: "sm";
+}) {
+  const style = size === "sm" ? { transform: "scale(0.9)" } : {};
+  const userStyle = user
+    ? { backgroundColor: user.avatarBackgroundColor }
+    : { backgroundColor: "#000" };
   return (
     <div
       className="rounded-full h-[32px] w-[32px] flex items-center"
-      style={
-        user
-          ? { backgroundColor: user.avatarBackgroundColor }
-          : { backgroundColor: "#000" }
-      }
+      style={{ ...userStyle, ...style }}
     >
       {user ? (
         <div className="text-center w-full font-semibold">

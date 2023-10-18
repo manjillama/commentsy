@@ -7,28 +7,29 @@ import { CommentData } from ".";
 import { Spinner } from "../ui";
 import { IComment } from "@/interfaces/IComment";
 import { IUser } from "@/interfaces/IUser";
-
-export type ParentSiteData = {
-  title: string;
-  url: string;
-} | null;
+import { ParentSiteData } from "./input-comment";
 
 type Props = {
   commentData: CommentData;
-  setCommentData: (commentData: CommentData) => void;
+  parentCommentId: string;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
+  setShowReplyInput: (show: boolean) => void;
+  commentReplies: IComment[];
+  setCommentReplies: (comments: IComment[]) => void;
+  handleSubmittedData: (newComment: IComment) => void;
 };
 
-export default function InputComment({
+export default function InputReply({
   commentData,
   parentSiteData,
-  setCommentData,
+  parentCommentId,
   user,
+  setShowReplyInput,
+  handleSubmittedData,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [comment, setComment] = useState("");
-  const [isInputFocused, setIsInputFocused] = useState(false);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -36,17 +37,14 @@ export default function InputComment({
       appCode: commentData.appCode,
       identifier: commentData.identifier,
       comment,
+      parentCommentId: parentCommentId,
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
     });
     if (data.status === "success") {
       data.data.user = user as IUser;
-      const newComments = [...commentData.comments];
-      newComments.unshift(data.data);
-      setCommentData({
-        ...commentData,
-        comments: newComments,
-      });
+      handleSubmittedData(data.data);
+      setShowReplyInput(false);
     }
     setSubmitting(false);
   };
@@ -60,54 +58,50 @@ export default function InputComment({
 
   if (submitting)
     return (
-      <div className="h-[32px] w-[32px] mb-6">
-        <Spinner color="dark" />
+      <div className="h-[32px] w-[32px] my-4">
+        <Spinner color="dark" size="sm" />
       </div>
     );
 
   return (
-    <div className="flex space-x-3 mb-6">
+    <div className="flex space-x-3 my-4">
       <div className="shrink-0">
-        <Avatar user={user} />
+        <Avatar user={user} size="sm" />
       </div>
       <div className="w-full">
         <div className={styles.growWrap}>
           <textarea
+            autoFocus
             onChange={(e) => setComment(e.currentTarget.value)}
-            placeholder="Add a comment..."
+            placeholder="Add a reply..."
             onInput={(e) => {
               if (e.currentTarget.parentNode)
                 (e.currentTarget.parentNode as any).dataset.replicatedValue =
                   e.currentTarget.value;
             }}
-            onFocus={() => {
-              setIsInputFocused(true);
-              redirectToLoginIfUserNotLoggedIn();
-            }}
+            onFocus={redirectToLoginIfUserNotLoggedIn}
             className={`w-full border border-neutral-300 rounded-lg p-3`}
           />
         </div>
-        {isInputFocused && (
-          <div className="flex mt-4">
-            <div className="flex space-x-2">
-              <button
-                onClick={() => {
-                  setComment("");
-                  setIsInputFocused(false);
-                }}
-                className="text-sm py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75"
-              >
-                Comment
-              </button>
-            </div>
+        <div className="flex mt-4">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => {
+                setComment("");
+                setShowReplyInput(false);
+              }}
+              className="text-sm py-2 px-3 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75"
+            >
+              Reply
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

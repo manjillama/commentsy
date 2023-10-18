@@ -1,0 +1,17 @@
+/* Ref: https://css-tricks.com/the-cleanest-trick-for-autogrowing-textareas/ */
+.growWrap {
+  display: grid;
+}
+.growWrap::after {
+  content: attr(data-replicated-value) " ";
+  white-space: pre-wrap;
+  visibility: hidden;
+}
+.growWrap > textarea {
+  resize: none;
+  overflow: hidden;
+}
+.growWrap > textarea,
+.growWrap::after {
+  grid-area: 1 / 1 / 2 / 2;
+}

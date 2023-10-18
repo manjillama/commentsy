@@ -22,14 +22,11 @@ export default async function Comments({
 }: Props) {
   const session = await getServerSession(options);
 
-  const data = await getCommentsData(appcode, identifier, {
-    sort: "-createdAt",
-    ...searchParams,
-  });
+  const data = await getCommentsData(appcode, identifier, searchParams);
 
   if (data.status === "fail") return data.message;
 
-  return <EmbedComments data={data.data} user={session?.user} />;
+  return <EmbedComments commentData={data.data} user={session?.user} />;
 }
 
 async function getCommentsData(

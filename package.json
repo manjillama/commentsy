@@ -5,7 +5,7 @@
   "author": "Manjil Tamang <hello@manjiltamang.com> (https://manjiltamang.com/)",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node pre-build.js && next build",
     "start": "next start",
     "lint": "next lint"
   },

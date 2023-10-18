@@ -1,33 +1,35 @@
-import Avatar from "../ui/avatar";
+import { Session } from "next-auth";
 import { CommentData } from ".";
-import { getRelativeTimeString } from "@/utils";
+import CommentItem from "./comment-item";
+import { ParentSiteData } from "./input-comment";
+import { IComment } from "@/interfaces/IComment";
 
 type Props = {
   comments: CommentData["comments"];
+  commentData: CommentData;
+  parentSiteData: ParentSiteData;
+  user?: Session["user"];
 };
-export default function CommentList({ comments }: Props) {
+export default function CommentList({
+  comments,
+  commentData,
+  parentSiteData,
+  user,
+}: Props) {
+  const transformToObject: { [key: string]: IComment } = comments.reduce(
+    (accumulator, value) => ({ ...accumulator, [value._id]: value }),
+    {}
+  );
   return (
     <div className="space-y-6">
-      {comments.map((comment) => (
-        <div key={comment._id} className="flex space-x-3">
-          <div className="shrink-0">
-            <Avatar user={comment.user as any} />
-          </div>
-          <div className="whitespace-pre-wrap">
-            <div className="space-x-1">
-              <span className="font-semibold">
-                {(comment.user as any).name}
-              </span>
-              <span
-                className="text-sm text-neutral-500"
-                suppressHydrationWarning
-              >
-                {getRelativeTimeString(new Date(comment.createdAt))}
-              </span>
-            </div>
-            <div className="whitespace-pre-wrap">{comment.comment}</div>
-          </div>
-        </div>
+      {Object.values(transformToObject).map((comment) => (
+        <CommentItem
+          key={comment._id}
+          user={user}
+          comment={comment}
+          commentData={commentData}
+          parentSiteData={parentSiteData}
+        />
       ))}
     </div>
   );

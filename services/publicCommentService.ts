@@ -22,6 +22,7 @@ export type ClientGroupCommentsReturnType =
         commentsCount: number;
         comments: IComment[];
         total: number;
+        totalCommentsAndReplies: number;
         size: number;
       };
     };
@@ -88,6 +89,7 @@ const getAllGroupCommentsInitData = async ({
       commentsCount: group.commentsCount,
       comments: comments as IComment[],
       total,
+      totalCommentsAndReplies: group.commentsCount,
       size,
     },
   };
@@ -137,6 +139,7 @@ const _fetchComments = (options: any, queryParams: any) => {
   return factoryService
     .find(Comment, {
       limit: 4,
+      sort: "-createdAt",
       ...query,
       ...options,
       isRemoved: false,

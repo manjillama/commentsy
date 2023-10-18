@@ -2,9 +2,8 @@
 import { IComment } from "@/interfaces/IComment";
 import { Session } from "next-auth";
 import { useEffect, useRef, useState } from "react";
-import InputComment, { ParentSiteData } from "./input-comment";
-import CommentList from "./comment-list";
-import FetchMoreComments from "./fetch-more-comments";
+import { ParentSiteData } from "./input-comment";
+import CommentsContainer from "./comments-container";
 
 export type CommentData = {
   appCode: string;
@@ -13,27 +12,20 @@ export type CommentData = {
   commentsCount: number;
   comments: IComment[];
   total: number;
+  totalCommentsAndReplies: number;
   size: number;
 };
 type Props = {
   user?: Session["user"];
-  data: CommentData;
+  commentData: CommentData;
 };
 export type PageParams = {
   currentPage: number;
   sort: "-createdAt";
 };
-export default function EmbedComments({ data, user }: Props) {
-  const [params, setParams] = useState<PageParams>({
-    currentPage: 1,
-    sort: "-createdAt",
-  });
-  const [commentData, setCommentData] = useState(data);
+export default function EmbedComments({ commentData, user }: Props) {
   const [parentSiteData, setParentSiteData] = useState<ParentSiteData>(null);
-  const ref = useRef(null);
-
-  let [isThirdPartyCookieEnabled, setIsThirdPartyCookieEnabled] =
-    useState(false);
+  const embedRef = useRef(null);
 
   useEffect(() => {
     window.addEventListener("message", function (event) {
@@ -43,15 +35,12 @@ export default function EmbedComments({ data, user }: Props) {
       }
     });
     window.parent.postMessage({ type: "pingCommentsyParent" }, "*");
-
-    if (typeof window !== "undefined")
-      setIsThirdPartyCookieEnabled(window.navigator.cookieEnabled);
   }, []);
 
   useEffect(() => {
     function resizeParentEmbedWindow() {
       window.parent.postMessage(
-        { type: "commentsyResize", height: ref.current?.["offsetHeight"] },
+        { type: "commentsyResize", height: embedRef.current?.["offsetHeight"] },
         "*"
       );
     }
@@ -63,34 +52,12 @@ export default function EmbedComments({ data, user }: Props) {
   }, []);
 
   return (
-    <div ref={ref} className="bg-white">
-      <span suppressHydrationWarning>
-        {isThirdPartyCookieEnabled ? "Yes" : "No"}
-      </span>
-      {totalCommentsCount(commentData.total)}
-      <InputComment
-        setCommentData={setCommentData}
-        commentData={commentData}
-        user={user}
+    <div ref={embedRef}>
+      <CommentsContainer
+        data={commentData}
         parentSiteData={parentSiteData}
-      />
-      <CommentList comments={commentData.comments} />
-      <FetchMoreComments
-        commentData={commentData}
-        params={params}
-        setParams={setParams}
-        setCommentData={setCommentData}
+        user={user}
       />
     </div>
   );
-}
-
-function totalCommentsCount(commentCount: number) {
-  let countMessage = "";
-  if (commentCount <= 0) countMessage = "No comments";
-
-  if (commentCount === 1) countMessage = "1 comment";
-  else countMessage = `${commentCount} comments`;
-
-  return <h2 className="font-semibold mb-6">{countMessage}</h2>;
 }

@@ -1,7 +1,8 @@
 import { IComment } from "@/interfaces/IComment";
 import api from "@/utils/api";
 import { CommentData, PageParams } from ".";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { Spinner } from "../ui";
 
 type Props = {
   commentData: CommentData;
@@ -16,7 +17,6 @@ export default function FetchMoreComments({
   setParams,
 }: Props) {
   const [isCommentLoading, setIsCommentLoading] = useState(false);
-  const [hasAllCommentFetched, setHasAllCommentFetched] = useState(false);
 
   const handleFetchNextComments = async () => {
     setIsCommentLoading(true);
@@ -41,18 +41,19 @@ export default function FetchMoreComments({
           ...params,
           currentPage: params.currentPage + 1,
         });
-      } else setHasAllCommentFetched(true);
+      }
     }
     setIsCommentLoading(false);
   };
 
-  if (hasAllCommentFetched || commentData.comments.length < commentData.size)
-    return null;
+  if (commentData.comments.length >= commentData.total) return null;
 
   return (
     <div>
       {isCommentLoading ? (
-        <div>Loading...</div>
+        <div className="h-[32px] w-[32px] mb-8">
+          <Spinner color="dark" />
+        </div>
       ) : (
         <button onClick={handleFetchNextComments}>Load more</button>
       )}
