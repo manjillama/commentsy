@@ -11,6 +11,7 @@ export interface IComment {
   pageUrl: string;
   repliesCount: number;
   comment: string;
+  isApproved: boolean;
   isRemoved: boolean;
   createdAt: Date;
   updatedAt: Date;

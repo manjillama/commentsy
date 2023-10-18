@@ -32,13 +32,12 @@ const getAllAppComments = async ({
       "App with that id not found or you're not authorized.",
       StatusCodes.BAD_REQUEST
     );
-  const query = _.pick(queryParams, ["limit", "page", "sort"]) as {};
 
   return factoryService
     .find(Comment, {
-      ...query,
+      sort: "-createdAt",
+      ...queryParams,
       app: appId,
-      user: userId,
       isRemoved: false,
       fields:
         "_id, repliesCount, comment, parentComment, pageTitle, pageUrl, createdAt",
@@ -102,6 +101,7 @@ const createComment = async ({
     pageTitle,
     pageUrl,
     comment,
+    isApproved: true,
   });
 
   await userComment.validate();

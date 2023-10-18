@@ -50,6 +50,11 @@ const commentSchema = new Schema<ICommentDocument>(
       maxLength: 5000,
       required: [true, "Missing comment"],
     },
+    isApproved: {
+      type: Boolean,
+      default: false,
+      required: [true, "Comment is approved value is missing (isApproved)"],
+    },
     isRemoved: {
       type: Boolean,
       default: false,

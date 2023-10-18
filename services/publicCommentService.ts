@@ -143,6 +143,7 @@ const _fetchComments = (options: any, queryParams: any) => {
       ...query,
       ...options,
       isRemoved: false,
+      isApproved: true,
       fields: "_id, repliesCount, comment, createdAt",
     })
     .populate({ path: "user", select: "name avatarBackgroundColor -_id" })

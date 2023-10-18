@@ -1,4 +1,5 @@
 "use client";
+import Avatar from "@/components/ui/avatar";
 import { useFetch } from "@/hooks/useFetch";
 import { IComment } from "@/interfaces/IComment";
 import { RootState } from "@/store";
@@ -8,8 +9,15 @@ import { useSelector } from "react-redux";
 
 export default function Comments({
   params: { id },
+  searchParams: { page, limit },
 }: {
-  params: { id: string };
+  params: {
+    id: string;
+  };
+  searchParams: {
+    page: string;
+    limit: string;
+  };
 }) {
   const apps = useSelector((state: RootState) => state.apps.apps);
   const app = apps.find((app) => app._id === id);
@@ -20,7 +28,7 @@ export default function Comments({
     comments: IComment[];
     total: number;
     size: number;
-  }>(`/api/apps/${app._id}/comments`);
+  }>(`/api/apps/${app._id}/comments?page=${page}&limit=${limit}`);
 
   if (error) throw new AppError("404", 404);
 
@@ -53,14 +61,34 @@ export default function Comments({
                 There are no comments created yet.
               </p>
             )}
-            {comments.map((comment) => (
-              <div key={comment._id}>
-                <div>{(comment.user as any).name}</div>
-                <div>{comment.pageTitle}</div>
-                <div className="whitespace-pre-wrap">{comment.comment}</div>
-                <div>{getRelativeTimeString(new Date(comment.createdAt))}</div>
-              </div>
-            ))}
+            <div className="border border-neutral-200 rounded-lg">
+              {comments.map((comment) => (
+                <div
+                  key={comment._id}
+                  className="flex border-t p-4 first:border-t-0 space-x-4"
+                >
+                  <div className="flex-1 flex-col overflow-hidden">
+                    <div>{comment.pageTitle}</div>
+                    <div className="whitespace-nowrap overflow-ellipsis overflow-hidden">
+                      {comment.comment}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
+                      <span suppressHydrationWarning>
+                        {getRelativeTimeString(new Date(comment.createdAt))}
+                      </span>
+                      <span className="max-w-[120px] overflow-hidden whitespace-nowrap">
+                        by {(comment.user as any).name}
+                      </span>
+                    </div>
+                    <div>
+                      <Avatar user={comment.user as any} size="sm" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
