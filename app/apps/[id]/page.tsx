@@ -16,7 +16,9 @@ export default function App({ params: { id } }: { params: { id: string } }) {
     `<!-- 
   Replace {{IDENTIFIER}} with your page's unique identifier variable
   The identifier you pass will be used to create a comments group
-  For e.g. https://commentsy.com/embed/` +
+  For e.g. ` +
+    process.env.NEXT_PUBLIC_SITE_URL +
+    "/" +
     app.code +
     `?identifier=my-new-blog-post
   -->
@@ -24,7 +26,9 @@ export default function App({ params: { id } }: { params: { id: string } }) {
   scrolling="no"
   frameborder="0"
   id="commentsyIframe"
-  src="https://commentsy.com/embed/` +
+  src="` +
+    process.env.NEXT_PUBLIC_SITE_URL +
+    "/" +
     app.code +
     `?identifier={{IDENTIFIER}}"
   style="width:100%;border:none;overflow:hidden"
