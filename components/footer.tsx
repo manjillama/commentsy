@@ -47,8 +47,15 @@ export default function Footer() {
             <li>X</li>
           </ul>
           <ul className="flex">
-            <li>Documentation</li>
-            <li>Privacy policy</li>
+            <li>
+              <Link href="/docs">Documentation</Link>
+            </li>
+            <li>
+              <Link href="/legal/privacy-policy">Privacy policy</Link>
+            </li>
+            <li>
+              <Link href="/legal/terms-of-service">Terms of Service</Link>
+            </li>
           </ul>
         </div>
       </div>

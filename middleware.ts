@@ -2,7 +2,14 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-const anonymousRoutes = ["/", "/signin", "/signup", "/contact", "/docs"];
+const anonymousRoutes = [
+  "/",
+  "/signin",
+  "/signup",
+  "/contact",
+  "/docs",
+  "/legal",
+];
 const publicFileRegex = /\.(.*)$/;
 
 export default withAuth(
