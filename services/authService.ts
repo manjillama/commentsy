@@ -9,6 +9,7 @@ type LoginResponse = {
   email: string;
   provider: `${EProviders}`;
   avatarBackgroundColor: (typeof AVATAR_BACKGROUND_COLORS)[number];
+  image?: string;
 };
 
 const getLoginUserFromCredentials = async ({
@@ -56,29 +57,37 @@ const getLoginUserFromCredentials = async ({
 const handlePostOAuthUserSignIn = async (
   email: string,
   name: string,
-  provider: `${EProviders}`
+  provider: `${EProviders}`,
+  image?: string
 ): Promise<LoginResponse> => {
   const user = await User.findOne({ email });
-  if (user)
+  if (user) {
+    if (user.image !== image) {
+      user.image = image;
+      user.save();
+    }
     return {
       id: user._id.toString(),
       name: user.name,
       email: user.email,
       provider: user.provider,
+      image,
       avatarBackgroundColor: user.avatarBackgroundColor,
     };
-
+  }
   const newUser = await User.create({
     email,
     name,
     provider,
     isEmailVerified: true,
+    image,
   });
   return {
     id: newUser._id.toString(),
     name: newUser.name,
     email: newUser.email,
     provider,
+    image,
     avatarBackgroundColor: newUser.avatarBackgroundColor,
   };
 };

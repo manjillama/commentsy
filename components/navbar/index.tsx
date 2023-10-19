@@ -7,6 +7,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { NavLink } from "../ui";
 import { DiscIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import Avatar from "../ui/avatar";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -33,14 +34,6 @@ export default function Navbar() {
             <>
               <li>
                 <Link
-                  href="/docs"
-                  className="text-neutral-500 hover:text-black "
-                >
-                  Docs
-                </Link>
-              </li>
-              <li>
-                <Link
                   className="text-neutral-600 hover:bg-neutral-200 hover:text-black h-[32px] w-[32px] flex rounded-lg border border-neutral-200 items-center"
                   title="Issues"
                   href="https://github.com/manjillama/commentsy/issues"
@@ -55,14 +48,7 @@ export default function Navbar() {
                       className="outline-none"
                       aria-label="Customise options"
                     >
-                      <span
-                        className="rounded-full h-[32px] w-[32px] p-4 flex items-center justify-center font-semibold"
-                        style={{
-                          backgroundColor: session.user.avatarBackgroundColor,
-                        }}
-                      >
-                        {session.user.name?.split("")[0]}
-                      </span>
+                      <Avatar user={session.user} />
                     </button>
                   </DropdownMenu.Trigger>
 

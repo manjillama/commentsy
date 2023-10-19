@@ -18,9 +18,19 @@ export default function Avatar({
       style={{ ...userStyle, ...style }}
     >
       {user ? (
-        <div className="text-center w-full font-semibold">
-          {user.name?.split("")[0]}
-        </div>
+        user.image ? (
+          <Image
+            height={100}
+            width={100}
+            src={user.image}
+            alt="User"
+            className="rounded-full"
+          />
+        ) : (
+          <div className="text-center w-full font-semibold">
+            {user.name?.split("")[0]}
+          </div>
+        )
       ) : (
         <Image
           height={18}

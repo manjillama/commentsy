@@ -47,6 +47,7 @@ const userSchema = new Schema<IUserDocument>(
       type: Boolean,
       default: false,
     },
+    image: String,
     avatarBackgroundColor: {
       type: String,
       enum: {

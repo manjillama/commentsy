@@ -28,7 +28,9 @@ export const userAppsSlice = createSlice({
 export const { setUserApps, pushUserApp } = userAppsSlice.actions;
 export const refetchUserApps = () => async (dispatch: AppDispatch) => {
   const data = await api.get<IApp[]>("/api/apps");
-  if (data.status === "success")
-    dispatch(userAppsSlice.actions.setUserApps(data.data));
+  if (data.status === "success") dispatch(setUserApps(data.data));
+};
+export const clearUserApps = () => async (dispatch: AppDispatch) => {
+  dispatch(setUserApps([]));
 };
 export default userAppsSlice.reducer;

@@ -20,7 +20,7 @@ export default function Appearance({
           <p className="text-sm text-neutral-500">{app.name}</p>
           <h1 className="text-4xl my-3">Appearance</h1>
           <p className="text-neutral-800">
-            Customize how your audience will see your comments
+            Customize how your audience will see comments on your site
           </p>
         </div>
       </header>

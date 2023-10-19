@@ -1,3 +1,4 @@
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -42,19 +43,23 @@ export default function Footer() {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <ul className="flex">
-            <li>GitHub</li>
-            <li>X</li>
+          <ul className="flex space-x-4">
+            <li>
+              <Link className="hover:text-black" href="/">
+                <GitHubLogoIcon height={20} width={20} />
+              </Link>
+            </li>
           </ul>
-          <ul className="flex">
+          <ul className="flex space-x-4">
             <li>
-              <Link href="/docs">Documentation</Link>
+              <Link className="hover:text-black" href="/legal/privacy-policy">
+                Privacy policy
+              </Link>
             </li>
             <li>
-              <Link href="/legal/privacy-policy">Privacy policy</Link>
-            </li>
-            <li>
-              <Link href="/legal/terms-of-service">Terms of Service</Link>
+              <Link className="hover:text-black" href="/legal/terms-of-service">
+                Terms of service
+              </Link>
             </li>
           </ul>
         </div>

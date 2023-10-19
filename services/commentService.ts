@@ -42,7 +42,7 @@ const getAllAppComments = async ({
       fields:
         "_id, repliesCount, comment, parentComment, pageTitle, pageUrl, createdAt",
     })
-    .populate({ path: "user", select: "name avatarBackgroundColor -_id" })
+    .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .lean()
     .exec();
 };

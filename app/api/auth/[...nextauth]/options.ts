@@ -50,12 +50,13 @@ export const options: NextAuthOptions = {
     GitHubProvider({
       clientId: keys.GITHUB_ID as string,
       clientSecret: keys.GITHUB_SECRET as string,
-      async profile({ email, name }) {
+      async profile({ email, name, avatar_url }) {
         await dbConnect();
         const user = authService.handlePostOAuthUserSignIn(
           email,
           name,
-          "github"
+          "github",
+          avatar_url
         );
         return user;
       },
@@ -63,12 +64,13 @@ export const options: NextAuthOptions = {
     GoogleProvider({
       clientId: keys.GOOGLE_CLIENT_ID as string,
       clientSecret: keys.GOOGLE_CLIENT_SECRET as string,
-      async profile({ email, name }) {
+      async profile({ email, name, picture }) {
         await dbConnect();
         const user = authService.handlePostOAuthUserSignIn(
           email,
           name,
-          "google"
+          "google",
+          picture
         );
         return user;
       },
