@@ -1,4 +1,5 @@
 "use client";
+import Paginate from "@/components/paginate";
 import Avatar from "@/components/ui/avatar";
 import { useFetch } from "@/hooks/useFetch";
 import { IComment } from "@/interfaces/IComment";
@@ -39,6 +40,8 @@ export default function Comments({
         size: 40,
         total: 0,
       };
+
+  const totalPage = Math.ceil(total / size);
 
   return (
     <div className="bg-white min-h-screen">
@@ -91,6 +94,7 @@ export default function Comments({
             </div>
           </div>
         )}
+        <Paginate totalPageCount={totalPage} />
       </div>
     </div>
   );
