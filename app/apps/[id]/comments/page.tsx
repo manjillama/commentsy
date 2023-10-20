@@ -2,7 +2,6 @@
 import CommentItem from "@/components/comments/comment-item";
 import Paginate from "@/components/paginate";
 import { useFetch } from "@/hooks/useFetch";
-import { IApp } from "@/interfaces/IApp";
 import { IComment } from "@/interfaces/IComment";
 import { RootState } from "@/store";
 import AppError from "@/utils/appError";
@@ -10,7 +9,7 @@ import { useSelector } from "react-redux";
 
 export default function Comments({
   params: { id },
-  searchParams: { page, limit },
+  searchParams: { page, limit, status },
 }: {
   params: {
     id: string;
@@ -18,45 +17,20 @@ export default function Comments({
   searchParams: {
     page: string;
     limit: string;
+    status: string;
   };
 }) {
   const apps = useSelector((state: RootState) => state.apps.apps);
   const app = apps.find((app) => app._id === id);
-
   if (!app) throw new AppError("404", 404);
 
-  return (
-    <div className="min-h-screen">
-      <header className="border-b py-12">
-        <div className="max-w-screen-lg mx-auto px-[15px]">
-          <span className="text-sm text-neutral-500">{app.name}</span>
-          <h1 className="text-4xl my-3">Comments</h1>
-          <p className="text-neutral-800">
-            Moderate, view and manage all your app comments
-          </p>
-        </div>
-      </header>
-      <div className="max-w-screen-lg mx-auto px-[15px] py-12">
-        <ApprovedComments app={app} page={page} limit={limit} />
-      </div>
-    </div>
-  );
-}
-
-const ApprovedComments = ({
-  app,
-  page,
-  limit,
-}: {
-  app: IApp;
-  page: string;
-  limit: string;
-}) => {
   const [fetching, data, error] = useFetch<{
     comments: IComment[];
     total: number;
     size: number;
-  }>(`/api/apps/${app._id}/comments?page=${page}&limit=${limit}`);
+  }>(
+    `/api/apps/${app._id}/comments?status=${status}&page=${page}&limit=${limit}`
+  );
 
   if (error) throw new AppError("404", 404);
 
@@ -71,30 +45,41 @@ const ApprovedComments = ({
   const totalPage = Math.ceil(total / size);
 
   return (
-    <div>
-      {fetching ? (
-        <div>Loading...</div>
-      ) : (
-        <div>
-          {!comments.length ? (
-            <p className="text-neutral-500">
-              There are no comments created yet.
-            </p>
-          ) : (
-            <div>
-              <h2 className="text-lg font-semibold mb-4">
-                {total} comment{total > 1 ? "s" : ""}
-              </h2>
-              <div className="bg-white border border-neutral-200 rounded-lg">
-                {comments.map((comment) => (
-                  <CommentItem key={comment._id} comment={comment} />
-                ))}
-              </div>
-            </div>
-          )}
+    <div className="min-h-screen">
+      <header className="border-b py-12">
+        <div className="max-w-screen-lg mx-auto px-[15px]">
+          <span className="text-sm text-neutral-500">{app.name}</span>
+          <h1 className="text-4xl my-3">Comments</h1>
+          <p className="text-neutral-800">
+            Moderate, view and manage all your app comments
+          </p>
         </div>
-      )}
-      <Paginate totalPageCount={totalPage} />
+      </header>
+      <div className="max-w-screen-lg mx-auto px-[15px] py-12">
+        {fetching ? (
+          <div>Loading...</div>
+        ) : (
+          <div>
+            {!comments.length ? (
+              <p className="text-neutral-500">
+                There are no comments created yet.
+              </p>
+            ) : (
+              <div>
+                <h2 className="text-lg font-semibold mb-4">
+                  {total} comment{total > 1 ? "s" : ""}
+                </h2>
+                <div className="bg-white border border-neutral-200 rounded-lg">
+                  {comments.map((comment) => (
+                    <CommentItem key={comment._id} comment={comment} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        <Paginate totalPageCount={totalPage} />
+      </div>
     </div>
   );
-};
+}

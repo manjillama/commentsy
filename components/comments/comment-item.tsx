@@ -8,9 +8,25 @@ import { DotsHorizontalIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
 import ReadMoreText from "../read-more-text";
 
 export default function CommentItem({ comment }: { comment: IComment }) {
+  const statusBadge = (status: "pending" | "approved" | "deleted" | "spam") => {
+    let color = "";
+    if (status === "pending") color = "#f97316";
+    else if (status === "approved") color = "#16a34a";
+    else if (status === "deleted") color = "#dc2626";
+    else color = "#171717";
+    return (
+      <span
+        style={{ backgroundColor: color }}
+        className="text-white rounded-full px-2 py-1 text-[0.6rem] capitalize"
+      >
+        {comment.status}
+      </span>
+    );
+  };
   return (
     <div className="flex md:flex-row flex-col w-full text-left border-t p-4 first:border-t-0 md:space-x-20">
       <CommentItemDialog comment={comment} />
+      <div>{statusBadge(comment.status)}</div>
       <div className="flex items-center justify-between md:w-auto w-full space-x-4">
         <div className="flex space-x-2">
           <div className="flex items-center space-x-1 text-neutral-500 text-sm">

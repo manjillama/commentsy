@@ -39,9 +39,8 @@ const getAllAppComments = async ({
       sort: "-createdAt",
       ...queryParams,
       app: appId,
-      status: COMMENT_STATUS.approved,
       fields:
-        "_id, repliesCount, comment, parentComment, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, status, comment, parentComment, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .lean()
