@@ -34,6 +34,14 @@ export default function Navbar() {
             <>
               <li>
                 <Link
+                  href="/docs"
+                  className="text-neutral-500 hover:text-black"
+                >
+                  Docs
+                </Link>
+              </li>
+              <li>
+                <Link
                   className="text-neutral-600 hover:bg-neutral-200 hover:text-black h-[32px] w-[32px] flex rounded-lg border border-neutral-200 items-center"
                   title="Issues"
                   href="https://github.com/manjillama/commentsy/issues"
@@ -45,8 +53,8 @@ export default function Navbar() {
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
                     <button
-                      className="outline-none"
-                      aria-label="Customise options"
+                      className="outline-none block"
+                      aria-label="Account options"
                     >
                       <Avatar user={session.user} />
                     </button>
@@ -56,7 +64,7 @@ export default function Navbar() {
                     <DropdownMenu.Content
                       align="end"
                       sideOffset={5}
-                      className="w-[250px] bg-white border border-neutral-200 py-2 rounded-lg "
+                      className="w-[250px] bg-white border border-neutral-200 py-2 rounded-lg"
                     >
                       <DropdownMenu.Item className="outline-none px-4 py-2">
                         <p className="overflow-hidden text-ellipsis whitespace-nowrap">

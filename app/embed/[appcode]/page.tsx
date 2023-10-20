@@ -1,5 +1,6 @@
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import EmbedComments from "@/components/embed-comments";
+import { config } from "@/config";
 import dbConnect from "@/lib/dbConnect";
 import publicCommentService, {
   ClientGroupCommentsReturnType,
@@ -35,7 +36,7 @@ async function getCommentsData(
   searchParams?: any
 ): Promise<ClientGroupCommentsReturnType> {
   const headersList = headers();
-  const referer = headersList.get("referer") ?? "http://localhost:3000";
+  const referer = headersList.get("referer") ?? config.siteUrl;
 
   if (!referer)
     return {

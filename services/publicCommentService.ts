@@ -4,7 +4,7 @@ import Comment from "@/models/Comment";
 import Group from "@/models/Group";
 import factoryService from "./factoryService";
 import { IComment, ICommentDocument } from "@/interfaces/IComment";
-import { IGroup } from "@/interfaces/IGroup";
+import { COMMENT_STATUS, IGroup } from "@/interfaces/IGroup";
 import AppError from "@/utils/appError";
 import { StatusCodes } from "http-status-codes";
 
@@ -142,8 +142,7 @@ const _fetchComments = (options: any, queryParams: any) => {
       sort: "-createdAt",
       ...query,
       ...options,
-      isRemoved: false,
-      isApproved: true,
+      status: COMMENT_STATUS.approved,
       fields: "_id, repliesCount, comment, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })

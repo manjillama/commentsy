@@ -20,6 +20,12 @@ export default function CommentList({
     (accumulator, value) => ({ ...accumulator, [value._id]: value }),
     {}
   );
+  if (comments.length <= 0)
+    return (
+      <p className="ml-12 text-neutral-500">
+        No comments yet. Be the first one to comment.
+      </p>
+    );
   return (
     <div className="space-y-6">
       {Object.values(transformToObject).map((comment) => (

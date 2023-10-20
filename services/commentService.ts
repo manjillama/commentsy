@@ -6,6 +6,7 @@ import { StatusCodes } from "http-status-codes";
 import { ICommentDocument } from "@/interfaces/IComment";
 import factoryService from "./factoryService";
 import _ from "lodash";
+import { COMMENT_STATUS } from "@/interfaces/IGroup";
 
 const getAllAppComments = async ({
   userId,
@@ -38,7 +39,7 @@ const getAllAppComments = async ({
       sort: "-createdAt",
       ...queryParams,
       app: appId,
-      isRemoved: false,
+      status: COMMENT_STATUS.approved,
       fields:
         "_id, repliesCount, comment, parentComment, pageTitle, pageUrl, createdAt",
     })
@@ -148,12 +149,18 @@ const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
       StatusCodes.BAD_REQUEST
     );
 
-  if (userComment.isRemoved)
-    throw new AppError("Comment is already removed", StatusCodes.BAD_REQUEST);
+  if (userComment.status === "deleted")
+    throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
   let totalCommentsCountToBeDecreased = 0;
 
-  if (userComment.parent) {
+  const isAReply = userComment.parent;
+
+  /**
+   * If comment to be deleted is a reply then update parent comment and group comment count.
+   * If comment to be deleted is a parent comment then delete all child comment as well and update group count.
+   */
+  if (isAReply) {
     totalCommentsCountToBeDecreased = 1;
     Comment.findById(userComment.parent).then((parentComment) => {
       if (parentComment) {
@@ -161,7 +168,19 @@ const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
         parentComment.save();
       }
     });
-  } else totalCommentsCountToBeDecreased = userComment.repliesCount + 1;
+  } else {
+    Comment.updateMany(
+      {
+        parent: userComment.parent,
+      },
+      {
+        $set: {
+          status: "deleted",
+        },
+      }
+    );
+    totalCommentsCountToBeDecreased = userComment.repliesCount + 1;
+  }
 
   Group.findById(userComment.group).then((group) => {
     if (group) {
@@ -171,6 +190,6 @@ const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
     }
   });
 
-  userComment.isRemoved = true;
+  userComment.status = "deleted";
   return userComment.save();
 };

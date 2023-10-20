@@ -1,5 +1,6 @@
 import mongoose, { ObjectId } from "mongoose";
 import { IUser } from "./IUser";
+import { COMMENT_STATUS } from "./IGroup";
 
 export interface IComment {
   _id: string;
@@ -11,8 +12,7 @@ export interface IComment {
   pageUrl: string;
   repliesCount: number;
   comment: string;
-  isApproved: boolean;
-  isRemoved: boolean;
+  status: `${COMMENT_STATUS}`;
   createdAt: Date;
   updatedAt: Date;
 }

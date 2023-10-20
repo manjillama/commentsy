@@ -1,5 +1,11 @@
 import mongoose, { ObjectId } from "mongoose";
 
+export enum COMMENT_STATUS {
+  pending = "pending",
+  approved = "approved",
+  spam = "spam",
+  deleted = "deleted",
+}
 export interface IGroup {
   _id: string;
   identifier: string;

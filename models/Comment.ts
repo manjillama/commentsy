@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 import createModel from "@/lib/createModel";
 import { ICommentDocument } from "@/interfaces/IComment";
+import { COMMENT_STATUS } from "@/interfaces/IGroup";
 
 const commentSchema = new Schema<ICommentDocument>(
   {
@@ -50,15 +51,14 @@ const commentSchema = new Schema<ICommentDocument>(
       maxLength: 5000,
       required: [true, "Missing comment"],
     },
-    isApproved: {
-      type: Boolean,
-      default: false,
-      required: [true, "Comment is approved value is missing (isApproved)"],
-    },
-    isRemoved: {
-      type: Boolean,
-      default: false,
-      required: [true, "Comment is removed value is missing (isRemoved)"],
+    status: {
+      type: String,
+      enum: {
+        values: Object.values(COMMENT_STATUS),
+        message: "{VALUE} is not supported",
+      },
+      default: COMMENT_STATUS.pending,
+      required: [true, "Comment status is missing (status)"],
     },
   },
   {

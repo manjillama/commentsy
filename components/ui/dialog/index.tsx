@@ -4,25 +4,30 @@ import * as RadixDialog from "@radix-ui/react-dialog";
 import styles from "./Dialog.module.css";
 
 export const Dialog = ({
-  triggerText,
+  triggerNode,
+  triggerClass,
   children,
   open,
   openChange,
-  triggerClass,
+  maxWidth,
 }: {
-  triggerText: string;
+  triggerNode: React.ReactNode;
+  triggerClass?: string;
   children: React.ReactNode;
   open: boolean;
-  triggerClass?: string;
+  maxWidth?: "md";
   openChange: (open: boolean) => void;
 }) => (
   <RadixDialog.Root open={open} onOpenChange={openChange}>
     <RadixDialog.Trigger className={triggerClass ?? ""}>
-      {triggerText}
+      {triggerNode}
     </RadixDialog.Trigger>
     <RadixDialog.Portal>
       <RadixDialog.Overlay className={styles.dialogOverlay}>
-        <RadixDialog.Content className={styles.dialogContent}>
+        <RadixDialog.Content
+          className={styles.dialogContent}
+          style={maxWidth ? { maxWidth: 640 } : {}}
+        >
           {children}
         </RadixDialog.Content>
       </RadixDialog.Overlay>

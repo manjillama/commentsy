@@ -9,7 +9,7 @@ export default function NewAppDialog() {
     <Dialog
       open={open}
       openChange={setOpen}
-      triggerText="New app"
+      triggerNode="New app"
       triggerClass="bg-black text-white py-2 px-4 rounded-lg hover:opacity-75"
     >
       <h3 className="text-2xl font-semibold mb-4">Create new app</h3>
