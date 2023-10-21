@@ -27,28 +27,52 @@ export default function InputComment({
   user,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
-  const [comment, setComment] = useState("");
+  const [formProps, setFormProps] = useState<{
+    comment: string;
+    anonUser: null | {};
+  }>({
+    comment: "",
+    anonUser: null,
+  });
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setSubmitting(true);
     const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
       identifier: commentData.identifier,
-      comment,
+      comment: formProps.comment,
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
+      anonUser: formProps.anonUser,
     });
     if (data.status === "success") {
-      data.data.user = user as IUser;
-      const newComments = [...commentData.comments];
-      newComments.unshift(data.data);
-      setCommentData({
-        ...commentData,
-        comments: newComments,
-      });
+      if (user) {
+        data.data.user = user as IUser;
+        const newComments = [...commentData.comments];
+        newComments.unshift(data.data);
+        setCommentData({
+          ...commentData,
+          comments: newComments,
+        });
+      } else {
+        // Show toast for pending message
+        console.log("Success, your comment will be visible once it's approved");
+      }
     }
+    setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
+  };
+
+  const handleAnonUserInput = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormProps({
+      ...formProps,
+      anonUser: { ...formProps.anonUser, [name]: value },
+    });
   };
 
   const redirectToLoginIfUserNotLoggedIn = () => {
@@ -70,10 +94,13 @@ export default function InputComment({
       <div className="shrink-0">
         <Avatar user={user} />
       </div>
-      <div className="w-full">
+      <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
-            onChange={(e) => setComment(e.currentTarget.value)}
+            name="comment"
+            onChange={(e) =>
+              setFormProps({ ...formProps, comment: e.target.value })
+            }
             placeholder="Add a comment..."
             onInput={(e) => {
               if (e.currentTarget.parentNode)
@@ -88,27 +115,43 @@ export default function InputComment({
           />
         </div>
         {isInputFocused && (
-          <div className="flex mt-4">
+          <div className="mt-4">
+            {!user && (
+              <div className="max-w-xs space-y-4 mb-4">
+                <input
+                  placeholder="Name"
+                  className="border border-neutral-300 w-full rounded-lg p-2"
+                  name="name"
+                  type="text"
+                  onChange={handleAnonUserInput}
+                  required
+                />
+                <input
+                  placeholder="Email"
+                  className="border border-neutral-300 w-full rounded-lg p-2"
+                  name="email"
+                  type="email"
+                  onChange={handleAnonUserInput}
+                  required
+                />
+              </div>
+            )}
             <div className="flex space-x-2">
               <button
                 onClick={() => {
-                  setComment("");
                   setIsInputFocused(false);
                 }}
                 className="text-sm py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
               >
                 Cancel
               </button>
-              <button
-                onClick={handleSubmit}
-                className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75"
-              >
+              <button className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75">
                 Comment
               </button>
             </div>
           </div>
         )}
-      </div>
+      </form>
     </div>
   );
 }

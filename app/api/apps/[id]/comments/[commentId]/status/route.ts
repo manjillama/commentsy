@@ -1,5 +1,6 @@
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
+import commentService from "@/services/commentService";
 import AppError from "@/utils/appError";
 import catchAsync from "@/utils/errorHandler";
 import { StatusCodes } from "http-status-codes";
@@ -18,10 +19,14 @@ export const PATCH = catchAsync(async function (
     );
 
   const body = await req.json();
-  console.log("Comment status update", commentId, body);
+  const comment = await commentService.updateCommentStatus({
+    commentId,
+    userId: session.user.id as any,
+    status: body.status,
+  });
 
   return Response.json({
     status: "success",
-    data: {},
+    data: comment,
   });
 });

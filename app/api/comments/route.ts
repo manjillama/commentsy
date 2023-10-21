@@ -30,14 +30,16 @@ export const GET = catchAsync(async function (req: NextRequest) {
 export const POST = catchAsync(async function (req: Request) {
   await dbConnect();
   const session = await getServerSession(options);
-  if (!session)
-    throw new AppError(
-      "You need to be logged in to post a comment",
-      StatusCodes.FORBIDDEN
-    );
 
-  const { appCode, identifier, comment, parentCommentId, pageTitle, pageUrl } =
-    await req.json();
+  const {
+    appCode,
+    identifier,
+    comment,
+    parentCommentId,
+    pageTitle,
+    pageUrl,
+    anonUser,
+  } = await req.json();
 
   const userComment = await commentService.createComment({
     appCode,
@@ -46,7 +48,8 @@ export const POST = catchAsync(async function (req: Request) {
     pageUrl,
     parentCommentId,
     comment,
-    userId: session.user.id as string,
+    userId: session?.user.id as string,
+    anonUser,
   });
 
   return Response.json({ status: "success", data: userComment });

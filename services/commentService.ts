@@ -6,7 +6,8 @@ import { StatusCodes } from "http-status-codes";
 import { ICommentDocument } from "@/interfaces/IComment";
 import factoryService from "./factoryService";
 import _ from "lodash";
-import { COMMENT_STATUS } from "@/interfaces/IGroup";
+import { COMMENT_STATUS, IGroup, IGroupDocument } from "@/interfaces/IGroup";
+import { AVATAR_BACKGROUND_COLORS } from "@/interfaces/IUser";
 
 const getAllAppComments = async ({
   userId,
@@ -39,11 +40,11 @@ const getAllAppComments = async ({
       sort: "-createdAt",
       ...queryParams,
       app: appId,
+      isSpam: false,
       fields:
-        "_id, repliesCount, status, comment, parent, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, commentUser, anonUser, status, comment, parent, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
-    .lean()
     .exec();
 };
 
@@ -55,25 +56,23 @@ const createComment = async ({
   pageUrl,
   comment,
   parentCommentId,
+  anonUser,
 }: {
   appCode: string;
   groupIdentifier: string;
-  userId: string;
+  userId?: string;
   pageTitle: string;
   pageUrl: string;
   comment: string;
   parentCommentId: string;
+  anonUser?: {
+    name: string;
+    email: string;
+  };
 }) => {
-  if (
-    !appCode ||
-    !groupIdentifier ||
-    !userId ||
-    !comment ||
-    !pageTitle ||
-    !pageUrl
-  )
+  if (!appCode || !groupIdentifier || !comment || !pageTitle || !pageUrl)
     throw new AppError(
-      "Missing one or more fields app code (appCode), group identifier (identifier), page title (pageTitle), page url (pageUrl), comment or user id",
+      "Missing one or more fields app code (appCode), group identifier (identifier), page title (pageTitle), page url (pageUrl), comment",
       StatusCodes.BAD_REQUEST
     );
 
@@ -93,18 +92,128 @@ const createComment = async ({
       StatusCodes.BAD_REQUEST
     );
 
-  const userComment = new Comment({
-    app: app._id,
-    group: group._id,
-    parent: parentCommentId,
-    user: userId,
-    pageTitle,
-    pageUrl,
-    comment,
-    isApproved: true,
-  });
+  let userComment;
+  if (userId) {
+    userComment = new Comment({
+      app: app._id,
+      group: group._id,
+      parent: parentCommentId,
+      user: userId,
+      pageTitle,
+      pageUrl,
+      comment,
+      status: COMMENT_STATUS.approved,
+    });
+  } else {
+    userComment = new Comment({
+      app: app._id,
+      group: group._id,
+      parent: parentCommentId,
+      anonUser: {
+        name: anonUser?.name,
+        email: anonUser?.email,
+        avatarBackgroundColor:
+          AVATAR_BACKGROUND_COLORS[
+            Math.floor(
+              (anonUser?.email.length ?? 0) % AVATAR_BACKGROUND_COLORS.length
+            )
+          ] || "#fed0bb",
+      },
+      pageTitle,
+      pageUrl,
+      comment,
+      status: COMMENT_STATUS.pending,
+    });
+  }
 
   await userComment.validate();
+
+  if (userId) updateGroupAndParentCommentsCount({ group, parentCommentId });
+
+  return userComment.save();
+};
+
+const updateCommentStatus = async ({
+  commentId,
+  userId,
+  status,
+}: {
+  commentId: string;
+  userId: string;
+  status: `${COMMENT_STATUS}`;
+}) => {
+  if (status !== COMMENT_STATUS.approved && status !== COMMENT_STATUS.deleted)
+    throw new AppError(
+      "Invalid comment status provided",
+      StatusCodes.BAD_REQUEST
+    );
+
+  const comment = await Comment.findById(commentId).populate("group");
+  if (!comment)
+    throw new AppError(
+      "Comment with that id not found",
+      StatusCodes.BAD_REQUEST
+    );
+
+  if (
+    userId !== (comment.group as IGroup)?.owner.toString() &&
+    userId !== comment.user?.toString()
+  )
+    throw new AppError(
+      "You are not authorized to perform this action",
+      StatusCodes.FORBIDDEN
+    );
+
+  if (
+    userId === comment.user?.toString() &&
+    userId !== (comment.group as IGroup)?.owner.toString() &&
+    status !== COMMENT_STATUS.deleted
+  )
+    throw new AppError(
+      "You are not authorized to perform this action",
+      StatusCodes.FORBIDDEN
+    );
+
+  if (comment.status === COMMENT_STATUS.deleted)
+    throw new AppError(
+      "You cannot update deleted comment's status",
+      StatusCodes.BAD_REQUEST
+    );
+
+  if (status === COMMENT_STATUS.deleted) return removeComment(comment);
+
+  if (
+    status === COMMENT_STATUS.approved &&
+    comment.status === COMMENT_STATUS.approved
+  )
+    throw new AppError("Comment is already approved", StatusCodes.BAD_REQUEST);
+
+  comment.status = status;
+
+  const group = await Group.findById((comment.group as IGroup)._id);
+
+  updateGroupAndParentCommentsCount({
+    group,
+    parentCommentId: comment.parent as string,
+  });
+
+  return comment.save();
+};
+
+export default { createComment, updateCommentStatus, getAllAppComments };
+
+const updateGroupAndParentCommentsCount = ({
+  group,
+  parentCommentId,
+}: {
+  group: IGroupDocument | null;
+  parentCommentId: string | null;
+}) => {
+  if (!group)
+    throw new AppError(
+      "Group cannot be null to update comment count",
+      StatusCodes.BAD_REQUEST
+    );
 
   group.commentsCount = group.commentsCount + 1;
   group.save();
@@ -117,44 +226,20 @@ const createComment = async ({
       }
     });
   }
-
-  return userComment.save();
 };
-
-const removeComment = async ({
-  commentId,
-  userId,
-}: {
-  commentId: string;
-  userId: string;
-}) => {
-  if (!commentId || !userId)
-    throw new AppError(
-      "Missing comment id (commentId) or user id",
-      StatusCodes.BAD_REQUEST
-    );
-
-  let userComment = await Comment.findOne({ _id: commentId, user: userId });
-
-  await _removeCommentAndCleanUp(userComment);
-};
-
-export default { createComment, removeComment, getAllAppComments };
-
-const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
+const removeComment = (userComment: ICommentDocument | null) => {
   if (!userComment)
     throw new AppError(
       "Comment with that id not found or user doesn't have sufficient permission for this action.",
       StatusCodes.BAD_REQUEST
     );
 
-  if (userComment.status === "deleted")
+  if (userComment.status === COMMENT_STATUS.deleted)
     throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
   let totalCommentsCountToBeDecreased = 0;
 
   const isAReply = userComment.parent;
-
   /**
    * If comment to be deleted is a reply then update parent comment and group comment count.
    * If comment to be deleted is a parent comment then delete all child comment as well and update group count.
@@ -174,7 +259,7 @@ const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
       },
       {
         $set: {
-          status: "deleted",
+          status: COMMENT_STATUS.deleted,
         },
       }
     );
@@ -189,6 +274,6 @@ const _removeCommentAndCleanUp = (userComment: ICommentDocument | null) => {
     }
   });
 
-  userComment.status = "deleted";
+  userComment.status = COMMENT_STATUS.deleted;
   return userComment.save();
 };

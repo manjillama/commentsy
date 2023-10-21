@@ -2,6 +2,7 @@ import { Schema } from "mongoose";
 import createModel from "@/lib/createModel";
 import { ICommentDocument } from "@/interfaces/IComment";
 import { COMMENT_STATUS } from "@/interfaces/IGroup";
+import { AVATAR_BACKGROUND_COLORS } from "@/interfaces/IUser";
 
 const commentSchema = new Schema<ICommentDocument>(
   {
@@ -22,8 +23,35 @@ const commentSchema = new Schema<ICommentDocument>(
     user: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "Missing user id (user)"],
     },
+    anonUser: new Schema({
+      name: {
+        type: String,
+        required: [true, "Missing anonymous user name (anonUser.name)"],
+      },
+      email: {
+        type: String,
+        required: [true, "Missing anonymous user email"],
+        lowercase: true,
+        trim: true,
+        maxlength: 320,
+        match: [
+          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+          "Please enter a valid email address",
+        ],
+      },
+      avatarBackgroundColor: {
+        type: String,
+        enum: {
+          values: AVATAR_BACKGROUND_COLORS,
+          message: "{VALUE} is not supported",
+        },
+        required: [
+          true,
+          "Missing anonymous user avatar background color (anonUser.avatarBackgroundColor)",
+        ],
+      },
+    }),
     pageTitle: {
       type: String,
       required: [true, "Missing page title"],
@@ -60,6 +88,10 @@ const commentSchema = new Schema<ICommentDocument>(
       default: COMMENT_STATUS.pending,
       required: [true, "Comment status is missing (status)"],
     },
+    isSpam: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     toObject: { virtuals: true },
@@ -67,7 +99,9 @@ const commentSchema = new Schema<ICommentDocument>(
     timestamps: true,
   }
 );
-
+commentSchema.virtual("commentUser").get(function () {
+  return this.user ?? this.anonUser;
+});
 const Comment = createModel<ICommentDocument>("Comment", commentSchema);
 
 export default Comment;

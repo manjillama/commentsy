@@ -4,7 +4,11 @@ import Avatar from "../ui/avatar";
 import { IComment } from "@/interfaces/IComment";
 import { useState } from "react";
 import { Dialog } from "../ui";
-import { DotsHorizontalIcon, ExternalLinkIcon } from "@radix-ui/react-icons";
+import {
+  DotsHorizontalIcon,
+  ExclamationTriangleIcon,
+  ExternalLinkIcon,
+} from "@radix-ui/react-icons";
 import ReadMoreText from "../read-more-text";
 
 export default function CommentItem({
@@ -33,11 +37,11 @@ export default function CommentItem({
               {getRelativeTimeString(new Date(comment.createdAt))}
             </span>
             <span className="max-w-[120px] overflow-ellipsis overflow-hidden whitespace-nowrap">
-              by {(comment.user as any).name}
+              by {(comment.commentUser as any).name}
             </span>
           </div>
           <div>
-            <Avatar user={comment.user as any} size="sm" />
+            <Avatar user={comment.commentUser as any} size="sm" />
           </div>
         </div>
         <div>
@@ -70,20 +74,20 @@ export default function CommentItem({
                 </DropdownMenu.Item>
                 <DropdownMenu.Item className="outline-none">
                   <button
-                    disabled={
-                      comment.status === "spam" || comment.status === "deleted"
-                    }
+                    disabled={comment.status === "deleted"}
                     className="disabled:opacity-40 text-sm block w-full text-left outline-none px-4 py-2 hover:bg-neutral-100"
                   >
-                    Spam
+                    Delete
                   </button>
                 </DropdownMenu.Item>
+                <DropdownMenu.Separator className="border-t" />
                 <DropdownMenu.Item className="outline-none">
                   <button
                     disabled={comment.status === "deleted"}
                     className="disabled:opacity-40 text-sm block w-full text-left outline-none px-4 py-2 hover:bg-neutral-100"
                   >
-                    Delete
+                    <ExclamationTriangleIcon className="inline mr-1" /> Report
+                    as spam
                   </button>
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
@@ -136,10 +140,12 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
         </span>
       </div>
       <div className="flex space-x-2 mb-4">
-        <Avatar user={comment.user as any} />
+        <Avatar user={comment.commentUser as any} />
         <div>
           <div className="space-x-2">
-            <span className="font-semibold">{(comment.user as any).name}</span>
+            <span className="font-semibold">
+              {(comment.commentUser as any).name}
+            </span>
             <span className="text-sm text-neutral-500" suppressHydrationWarning>
               {getRelativeTimeString(new Date(comment.createdAt))}
             </span>
@@ -168,7 +174,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
 
 const statusBadge = (status: "pending" | "approved" | "deleted" | "spam") => {
   let color = "";
-  if (status === "pending") color = "#f97316";
+  if (status === "pending") color = "#fb923c";
   else if (status === "approved") color = "#16a34a";
   else if (status === "deleted") color = "#dc2626";
   else color = "#171717";

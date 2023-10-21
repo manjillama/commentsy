@@ -69,27 +69,26 @@ export default function Comments({
           <div>Loading...</div>
         ) : (
           <div>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">
+                {total} comment{total > 1 ? "s" : ""}
+              </h2>
+              <select
+                onChange={handleFilterChange}
+                name="status"
+                defaultValue={searchParams.get("status") ?? ""}
+                className="outline-none bg-inherit pr-2"
+              >
+                <option value="">All</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="deleted">Deleted</option>
+              </select>
+            </div>
             {!comments.length ? (
               <p className="text-neutral-500">There are no comments yet.</p>
             ) : (
               <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold">
-                    {total} comment{total > 1 ? "s" : ""}
-                  </h2>
-                  <select
-                    onChange={handleFilterChange}
-                    name="status"
-                    defaultValue={searchParams.get("status") ?? ""}
-                    className="outline-none bg-inherit"
-                  >
-                    <option value="">All</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="deleted">Deleted</option>
-                    <option value="spam">Spam</option>
-                  </select>
-                </div>
                 <div className="bg-white border border-neutral-200 rounded-lg">
                   {comments.map((comment) => (
                     <CommentItem key={comment._id} comment={comment} />

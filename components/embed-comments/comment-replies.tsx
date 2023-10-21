@@ -137,11 +137,13 @@ function CommentReplyItem({ comment }: { comment: IComment }) {
   return (
     <div key={comment._id} className="flex space-x-3 my-4">
       <div className="shrink-0">
-        <Avatar user={comment.user as any} size="sm" />
+        <Avatar user={comment.commentUser as any} size="sm" />
       </div>
       <div className="w-full">
         <div className="space-x-1">
-          <span className="font-semibold">{(comment.user as any).name}</span>
+          <span className="font-semibold">
+            {(comment.commentUser as any).name}
+          </span>
           <span className="text-sm text-neutral-500" suppressHydrationWarning>
             {getRelativeTimeString(new Date(comment.createdAt))}
           </span>

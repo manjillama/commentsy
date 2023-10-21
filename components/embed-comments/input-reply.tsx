@@ -29,24 +29,48 @@ export default function InputReply({
   handleSubmittedData,
 }: Props) {
   const [submitting, setSubmitting] = useState(false);
-  const [comment, setComment] = useState("");
+  const [formProps, setFormProps] = useState<{
+    comment: string;
+    anonUser: null | {};
+  }>({
+    comment: "",
+    anonUser: null,
+  });
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setSubmitting(true);
+
     const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
       identifier: commentData.identifier,
-      comment,
+      comment: formProps.comment,
       parentCommentId: parentCommentId,
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
     });
     if (data.status === "success") {
-      data.data.user = user as IUser;
-      handleSubmittedData(data.data);
-      setShowReplyInput(false);
+      if (user) {
+        data.data.user = user as IUser;
+        handleSubmittedData(data.data);
+        setShowReplyInput(false);
+      } else {
+        // Show toast for pending message
+        console.log("Success, your comment will be visible once it's approved");
+      }
     }
+    setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
+  };
+
+  const handleAnonUserInput = (
+    e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormProps({
+      ...formProps,
+      anonUser: { ...formProps.anonUser, [name]: value },
+    });
   };
 
   const redirectToLoginIfUserNotLoggedIn = () => {
@@ -68,11 +92,13 @@ export default function InputReply({
       <div className="shrink-0">
         <Avatar user={user} size="sm" />
       </div>
-      <div className="w-full">
+      <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
             autoFocus
-            onChange={(e) => setComment(e.currentTarget.value)}
+            onChange={(e) =>
+              setFormProps({ ...formProps, comment: e.target.value })
+            }
             placeholder="Add a reply..."
             onInput={(e) => {
               if (e.currentTarget.parentNode)
@@ -83,26 +109,42 @@ export default function InputReply({
             className={`w-full border border-neutral-300 rounded-lg p-3`}
           />
         </div>
-        <div className="flex mt-4">
+        <div className="mt-4">
+          {!user && (
+            <div className="max-w-xs space-y-4 mb-4">
+              <input
+                placeholder="Name"
+                className="border border-neutral-300 w-full rounded-lg p-2"
+                name="name"
+                type="text"
+                onChange={handleAnonUserInput}
+                required
+              />
+              <input
+                placeholder="Email"
+                className="border border-neutral-300 w-full rounded-lg p-2"
+                name="email"
+                type="email"
+                onChange={handleAnonUserInput}
+                required
+              />
+            </div>
+          )}
           <div className="flex space-x-2">
             <button
               onClick={() => {
-                setComment("");
                 setShowReplyInput(false);
               }}
               className="text-sm py-2 px-3 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
             >
               Cancel
             </button>
-            <button
-              onClick={handleSubmit}
-              className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75"
-            >
+            <button className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75">
               Reply
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
