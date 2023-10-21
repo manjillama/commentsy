@@ -17,7 +17,7 @@ export default function Navbar() {
     <nav className="border-b border-neutral-200 bg-white">
       <div className="max-w-screen-2xl mx-auto px-[15px] py-4 flex justify-between items-center">
         <Link href="/" className="flex space-x-2 items-center">
-          <div className="w-[36px] h-[18px]">
+          <div className="w-[34px] h-[17px]">
             <Image
               src="/commentsy.svg"
               width={36}
@@ -26,7 +26,7 @@ export default function Navbar() {
               className="w-auto h-auto"
             />
           </div>
-          <h1 className=" text-xl flex">commentsy </h1>
+          <h1 className="text-lg sm:flex hidden">commentsy </h1>
         </Link>
 
         <ul className="flex space-x-4 items-center">
@@ -109,7 +109,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <li>
+              <li className="sm:block hidden">
                 <Link
                   href="/contact"
                   className="text-neutral-500 hover:text-black"

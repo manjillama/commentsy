@@ -1,34 +1,19 @@
+import { useUrlSearchParams } from "@/hooks/useUrlParams";
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
 import ReactPaginate from "react-paginate";
 export default function Paginate({
   totalPageCount,
 }: {
   totalPageCount: number;
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams);
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams]
-  );
+  const [searchParams, setSearchParams] = useUrlSearchParams();
 
   const currentPage = Number(searchParams.get("page"))
     ? Number(searchParams.get("page"))
     : 1;
 
   const handlePageChange = (e: { selected: number }) => {
-    router.push(
-      pathname + "?" + createQueryString("page", String(e.selected + 1))
-    );
+    setSearchParams("page", String(e.selected + 1));
   };
 
   if (totalPageCount <= 1) return null;

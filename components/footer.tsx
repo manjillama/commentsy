@@ -7,30 +7,13 @@ export default function Footer() {
     <footer className="bg-white border-t border-neutral-200">
       <div className="max-w-screen-2xl mx-auto px-[15px] py-4 text-neutral-500">
         <div className="flex justify-between items-center">
-          <div>
-            <div className="flex space-x-1 items-center">
-              <div className="w-[90px]">
-                <Image
-                  src="/commentsy-text.svg"
-                  width={36}
-                  height={18}
-                  alt="Logo"
-                  className="w-auto h-auto"
-                />
-              </div>
-              <span>&copy; {new Date().getFullYear()}</span>
-            </div>
-            <p className="text-sm text-neutral-500">
-              Created by{" "}
-              <Link
-                className="underline hover:text-black"
-                target="_blank"
-                href="https://manjiltamang.com/"
-              >
-                Manjil Tamang
+          <ul className="flex space-x-4">
+            <li>
+              <Link className="hover:text-black" href="/">
+                <GitHubLogoIcon height={20} width={20} />
               </Link>
-            </p>
-          </div>
+            </li>
+          </ul>
           <div>
             <Link
               href="https://www.buymeacoffee.com/manjiltamang"
@@ -43,13 +26,30 @@ export default function Footer() {
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <ul className="flex space-x-4">
-            <li>
-              <Link className="hover:text-black" href="/">
-                <GitHubLogoIcon height={20} width={20} />
-              </Link>
-            </li>
-          </ul>
+          <div>
+            <div className="flex space-x-1 items-center">
+              <div className="w-[80px]">
+                <Image
+                  src="/commentsy-text.svg"
+                  width={36}
+                  height={18}
+                  alt="Logo"
+                  className="w-auto h-auto"
+                />
+              </div>
+              <span className="text-sm">
+                &copy; {new Date().getFullYear()}, created by{" "}
+                <Link
+                  className="underline hover:text-black"
+                  target="_blank"
+                  href="https://manjiltamang.com/"
+                >
+                  Manjil Tamang
+                </Link>
+              </span>
+            </div>
+          </div>
+
           <ul className="flex space-x-4">
             <li>
               <Link className="hover:text-black" href="/legal/privacy-policy">
