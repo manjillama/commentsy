@@ -77,8 +77,8 @@ export default function SignInForm() {
         type="submit"
       >
         {isSubmitting && (
-          <div className="text-left absolute">
-            <Spinner />
+          <div className="h-[26px] w-[26px] absolute text-left top-[10px]">
+            <Spinner color="light" />
           </div>
         )}
         Log in

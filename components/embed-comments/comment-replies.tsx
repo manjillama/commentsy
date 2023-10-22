@@ -1,5 +1,5 @@
 import { IComment } from "@/interfaces/IComment";
-import { CommentData } from ".";
+import { CommentData, commentStyles } from ".";
 import { Session } from "next-auth";
 import { ParentSiteData } from "./input-comment";
 import { useState } from "react";
@@ -118,7 +118,10 @@ export default function CommentReplies({
             <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
             {isCommentFetching ? (
               <div className="h-[18px] w-[18px]">
-                <Spinner color="dark" size="sm" />
+                <Spinner
+                  styles={{ backgroundColor: commentStyles.primary.color }}
+                  size="sm"
+                />
               </div>
             ) : (
               <button

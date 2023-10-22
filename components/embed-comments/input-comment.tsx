@@ -3,7 +3,7 @@ import Avatar from "../ui/avatar";
 import { useState } from "react";
 import styles from "./Comment.module.css";
 import api from "@/utils/api";
-import { CommentData } from ".";
+import { CommentData, commentStyles } from ".";
 import { Spinner } from "../ui";
 import { IComment } from "@/interfaces/IComment";
 import { IUser } from "@/interfaces/IUser";
@@ -85,7 +85,7 @@ export default function InputComment({
   if (submitting)
     return (
       <div className="h-[32px] w-[32px] mb-6">
-        <Spinner color="dark" />
+        <Spinner styles={{ backgroundColor: commentStyles.primary.color }} />
       </div>
     );
 
@@ -97,6 +97,7 @@ export default function InputComment({
       <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
+            style={commentStyles.primary}
             name="comment"
             onChange={(e) =>
               setFormProps({ ...formProps, comment: e.target.value })
@@ -141,11 +142,15 @@ export default function InputComment({
                 onClick={() => {
                   setIsInputFocused(false);
                 }}
-                className="text-sm py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
+                style={commentStyles.primary}
+                className="text-sm py-2 px-4 block rounded-lg hover:opacity-60"
               >
                 Cancel
               </button>
-              <button className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75">
+              <button
+                style={commentStyles.accent}
+                className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
+              >
                 Comment
               </button>
             </div>

@@ -53,7 +53,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
 
   const triggerNode = () => (
     <div>
-      <div className="font-semibold">{comment.pageTitle}</div>
+      <div className="font-medium">{comment.pageTitle}</div>
       <div className="whitespace-nowrap overflow-ellipsis overflow-hidden text-neutral-500">
         {comment.comment}
       </div>

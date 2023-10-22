@@ -23,6 +23,29 @@ export type PageParams = {
   currentPage: number;
   sort: "-createdAt";
 };
+const userCommentSyles = {
+  light: {
+    primary: {
+      backgroundColor: "#fff",
+      color: "#000",
+    },
+    accent: {
+      backgroundColor: "#000",
+      color: "#fff",
+    },
+  },
+  dark: {
+    primary: {
+      backgroundColor: "#000",
+      color: "#fff",
+    },
+    accent: {
+      backgroundColor: "#fff",
+      color: "#000",
+    },
+  },
+};
+export const commentStyles = userCommentSyles["light"];
 export default function EmbedComments({ commentData, user }: Props) {
   const [parentSiteData, setParentSiteData] = useState<ParentSiteData>(null);
   const embedRef = useRef(null);
@@ -47,17 +70,20 @@ export default function EmbedComments({ commentData, user }: Props) {
     resizeParentEmbedWindow();
     const interval = setInterval(() => {
       resizeParentEmbedWindow();
-    }, 1000);
+    }, 500);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div ref={embedRef}>
-      <CommentsContainer
-        data={commentData}
-        parentSiteData={parentSiteData}
-        user={user}
-      />
+    <div ref={embedRef} style={commentStyles.primary}>
+      <div className="fixed inset-0 z-0" style={commentStyles.primary} />
+      <div className="relative z-10">
+        <CommentsContainer
+          data={commentData}
+          parentSiteData={parentSiteData}
+          user={user}
+        />
+      </div>
     </div>
   );
 }

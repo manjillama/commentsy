@@ -14,7 +14,7 @@ export default function Avatar({
     : { backgroundColor: "#000" };
   return (
     <div
-      className="rounded-full h-[32px] w-[32px] flex items-center"
+      className="rounded-full text-black h-[32px] w-[32px] flex items-center"
       style={{ ...userStyle, ...style }}
     >
       {user ? (

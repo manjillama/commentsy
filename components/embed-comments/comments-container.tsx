@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import InputComment, { ParentSiteData } from "./input-comment";
 import CommentList from "./comment-list";
 import FetchMoreComments from "./fetch-more-comments";
+import { commentStyles } from ".";
 
 export type CommentData = {
   appCode: string;
@@ -44,7 +45,7 @@ export default function CommentsContainer({
   }, []);
 
   return (
-    <div className="bg-white" style={{ lineHeight: "20px", fontSize: "14px" }}>
+    <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
       <span suppressHydrationWarning>
         {isThirdPartyCookieEnabled ? "Yes" : "No"}
       </span>

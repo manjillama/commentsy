@@ -1,6 +1,6 @@
 import { IComment } from "@/interfaces/IComment";
 import api from "@/utils/api";
-import { CommentData, PageParams } from ".";
+import { CommentData, PageParams, commentStyles } from ".";
 import { useState } from "react";
 import { Spinner } from "../ui";
 
@@ -52,7 +52,7 @@ export default function FetchMoreComments({
     <div>
       {isCommentLoading ? (
         <div className="h-[32px] w-[32px] mb-8">
-          <Spinner color="dark" />
+          <Spinner styles={{ backgroundColor: commentStyles.primary.color }} />{" "}
         </div>
       ) : (
         <button onClick={handleFetchNextComments}>Load more</button>

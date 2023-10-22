@@ -3,7 +3,7 @@ import Avatar from "../ui/avatar";
 import { useState } from "react";
 import styles from "./Comment.module.css";
 import api from "@/utils/api";
-import { CommentData } from ".";
+import { CommentData, commentStyles } from ".";
 import { Spinner } from "../ui";
 import { IComment } from "@/interfaces/IComment";
 import { IUser } from "@/interfaces/IUser";
@@ -84,7 +84,10 @@ export default function InputReply({
   if (submitting)
     return (
       <div className="h-[32px] w-[32px] my-4">
-        <Spinner color="dark" size="sm" />
+        <Spinner
+          styles={{ backgroundColor: commentStyles.primary.color }}
+          size="sm"
+        />
       </div>
     );
 
@@ -96,6 +99,7 @@ export default function InputReply({
       <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
+            style={commentStyles.primary}
             autoFocus
             onChange={(e) =>
               setFormProps({ ...formProps, comment: e.target.value })
@@ -136,11 +140,14 @@ export default function InputReply({
               onClick={() => {
                 setShowReplyInput(false);
               }}
-              className="text-sm py-2 px-3 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
+              className="text-sm py-2 px-3 block rounded-lg hover:opacity-60"
             >
               Cancel
             </button>
-            <button className="text-sm py-2 px-5 block bg-black text-white rounded-lg hover:opacity-75">
+            <button
+              style={commentStyles.accent}
+              className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
+            >
               Reply
             </button>
           </div>

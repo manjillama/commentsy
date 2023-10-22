@@ -133,8 +133,8 @@ export default function AppForm(props: Props) {
               type="submit"
             >
               {isSubmitting && (
-                <div className="h-[20px] w-[20px] text-left ">
-                  <Spinner size="sm" />
+                <div className="h-[20px] w-[20px] text-left">
+                  <Spinner color="light" size="sm" />
                 </div>
               )}
               <span>{props.type === "new" ? "Create app" : "Save"}</span>
