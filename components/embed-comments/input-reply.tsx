@@ -48,6 +48,7 @@ export default function InputReply({
       parentCommentId: parentCommentId,
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
+      anonUser: formProps.anonUser,
     });
     if (data.status === "success") {
       if (user) {

@@ -28,7 +28,7 @@ export default function App({ params: { id } }: { params: { id: string } }) {
   id="commentsyIframe"
   src="` +
     process.env.NEXT_PUBLIC_SITE_URL +
-    "/" +
+    "/embed/" +
     app.code +
     `?identifier={{IDENTIFIER}}"
   style="width:100%;border:none;overflow:hidden"
