@@ -31,9 +31,9 @@ export default function CommentReplies({
     currentPage: 1,
     sort: "createdAt",
   });
-  const [newSubmittingComments, setNewSubmittiedComments] = useState<
-    IComment[]
-  >([]);
+  const [newSubmittComments, setNewSubmittiedComments] = useState<IComment[]>(
+    []
+  );
 
   const handleFetchReplies = async () => {
     setIsCommentFetching(true);
@@ -60,7 +60,7 @@ export default function CommentReplies({
   };
 
   const handleSubmittedData = (newComment: IComment): void => {
-    setNewSubmittiedComments([...newSubmittingComments, newComment]);
+    setNewSubmittiedComments([...newSubmittComments, newComment]);
     setTotalRepliesCount(totalRepliesCount + 1);
   };
 
@@ -107,28 +107,40 @@ export default function CommentReplies({
       {commentReplies.map((comment) => (
         <CommentReplyItem key={comment._id} comment={comment} />
       ))}
-      {newSubmittingComments.map((comment) => (
+      {newSubmittComments.map((comment) => (
         <CommentReplyItem key={comment._id} comment={comment} />
       ))}
 
-      {totalRepliesCount > 0 && commentReplies.length < totalRepliesCount && (
-        <div className="flex items-center space-x-4">
-          <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
-          {isCommentFetching ? (
-            <div className="h-[18px] w-[18px]">
-              <Spinner color="dark" size="sm" />
-            </div>
-          ) : (
-            <button
-              className="opacity-50 text-sm font-semibold"
-              onClick={handleFetchReplies}
-            >
-              View {Math.abs(totalRepliesCount - commentReplies.length)}{" "}
-              {totalRepliesCount > 1 ? "replies" : "reply"}
-            </button>
-          )}
-        </div>
-      )}
+      {totalRepliesCount > 0 &&
+        commentReplies.length + newSubmittComments.length <
+          totalRepliesCount && (
+          <div className="flex items-center space-x-4">
+            <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
+            {isCommentFetching ? (
+              <div className="h-[18px] w-[18px]">
+                <Spinner color="dark" size="sm" />
+              </div>
+            ) : (
+              <button
+                className="opacity-50 text-sm font-semibold"
+                onClick={handleFetchReplies}
+              >
+                View{" "}
+                {Math.abs(
+                  totalRepliesCount -
+                    commentReplies.length -
+                    newSubmittComments.length
+                )}{" "}
+                {totalRepliesCount -
+                  commentReplies.length -
+                  newSubmittComments.length >
+                1
+                  ? "replies"
+                  : "reply"}
+              </button>
+            )}
+          </div>
+        )}
     </div>
   );
 }

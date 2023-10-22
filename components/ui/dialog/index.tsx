@@ -10,16 +10,18 @@ export const Dialog = ({
   open,
   openChange,
   maxWidth,
+  triggerProps = {},
 }: {
   triggerNode: React.ReactNode;
   triggerClass?: string;
   children: React.ReactNode;
   open: boolean;
   maxWidth?: "md";
+  triggerProps?: React.ButtonHTMLAttributes<HTMLButtonElement>;
   openChange: (open: boolean) => void;
 }) => (
   <RadixDialog.Root open={open} onOpenChange={openChange}>
-    <RadixDialog.Trigger className={triggerClass ?? ""}>
+    <RadixDialog.Trigger className={triggerClass ?? ""} {...triggerProps}>
       {triggerNode}
     </RadixDialog.Trigger>
     <RadixDialog.Portal>

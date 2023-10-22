@@ -51,7 +51,7 @@ export default function InputReply({
     });
     if (data.status === "success") {
       if (user) {
-        data.data.user = user as IUser;
+        data.data.commentUser = user as IUser;
         handleSubmittedData(data.data);
         setShowReplyInput(false);
       } else {

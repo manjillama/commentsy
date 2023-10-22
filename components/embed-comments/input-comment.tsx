@@ -49,7 +49,7 @@ export default function InputComment({
     });
     if (data.status === "success") {
       if (user) {
-        data.data.user = user as IUser;
+        data.data.commentUser = user as IUser;
         const newComments = [...commentData.comments];
         newComments.unshift(data.data);
         setCommentData({

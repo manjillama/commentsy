@@ -42,7 +42,7 @@ const getAllAppComments = async ({
       app: appId,
       isSpam: false,
       fields:
-        "_id, repliesCount, commentUser, anonUser, status, comment, parent, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, commentUser, app, anonUser, status, comment, parent, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .exec();
@@ -164,6 +164,12 @@ const updateCommentStatus = async ({
       StatusCodes.FORBIDDEN
     );
 
+  if (comment.status === status)
+    throw new AppError(
+      `Comment alreay has ${status} status`,
+      StatusCodes.BAD_REQUEST
+    );
+
   if (
     userId === comment.user?.toString() &&
     userId !== (comment.group as IGroup)?.owner.toString() &&
@@ -181,12 +187,6 @@ const updateCommentStatus = async ({
     );
 
   if (status === COMMENT_STATUS.deleted) return removeComment(comment);
-
-  if (
-    status === COMMENT_STATUS.approved &&
-    comment.status === COMMENT_STATUS.approved
-  )
-    throw new AppError("Comment is already approved", StatusCodes.BAD_REQUEST);
 
   comment.status = status;
 
@@ -227,7 +227,9 @@ const updateGroupAndParentCommentsCount = ({
     });
   }
 };
-const removeComment = (userComment: ICommentDocument | null) => {
+const removeComment = (
+  userComment: ICommentDocument | null
+): Promise<ICommentDocument> => {
   if (!userComment)
     throw new AppError(
       "Comment with that id not found or user doesn't have sufficient permission for this action.",

@@ -1,15 +1,11 @@
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { getRelativeTimeString } from "@/utils";
 import Avatar from "../ui/avatar";
 import { IComment } from "@/interfaces/IComment";
 import { useState } from "react";
 import { Dialog } from "../ui";
-import {
-  DotsHorizontalIcon,
-  ExclamationTriangleIcon,
-  ExternalLinkIcon,
-} from "@radix-ui/react-icons";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import ReadMoreText from "../read-more-text";
+import CommentItemActions from "./comment-item-actions";
 
 export default function CommentItem({
   comment: commentProps,
@@ -45,54 +41,7 @@ export default function CommentItem({
           </div>
         </div>
         <div>
-          <DropdownMenu.Root>
-            <DropdownMenu.Trigger asChild>
-              <button
-                className="outline-none block h-[28px] w-[28px] rounded-md hover:bg-neutral-200"
-                aria-label="Account options"
-              >
-                <DotsHorizontalIcon className="mx-auto" />
-              </button>
-            </DropdownMenu.Trigger>
-
-            <DropdownMenu.Portal>
-              <DropdownMenu.Content
-                align="end"
-                sideOffset={5}
-                className="w-[250px] bg-white border border-neutral-200 py-2 rounded-lg"
-              >
-                <DropdownMenu.Item className="outline-none">
-                  <button
-                    disabled={
-                      comment.status === "approved" ||
-                      comment.status === "deleted"
-                    }
-                    className="disabled:opacity-40 text-sm block w-full text-left outline-none px-4 py-2 hover:bg-neutral-100"
-                  >
-                    Approve
-                  </button>
-                </DropdownMenu.Item>
-                <DropdownMenu.Item className="outline-none">
-                  <button
-                    disabled={comment.status === "deleted"}
-                    className="disabled:opacity-40 text-sm block w-full text-left outline-none px-4 py-2 hover:bg-neutral-100"
-                  >
-                    Delete
-                  </button>
-                </DropdownMenu.Item>
-                <DropdownMenu.Separator className="border-t" />
-                <DropdownMenu.Item className="outline-none">
-                  <button
-                    disabled={comment.status === "deleted"}
-                    className="disabled:opacity-40 text-sm block w-full text-left outline-none px-4 py-2 hover:bg-neutral-100"
-                  >
-                    <ExclamationTriangleIcon className="inline mr-1" /> Report
-                    as spam
-                  </button>
-                </DropdownMenu.Item>
-              </DropdownMenu.Content>
-            </DropdownMenu.Portal>
-          </DropdownMenu.Root>
+          <CommentItemActions comment={comment} setComment={setComment} />
         </div>
       </div>
     </div>
@@ -166,7 +115,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
           onClick={() => setOpen(false)}
         >
           Close
-        </button>{" "}
+        </button>
       </div>
     </Dialog>
   );
