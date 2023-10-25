@@ -2,14 +2,14 @@ import { IComment } from "@/interfaces/IComment";
 import Avatar from "../ui/avatar";
 import { getRelativeTimeString } from "@/utils";
 import { ParentSiteData } from "./input-comment";
-import { CommentData } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
 import CommentReplies from "./comment-replies";
 import ReadMoreText from "../read-more-text";
 
 type Props = {
   comment: IComment;
-  commentData: CommentData;
+  commentData: CommentDataWithUserCommentSyles;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
 };

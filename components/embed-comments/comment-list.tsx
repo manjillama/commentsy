@@ -1,12 +1,12 @@
 import { Session } from "next-auth";
-import { CommentData } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 import CommentItem from "./comment-item";
 import { ParentSiteData } from "./input-comment";
 import { IComment } from "@/interfaces/IComment";
 
 type Props = {
-  comments: CommentData["comments"];
-  commentData: CommentData;
+  comments: CommentDataWithUserCommentSyles["comments"];
+  commentData: CommentDataWithUserCommentSyles;
   parentSiteData: ParentSiteData;
   user?: Session["user"];
 };
