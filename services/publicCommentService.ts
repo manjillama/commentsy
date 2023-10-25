@@ -7,6 +7,7 @@ import { IComment, ICommentDocument } from "@/interfaces/IComment";
 import { COMMENT_STATUS, IGroup } from "@/interfaces/IGroup";
 import AppError from "@/utils/appError";
 import { StatusCodes } from "http-status-codes";
+import { CommentStyles } from "@/interfaces/IApp";
 
 export type ClientGroupCommentsReturnType =
   | {
@@ -21,6 +22,7 @@ export type ClientGroupCommentsReturnType =
         likesCount: number;
         commentsCount: number;
         comments: IComment[];
+        commentStyles: CommentStyles;
         total: number;
         totalCommentsAndReplies: number;
         size: number;
@@ -88,6 +90,7 @@ const getAllGroupCommentsInitData = async ({
       likesCount: group.likesCount,
       commentsCount: group.commentsCount,
       comments: comments as IComment[],
+      commentStyles: JSON.parse(app.commentStyles),
       total,
       totalCommentsAndReplies: group.commentsCount,
       size,

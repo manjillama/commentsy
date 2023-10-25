@@ -3,7 +3,7 @@ import Avatar from "../ui/avatar";
 import { useState } from "react";
 import styles from "./Comment.module.css";
 import api from "@/utils/api";
-import { CommentData, commentStyles } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 import { Spinner } from "../ui";
 import { IComment } from "@/interfaces/IComment";
 import { IUser } from "@/interfaces/IUser";
@@ -14,8 +14,8 @@ export type ParentSiteData = {
 } | null;
 
 type Props = {
-  commentData: CommentData;
-  setCommentData: (commentData: CommentData) => void;
+  commentData: CommentDataWithUserCommentSyles;
+  setCommentData: (commentData: CommentDataWithUserCommentSyles) => void;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
 };
@@ -85,7 +85,11 @@ export default function InputComment({
   if (submitting)
     return (
       <div className="h-[32px] w-[32px] mb-6">
-        <Spinner styles={{ backgroundColor: commentStyles.primary.color }} />
+        <Spinner
+          styles={{
+            backgroundColor: commentData.userCommentStyles.primary.color,
+          }}
+        />
       </div>
     );
 
@@ -97,7 +101,7 @@ export default function InputComment({
       <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
-            style={commentStyles.primary}
+            style={commentData.userCommentStyles.primary}
             name="comment"
             onChange={(e) =>
               setFormProps({ ...formProps, comment: e.target.value })
@@ -120,6 +124,7 @@ export default function InputComment({
             {!user && (
               <div className="max-w-xs space-y-4 mb-4">
                 <input
+                  style={commentData.userCommentStyles.primary}
                   placeholder="Name"
                   className="border border-neutral-300 w-full rounded-lg p-2"
                   name="name"
@@ -128,6 +133,7 @@ export default function InputComment({
                   required
                 />
                 <input
+                  style={commentData.userCommentStyles.primary}
                   placeholder="Email"
                   className="border border-neutral-300 w-full rounded-lg p-2"
                   name="email"
@@ -142,13 +148,13 @@ export default function InputComment({
                 onClick={() => {
                   setIsInputFocused(false);
                 }}
-                style={commentStyles.primary}
+                style={commentData.userCommentStyles.primary}
                 className="text-sm py-2 px-4 block rounded-lg hover:opacity-60"
               >
                 Cancel
               </button>
               <button
-                style={commentStyles.accent}
+                style={commentData.userCommentStyles.accent}
                 className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
               >
                 Comment

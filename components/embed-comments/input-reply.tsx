@@ -3,14 +3,14 @@ import Avatar from "../ui/avatar";
 import { useState } from "react";
 import styles from "./Comment.module.css";
 import api from "@/utils/api";
-import { CommentData, commentStyles } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 import { Spinner } from "../ui";
 import { IComment } from "@/interfaces/IComment";
 import { IUser } from "@/interfaces/IUser";
 import { ParentSiteData } from "./input-comment";
 
 type Props = {
-  commentData: CommentData;
+  commentData: CommentDataWithUserCommentSyles;
   parentCommentId: string;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
@@ -85,7 +85,9 @@ export default function InputReply({
     return (
       <div className="h-[32px] w-[32px] my-4">
         <Spinner
-          styles={{ backgroundColor: commentStyles.primary.color }}
+          styles={{
+            backgroundColor: commentData.userCommentStyles.primary.color,
+          }}
           size="sm"
         />
       </div>
@@ -99,7 +101,7 @@ export default function InputReply({
       <form onSubmit={handleSubmit} className="w-full">
         <div className={styles.growWrap}>
           <textarea
-            style={commentStyles.primary}
+            style={commentData.userCommentStyles.primary}
             autoFocus
             onChange={(e) =>
               setFormProps({ ...formProps, comment: e.target.value })
@@ -118,6 +120,7 @@ export default function InputReply({
           {!user && (
             <div className="max-w-xs space-y-4 mb-4">
               <input
+                style={commentData.userCommentStyles.primary}
                 placeholder="Name"
                 className="border border-neutral-300 w-full rounded-lg p-2"
                 name="name"
@@ -126,6 +129,7 @@ export default function InputReply({
                 required
               />
               <input
+                style={commentData.userCommentStyles.primary}
                 placeholder="Email"
                 className="border border-neutral-300 w-full rounded-lg p-2"
                 name="email"
@@ -145,7 +149,7 @@ export default function InputReply({
               Cancel
             </button>
             <button
-              style={commentStyles.accent}
+              style={commentData.userCommentStyles.accent}
               className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
             >
               Reply

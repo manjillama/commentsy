@@ -30,7 +30,7 @@ export default function App({ params: { id } }: { params: { id: string } }) {
     process.env.NEXT_PUBLIC_SITE_URL +
     "/embed/" +
     app.code +
-    `?identifier={{IDENTIFIER}}"
+    `?identifier={{IDENTIFIER}}&theme=light"
   style="width:100%;border:none;overflow:hidden"
 />`;
 
@@ -83,7 +83,12 @@ export default function App({ params: { id } }: { params: { id: string } }) {
         </p>
         <br />
         1. Place the following code inside your HTML where you&apos;d like
-        Commentsy to load.
+        Commentsy to load. Iframe src URL has two parameters. First one is&nbsp;
+        <b>identifier</b> and it is required, provide your page&apos;s unique
+        identifier variable. Second one is <b>theme</b>, your site&apos;s color
+        mode, provide &apos;light&apos; for light mode and &apos;dark&apos; for
+        dark mode. In case of no theme provided then commentsy will use
+        user&apos;s device theme.
         <div className="relative">
           <CopyButton textToCopy={htmlCode} />
           <SyntaxHighlighter language="html">{htmlCode}</SyntaxHighlighter>

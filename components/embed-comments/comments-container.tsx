@@ -1,25 +1,14 @@
 "use client";
-import { IComment } from "@/interfaces/IComment";
 import { Session } from "next-auth";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import InputComment, { ParentSiteData } from "./input-comment";
 import CommentList from "./comment-list";
 import FetchMoreComments from "./fetch-more-comments";
-import { commentStyles } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 
-export type CommentData = {
-  appCode: string;
-  identifier: string;
-  likesCount: number;
-  commentsCount: number;
-  comments: IComment[];
-  total: number;
-  totalCommentsAndReplies: number;
-  size: number;
-};
 type Props = {
   user?: Session["user"];
-  data: CommentData;
+  data: CommentDataWithUserCommentSyles;
   parentSiteData: ParentSiteData;
 };
 export type PageParams = {
@@ -46,9 +35,9 @@ export default function CommentsContainer({
 
   return (
     <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
-      <span suppressHydrationWarning>
+      {/* <span suppressHydrationWarning>
         {isThirdPartyCookieEnabled ? "Yes" : "No"}
-      </span>
+      </span> */}
       {totalCommentsCount(commentData.totalCommentsAndReplies)}
       <InputComment
         setCommentData={setCommentData}

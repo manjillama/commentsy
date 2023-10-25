@@ -1,12 +1,12 @@
 import { IComment } from "@/interfaces/IComment";
 import api from "@/utils/api";
-import { CommentData, PageParams, commentStyles } from ".";
+import { CommentDataWithUserCommentSyles, PageParams } from ".";
 import { useState } from "react";
 import { Spinner } from "../ui";
 
 type Props = {
-  commentData: CommentData;
-  setCommentData: (commentData: CommentData) => void;
+  commentData: CommentDataWithUserCommentSyles;
+  setCommentData: (commentData: CommentDataWithUserCommentSyles) => void;
   params: PageParams;
   setParams: (params: PageParams) => void;
 };
@@ -49,13 +49,23 @@ export default function FetchMoreComments({
   if (commentData.comments.length >= commentData.total) return null;
 
   return (
-    <div>
+    <div className="py-12">
       {isCommentLoading ? (
         <div className="h-[32px] w-[32px] mb-8">
-          <Spinner styles={{ backgroundColor: commentStyles.primary.color }} />{" "}
+          <Spinner
+            styles={{
+              backgroundColor: commentData.userCommentStyles.primary.color,
+            }}
+          />{" "}
         </div>
       ) : (
-        <button onClick={handleFetchNextComments}>Load more</button>
+        <button
+          style={commentData.userCommentStyles.accent}
+          className="text-sm font-semibold py-2 px-5 block rounded-lg hover:opacity-75"
+          onClick={handleFetchNextComments}
+        >
+          More comments
+        </button>
       )}
     </div>
   );

@@ -14,12 +14,12 @@ type Props = {
   };
   searchParams: {
     identifier: string;
-    page_url: string;
+    theme: "dark" | "light";
   };
 };
 export default async function Comments({
   params: { appcode },
-  searchParams: { identifier, ...searchParams },
+  searchParams: { identifier, theme, ...searchParams },
 }: Props) {
   const session = await getServerSession(options);
 
@@ -27,7 +27,9 @@ export default async function Comments({
 
   if (data.status === "fail") return data.message;
 
-  return <EmbedComments commentData={data.data} user={session?.user} />;
+  return (
+    <EmbedComments commentData={data.data} theme={theme} user={session?.user} />
+  );
 }
 
 async function getCommentsData(
@@ -36,7 +38,10 @@ async function getCommentsData(
   searchParams?: any
 ): Promise<ClientGroupCommentsReturnType> {
   const headersList = headers();
-  const referer = headersList.get("referer") ?? config.siteUrl;
+  const referer =
+    process.env.NODE_ENV === "development"
+      ? config.siteUrl
+      : headersList.get("referer");
 
   if (!referer)
     return {

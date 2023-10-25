@@ -4,6 +4,7 @@ import { Session } from "next-auth";
 import { useEffect, useRef, useState } from "react";
 import { ParentSiteData } from "./input-comment";
 import CommentsContainer from "./comments-container";
+import { CommentStyles } from "@/interfaces/IApp";
 
 export type CommentData = {
   appCode: string;
@@ -11,44 +12,45 @@ export type CommentData = {
   likesCount: number;
   commentsCount: number;
   comments: IComment[];
+  commentStyles: CommentStyles;
   total: number;
   totalCommentsAndReplies: number;
   size: number;
 };
+export type CommentDataWithUserCommentSyles = CommentData & {
+  userCommentStyles: CommentStyles["light"];
+};
 type Props = {
   user?: Session["user"];
   commentData: CommentData;
+  theme?: "light" | "dark";
 };
 export type PageParams = {
   currentPage: number;
   sort: "-createdAt";
 };
-const userCommentSyles = {
-  light: {
-    primary: {
-      backgroundColor: "#fff",
-      color: "#000",
-    },
-    accent: {
-      backgroundColor: "#000",
-      color: "#fff",
-    },
-  },
-  dark: {
-    primary: {
-      backgroundColor: "#000",
-      color: "#fff",
-    },
-    accent: {
-      backgroundColor: "#fff",
-      color: "#000",
-    },
-  },
-};
-export const commentStyles = userCommentSyles["light"];
-export default function EmbedComments({ commentData, user }: Props) {
+
+export default function EmbedComments({ commentData, user, theme }: Props) {
   const [parentSiteData, setParentSiteData] = useState<ParentSiteData>(null);
+  const [userCommentStyles, setUserCommentStyles] = useState<
+    CommentStyles["light"] | null
+  >(null);
+
   const embedRef = useRef(null);
+
+  useEffect(() => {
+    const { commentStyles } = commentData;
+    if (!theme || (theme !== "light" && theme !== "dark")) {
+      const isDarkTheme = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+
+      isDarkTheme
+        ? setUserCommentStyles(commentStyles["dark"])
+        : setUserCommentStyles(commentStyles["light"]);
+    } else setUserCommentStyles(commentStyles[theme]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     window.addEventListener("message", function (event) {
@@ -74,12 +76,14 @@ export default function EmbedComments({ commentData, user }: Props) {
     return () => clearInterval(interval);
   }, []);
 
+  if (!userCommentStyles) return null;
+
   return (
-    <div ref={embedRef} style={commentStyles.primary}>
-      <div className="fixed inset-0 z-0" style={commentStyles.primary} />
+    <div ref={embedRef} style={userCommentStyles.primary}>
+      <div className="fixed inset-0 z-0" style={userCommentStyles.primary} />
       <div className="relative z-10">
         <CommentsContainer
-          data={commentData}
+          data={{ ...commentData, userCommentStyles }}
           parentSiteData={parentSiteData}
           user={user}
         />

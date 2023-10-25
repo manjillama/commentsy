@@ -41,7 +41,28 @@ const appSchema = new Schema<IAppDocument>(
     commentStyles: {
       type: String,
       /** @todo Add json validator */
-      default: "{}",
+      default: JSON.stringify({
+        light: {
+          primary: {
+            backgroundColor: "#fff",
+            color: "#000",
+          },
+          accent: {
+            backgroundColor: "#000",
+            color: "#fff",
+          },
+        },
+        dark: {
+          primary: {
+            backgroundColor: "#000",
+            color: "#fff",
+          },
+          accent: {
+            backgroundColor: "#fff",
+            color: "#000",
+          },
+        },
+      }),
     },
   },
   {

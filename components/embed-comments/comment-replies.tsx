@@ -1,5 +1,5 @@
 import { IComment } from "@/interfaces/IComment";
-import { CommentData, commentStyles } from ".";
+import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
 import { ParentSiteData } from "./input-comment";
 import { useState } from "react";
@@ -11,7 +11,7 @@ import api from "@/utils/api";
 
 type Props = {
   comment: IComment;
-  commentData: CommentData;
+  commentData: CommentDataWithUserCommentSyles;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
 };
@@ -119,7 +119,10 @@ export default function CommentReplies({
             {isCommentFetching ? (
               <div className="h-[18px] w-[18px]">
                 <Spinner
-                  styles={{ backgroundColor: commentStyles.primary.color }}
+                  styles={{
+                    backgroundColor:
+                      commentData.userCommentStyles.primary.color,
+                  }}
                   size="sm"
                 />
               </div>
