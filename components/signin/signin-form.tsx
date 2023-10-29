@@ -41,7 +41,7 @@ export default function SignInForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 my-4">
+    <form onSubmit={handleSubmit} className="space-y-4 my-4 w-full">
       {error && <Alert>{error}</Alert>}
       <div>
         <label className="space-y-2">

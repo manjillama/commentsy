@@ -55,7 +55,7 @@ export default function SignUpForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 my-4">
+    <form onSubmit={handleSubmit} className="space-y-4 my-4 w-full">
       {errors.length ? (
         <Alert>
           <ul

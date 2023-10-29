@@ -13,7 +13,7 @@ type Props = {
 export default function OAuthProviders({ providers }: Props) {
   if (!providers) return null;
   return (
-    <div className="space-y-4 mt-4">
+    <div className="space-y-4 mt-4 w-full">
       {Object.values(providers).map((provider) =>
         provider.name === "Credentials" ? null : (
           <OAuthProvider key={provider.id} provider={provider} />

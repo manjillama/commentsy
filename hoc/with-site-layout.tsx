@@ -7,7 +7,7 @@ export const withSiteLayout =
     (
       <main>
         <Navbar />
-        <div style={{ minHeight: "100vh" }}>
+        <div style={{ minHeight: "calc(100vh - 64px)", position: "relative" }}>
           <WrappedComponent {...props} />
         </div>
         <Footer />

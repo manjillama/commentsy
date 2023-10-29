@@ -16,7 +16,7 @@ export default function SignInWrapper({ providers }: Props) {
     useState(false);
 
   return (
-    <div className="container max-w-xs mx-auto mt-[10%]">
+    <div className="container max-w-xs mx-auto flex  flex-col justify-center absolute inset-0">
       <h1 className="text-3xl font-bold text-center mb-8">
         Log in to Commentsy
       </h1>

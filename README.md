@@ -1,27 +1,29 @@
 <p align="center">
    <br/>
    <a href="https://authjs.dev" target="_blank">
-   <img height="64" src="https://authjs.dev/img/logo/logo-sm.png" />
+   <img height="64" src="https://raw.githubusercontent.com/manjillama/commentsy/dev/public/commentsy.svg" />
    </a>
    <a href="https://nextjs.org" target="_blank">
-   <img height="64" src="https://nextjs.org/static/favicon/android-chrome-192x192.png" />
+   <img height="64" src="https://raw.githubusercontent.com/manjillama/commentsy/dev/public/commentsy-text.svg" />
    </a>
-   <h3 align="center"><b>NextAuth.js</b> - Example App with MongoDB</h3>
+   <p align="center">Add comments to your website in just a few minutes.
+</p>
 
 <hr/>
 
-## Getting Started
+## Tech stacks
 
-This is an example application that shows how `next-auth` is applied to a basic Next.js app.
-
-The deployed version can be found at [`next-auth-mongo-example.vercel.app`](https://next-auth-mongo-example.vercel.app/)
-
-Go to [next-auth.js.org](https://next-auth.js.org) for more information and documentation.
+- Node.js 18
+- Next.js 13
+- NextAuth 4
+- TailwindCSS
+- TypeScript
+- MongoDB (Mongoose)
 
 ### 1. Clone the repository and install dependencies
 
 ```
-git clone https://github.com/manjillama/next-auth-mongo-example
+git clone https://github.com/manjillama/commentsy.git
 npm install
 ```
 
@@ -35,12 +37,6 @@ cp .env.local.example .env.local
 
 Add details for one or more providers (e.g. Google, GitHub, Email, etc).
 
-#### Database
-
-A database is needed to persist user accounts and to support email sign in. However, you can still use NextAuth.js for authentication without a database by using OAuth for authentication.
-
-This example uses MongoDB to store user data.
-
 ### 3. First, run the development server:
 
 ```bash
@@ -53,10 +49,10 @@ pnpm dev
 bun dev
 ```
 
+### Or run the development server with Docker:
+
+```
+docker-compose up
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.

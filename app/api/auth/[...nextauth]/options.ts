@@ -2,7 +2,6 @@ import type { NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
-import FacebookProvider from "next-auth/providers/facebook";
 import { keys } from "@/config";
 import authService from "@/services/authService";
 import dbConnect from "@/lib/dbConnect";
@@ -76,22 +75,6 @@ export const options: NextAuthOptions = {
         return user;
       },
     }),
-    // FacebookProvider({
-    //   clientId: keys.FACEBOOK_CLIENT_ID as string,
-    //   clientSecret: keys.FACEBOOK_CLIENT_SECRET as string,
-    //   async profile({ email, name, picture, ...options }) {
-    //     await dbConnect();
-    //     // const user = authService.handlePostOAuthUserSignIn(
-    //     //   email,
-    //     //   name,
-    //     //   "google",
-    //     //   picture
-    //     // );
-    //     console.log("Profile", options);
-
-    //     return { name, email, id: "1" };
-    //   },
-    // }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
