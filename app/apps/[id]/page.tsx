@@ -1,68 +1,17 @@
 "use client";
+import HtmlCode from "@/components/code-snippets/html-code";
+import JsCode from "@/components/code-snippets/js-code";
 import { RootState } from "@/store";
 import AppError from "@/utils/appError";
 import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import { useSelector } from "react-redux";
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 
 export default function App({ params: { id } }: { params: { id: string } }) {
   const apps = useSelector((state: RootState) => state.apps.apps);
   const app = apps.find((app) => app._id === id);
 
   if (!app) throw new AppError("404", 404);
-
-  const htmlCode =
-    `<!-- 
-  Replace {{IDENTIFIER}} with your page's unique identifier variable
-  The identifier you pass will be used to create a comments group
-  For e.g. ` +
-    process.env.NEXT_PUBLIC_SITE_URL +
-    "/" +
-    app.code +
-    `?identifier=my-new-blog-post
-  -->
-<iframe
-  scrolling="no"
-  frameborder="0"
-  id="commentsyIframe"
-  src="` +
-    process.env.NEXT_PUBLIC_SITE_URL +
-    "/embed/" +
-    app.code +
-    `?identifier={{IDENTIFIER}}&theme=light"
-  style="width:100%;border:none;overflow:hidden"
-/>`;
-
-  const jsCode =
-    `<script>
-  /**
-   * Important!!! Do not modify this code
-   * Paste this JavaScript code snippet as it is inside your HTML <head> tag
-   * or
-   * Paste it into an external JavaScript file then include it inside your HTML <head> tag
-   **/
-  window.addEventListener("message", (event) => {
-    const iframe = document.getElementById("commentsyIframe");
-    if (iframe && event.data) {
-      if (event.data.type === "commentsyResize" && event.data.height) {
-        iframe.style.height = \`\${event.data.height}px\`;
-      }
-      if (event.data.type === "pingCommentsyParent") {
-        iframe.contentWindow.postMessage(
-          {
-            type: "commentsyParentSiteData",
-            title: document.title,
-            url: window.location.href.split("?")[0],
-          },
-          "` +
-    process.env.NEXT_PUBLIC_SITE_URL +
-    `"
-        );
-      }
-    }
-  });
-</script>`;
 
   return (
     <div>
@@ -89,44 +38,13 @@ export default function App({ params: { id } }: { params: { id: string } }) {
         mode, provide &apos;light&apos; for light mode and &apos;dark&apos; for
         dark mode. In case of no theme provided then commentsy will use
         user&apos;s device theme.
-        <div className="relative">
-          <CopyButton textToCopy={htmlCode} />
-          <SyntaxHighlighter language="html">{htmlCode}</SyntaxHighlighter>
-        </div>
+        <HtmlCode appCode={app.code} />
         <br />
         2. Place the following JavaScript code inside your HTML head tag. It
         dynamically adjusts the iframe height based on the content inside and
         passes your current URL and page title to commentsy.
-        <div className="relative">
-          <CopyButton textToCopy={jsCode} />
-          <SyntaxHighlighter language="html">{jsCode}</SyntaxHighlighter>
-        </div>
+        <JsCode />
       </div>
     </div>
   );
 }
-
-const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
-  const [isCopied, setIsCopied] = useState(false);
-
-  return (
-    <button
-      type="button"
-      className="absolute top-4 right-4"
-      onClick={() => {
-        navigator.clipboard.writeText(textToCopy);
-        setIsCopied(true);
-        setTimeout(() => {
-          setIsCopied(false);
-        }, 3000);
-      }}
-      disabled={isCopied}
-    >
-      {isCopied ? (
-        <CheckIcon width={20} height={20} />
-      ) : (
-        <CopyIcon width={18} height={18} />
-      )}
-    </button>
-  );
-};

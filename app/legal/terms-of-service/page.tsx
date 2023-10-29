@@ -1,4 +1,3 @@
-import Footer from "@/components/footer";
 import { withSiteLayout } from "@/hoc";
 
 async function TermsOfService() {
