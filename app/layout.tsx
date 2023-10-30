@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: SITE_DATA.title,
   description: SITE_DATA.description,
+  openGraph: {
+    images: `${process.env.NEXT_PUBLIC_SITE_URL}/thumbnail.jpg`,
+  },
 };
 
 export default async function RootLayout({
