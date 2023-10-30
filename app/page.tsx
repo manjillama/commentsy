@@ -13,7 +13,7 @@ async function HomePage() {
   return (
     <div className="bg-white min-h-screen pb-8 lg:pt-0 pt-8 overflow-hidden">
       <div className="max-w-screen-xl mx-auto px-[15px] py-4">
-        <div className="flex flex-wrap rounded-lg mb-4">
+        <div className="flex flex-wrap rounded-lg mb-20">
           <div className="lg:w-1/2 mb-4 lg:pr-20 flex flex-col justify-center">
             <h1 className="text-3xl font-medium">
               Add comments to your website in just a few minutes.
@@ -49,14 +49,14 @@ async function HomePage() {
           </div>
           <div className="lg:w-1/2 relative px-16 py-20">
             <Image
-              className="rounded-xl border border-neutral-200 -rotate-12 shadow-md"
+              className="-translate-x-20 rounded-xl border border-neutral-200 -rotate-12 shadow-md"
               src="/images/banner-1.jpg"
               alt="commentsy banner 1"
               width={900}
               height={796}
             />
             <Image
-              className="rounded-xl absolute inset-0 rotate-12 scale-75 shadow-2xl"
+              className="translate-x-20 rounded-xl absolute inset-0 rotate-12 scale-75 shadow-2xl"
               src="/images/banner-2.jpg"
               alt="commentsy banner 2"
               width={900}
@@ -65,8 +65,9 @@ async function HomePage() {
           </div>
         </div>
         <div>
-          <h2 className="text-xl font-medium mb-4">
-            No external dependencies. Simple as that.
+          <h2 className="text-lg font-medium mb-4">
+            No external dependencies. Just follow the instructions below and
+            you&apos;re done! 🚀
           </h2>
           <div className="md:flex md:-mx-4">
             <div className="md:w-1/2 md:px-4">
