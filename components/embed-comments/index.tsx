@@ -81,12 +81,17 @@ export default function EmbedComments({ commentData, user, theme }: Props) {
   return (
     <div ref={embedRef} style={userCommentStyles.primary}>
       <div className="fixed inset-0 z-0" style={userCommentStyles.primary} />
-      <div className="relative z-10">
+      <div className="relative z-10 pb-4">
         <CommentsContainer
           data={{ ...commentData, userCommentStyles }}
           parentSiteData={parentSiteData}
           user={user}
         />
+        <div className="font-semibold text-right">
+          <a href={process.env.NEXT_PUBLIC_SITE_URL} target="_blank">
+            Powered by commentsy
+          </a>
+        </div>
       </div>
     </div>
   );

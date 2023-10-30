@@ -69,14 +69,9 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
       maxWidth="md"
     >
       <h3 className="text-2xl font-semibold">
-        <a
-          href={comment.pageUrl}
-          className="flex items-center"
-          rel="noreferrer"
-          target="_blank"
-        >
-          {comment.pageTitle}&nbsp;{" "}
-          <ExternalLinkIcon className="text-blue-600" />
+        <a href={comment.pageUrl} rel="noreferrer" target="_blank">
+          <span>{comment.pageTitle} </span>
+          <ExternalLinkIcon className="text-blue-600 inline" />
         </a>
       </h3>
       <div className="space-x-1 mb-6">

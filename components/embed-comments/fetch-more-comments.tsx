@@ -49,7 +49,7 @@ export default function FetchMoreComments({
   if (commentData.comments.length >= commentData.total) return null;
 
   return (
-    <div className="py-12">
+    <div className="pt-12">
       {isCommentLoading ? (
         <div className="h-[32px] w-[32px] mb-8">
           <Spinner

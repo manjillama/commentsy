@@ -20,12 +20,12 @@ export default function UserApps() {
           audiences in just a few minutes.
         </p>
         <div className="border rounded-md p-6 my-10 bg-white">
-          <div className="border border-dotted px-6 py-12 flex justify-center">
+          <div className="border border-dotted px-6 py-12 flex flex-col items-center">
+            <div className="rounded-full border h-[72px] w-[72px] flex items-center justify-center">
+              <ChatBubbleIcon height={26} width={26} />
+            </div>
+            <h2 className="my-4 text-2xl font-medium">No apps yet</h2>
             <div>
-              <div className="rounded-full border h-[72px] w-[72px] flex items-center justify-center">
-                <ChatBubbleIcon height={28} width={28} />
-              </div>
-              <p className="my-4">No apps yet</p>
               <NewAppDialog />
             </div>
           </div>

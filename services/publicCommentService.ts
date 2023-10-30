@@ -141,7 +141,7 @@ const _fetchComments = (options: any, queryParams: any) => {
 
   return factoryService
     .find(Comment, {
-      limit: 4,
+      limit: 20,
       sort: "-createdAt",
       ...query,
       ...options,
