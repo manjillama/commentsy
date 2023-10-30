@@ -1,4 +1,10 @@
+import { SITE_DATA } from "@/constants";
 import { withSiteLayout } from "@/hoc";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: `Account | ${SITE_DATA.title}`,
+};
 
 function AccountPage() {
   return (

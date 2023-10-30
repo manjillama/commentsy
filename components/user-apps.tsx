@@ -4,6 +4,8 @@ import { getRelativeTimeString } from "@/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelector } from "react-redux";
+import NewAppDialog from "./app-form/new-app-dialog";
+import { ChatBubbleIcon } from "@radix-ui/react-icons";
 
 export default function UserApps() {
   const apps = useSelector((state: RootState) => state.apps.apps);
@@ -17,6 +19,17 @@ export default function UserApps() {
           started, follow our integration guide and start engaging with your
           audiences in just a few minutes.
         </p>
+        <div className="border rounded-md p-6 my-10 bg-white">
+          <div className="border border-dotted px-6 py-12 flex justify-center">
+            <div>
+              <div className="rounded-full border h-[72px] w-[72px] flex items-center justify-center">
+                <ChatBubbleIcon height={28} width={28} />
+              </div>
+              <p className="my-4">No apps yet</p>
+              <NewAppDialog />
+            </div>
+          </div>
+        </div>
       </div>
     );
 

@@ -1,11 +1,17 @@
 import NewAppDialog from "@/components/app-form/new-app-dialog";
 import { withSiteLayout } from "@/hoc";
 import UserApps from "@/components/user-apps";
+import { Metadata } from "next";
+import { SITE_DATA } from "@/constants";
+
+export const metadata: Metadata = {
+  title: `Dashboard | ${SITE_DATA.title}`,
+};
 
 async function DashboardPage() {
   return (
     <div className="max-w-screen-lg mx-auto px-[15px] py-10">
-      <div className="flex items-center">
+      <div className="flex items-end">
         <div className="grow">
           <h2 className="text-xl">Commentsy apps</h2>
         </div>

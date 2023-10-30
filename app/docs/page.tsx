@@ -1,5 +1,10 @@
+import { SITE_DATA } from "@/constants";
 import { withSiteLayout } from "@/hoc";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+  title: `Docs | ${SITE_DATA.title}`,
+};
 async function DocsPage() {
   return (
     <div className="bg-white min-h-screen">

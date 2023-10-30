@@ -5,7 +5,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-neutral-200">
-      <div className="max-w-screen-2xl mx-auto px-[15px] py-4 text-neutral-500">
+      <div className="max-w-screen-xl mx-auto px-[15px] py-4 text-neutral-500">
         <div className="flex md:flex-row flex-col justify-between items-center">
           <ul className="flex space-x-4">
             <li>

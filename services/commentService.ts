@@ -122,13 +122,13 @@ const createComment = async ({
       pageTitle,
       pageUrl,
       comment,
-      status: COMMENT_STATUS.pending,
+      status: COMMENT_STATUS.approved,
     });
   }
 
   await userComment.validate();
 
-  if (userId) updateGroupAndParentCommentsCount({ group, parentCommentId });
+  updateGroupAndParentCommentsCount({ group, parentCommentId });
 
   return userComment.save();
 };

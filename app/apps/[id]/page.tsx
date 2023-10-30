@@ -3,8 +3,6 @@ import HtmlCode from "@/components/code-snippets/html-code";
 import JsCode from "@/components/code-snippets/js-code";
 import { RootState } from "@/store";
 import AppError from "@/utils/appError";
-import { CheckIcon, CopyIcon } from "@radix-ui/react-icons";
-import { useState } from "react";
 import { useSelector } from "react-redux";
 
 export default function App({ params: { id } }: { params: { id: string } }) {

@@ -48,18 +48,14 @@ export default function InputComment({
       anonUser: formProps.anonUser,
     });
     if (data.status === "success") {
-      if (user) {
-        data.data.commentUser = user as IUser;
-        const newComments = [...commentData.comments];
-        newComments.unshift(data.data);
-        setCommentData({
-          ...commentData,
-          comments: newComments,
-        });
-      } else {
-        // Show toast for pending message
-        console.log("Success, your comment will be visible once it's approved");
-      }
+      data.data.commentUser = (user as IUser) ?? data.data.anonUser;
+      const newComments = [...commentData.comments];
+      newComments.unshift(data.data);
+      setCommentData({
+        ...commentData,
+        comments: newComments,
+      });
+      setIsInputFocused(false);
     }
     setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);

@@ -1,3 +1,4 @@
+import { SITE_DATA } from "@/constants";
 import { withSiteLayout } from "@/hoc";
 import {
   EnvelopeClosedIcon,
@@ -5,7 +6,12 @@ import {
   GlobeIcon,
   TwitterLogoIcon,
 } from "@radix-ui/react-icons";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: `Contact | ${SITE_DATA.title}`,
+};
 
 function ContactPage() {
   return (

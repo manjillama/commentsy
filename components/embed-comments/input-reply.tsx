@@ -51,14 +51,9 @@ export default function InputReply({
       anonUser: formProps.anonUser,
     });
     if (data.status === "success") {
-      if (user) {
-        data.data.commentUser = user as IUser;
-        handleSubmittedData(data.data);
-        setShowReplyInput(false);
-      } else {
-        // Show toast for pending message
-        console.log("Success, your comment will be visible once it's approved");
-      }
+      data.data.commentUser = (user as IUser) ?? data.data.anonUser;
+      handleSubmittedData(data.data);
+      setShowReplyInput(false);
     }
     setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
