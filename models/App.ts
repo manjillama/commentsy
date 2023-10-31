@@ -12,7 +12,7 @@ const appSchema = new Schema<IAppDocument>(
     },
     name: {
       type: String,
-      maxLength: 20,
+      maxLength: 40,
       required: [true, "Missing app name"],
     },
     user: {
