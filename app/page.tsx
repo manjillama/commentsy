@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import HtmlCode from "@/components/code-snippets/html-code";
 import JsCode from "@/components/code-snippets/js-code";
+import NotAProductionAlert from "@/components/not-a-production-alert";
 
 async function HomePage() {
   const session = await getServerSession(options);

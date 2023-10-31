@@ -70,7 +70,7 @@ export default function AppForm(props: Props) {
     <div>
       <form className="space-y-4" onSubmit={handleSubmit}>
         {errors.length ? (
-          <Alert>
+          <Alert variant="error">
             <ul
               style={
                 errors.length > 1

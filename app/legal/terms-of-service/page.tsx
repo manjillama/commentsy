@@ -11,18 +11,23 @@ async function TermsOfService() {
     <div className="bg-white min-h-screen">
       <div className="max-w-screen-lg mx-auto px-[15px] py-10">
         <h2 className="text-6xl font-bold">Terms of Service</h2>
+
         <p className="my-4">
           Commentsy. (“Commentsy”, “we”, “us” or “our”) is an open source
           project and offers an online public comment sharing platform where you
           may login and create profiles to participate in conversations with
           peers and enjoy an interactive experience. Our services are best only
-          for small businesses and individuals with small-scale needs and it is
-          best to use other commercial projects if your project has extensive
-          needs. These Terms of Service (the “Terms”) govern your use of and
-          access to our comment sharing platform, software and website
-          (collectively the “Service”) by using the Service you understand and
-          agree to be bound by these Terms. Commentsy will not be liable for any
-          losses.
+          for educative and experimental purpose and it is best to use other
+          commercial services of similar kind if commercial projects. These
+          Terms of Service (the “Terms”) govern your use of and access to our
+          comment sharing platform, software and website (collectively the
+          “Service”) by using the Service you understand and agree to be bound
+          by these Terms. Commentsy will not be liable for any losses.
+        </p>
+        <p className="my-4">
+          Please note that this is not a real project and commentsy will not be
+          liable for any losses. We recommended to rather self host this project
+          on your own and then use it.
         </p>
         <p className="my-4 font-bold">Commentsy Account.</p>
         <p className="my-4">
