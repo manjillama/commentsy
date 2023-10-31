@@ -34,9 +34,8 @@ async function HomePage() {
               &quot;Commentsy&quot; is an open-source service for developers,
               bloggers, and content creators looking to enhance their online
               presence and create a more interactive and engaging platform for
-              their visitors. With its user-friendly features, it simplifies the
-              process of code integration and commenting, saving time and effort
-              while improving user interaction and collaboration.
+              their visitors. It simplifies the process of code integration and
+              commenting, saving time and effort.
             </p>
             <div>
               <Link
