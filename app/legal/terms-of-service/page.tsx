@@ -26,7 +26,7 @@ async function TermsOfService() {
         </p>
         <p className="my-4">
           Please note that this is not a real project and commentsy will not be
-          liable for any losses. We recommended to rather self host this project
+          liable for any losses. We recommended to rather self-host this project
           on your own and then use it.
         </p>
         <p className="my-4 font-bold">Commentsy Account.</p>

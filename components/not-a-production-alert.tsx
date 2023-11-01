@@ -3,7 +3,8 @@
 export default function NotAProductionAlert() {
   return (
     <div className="p-3 text-black bg-amber-300">
-      Please note that this is not a real project. It is highly recommended to{" "}
+      Please note that this is still a pilot project and is not yet in
+      production. Hence, it is recommended to{" "}
       <a
         href="https://github.com/manjillama/commentsy/fork"
         target="_blank"
@@ -12,7 +13,7 @@ export default function NotAProductionAlert() {
       >
         fork
       </a>{" "}
-      this project and{" "}
+      and{" "}
       <a
         href="https://vercel.com/new"
         target="_blank"
@@ -21,7 +22,7 @@ export default function NotAProductionAlert() {
       >
         self-host
       </a>{" "}
-      it to prevent any potential data losses.
+      this project to prevent any potential data losses.
     </div>
   );
 }

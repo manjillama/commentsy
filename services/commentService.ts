@@ -128,7 +128,7 @@ const createComment = async ({
 
   await userComment.validate();
 
-  updateGroupAndParentCommentsCount({ group, parentCommentId });
+  increaseGroupAndParentCommentsCount({ group, parentCommentId });
 
   return userComment.save();
 };
@@ -192,7 +192,7 @@ const updateCommentStatus = async ({
 
   const group = await Group.findById((comment.group as IGroup)._id);
 
-  updateGroupAndParentCommentsCount({
+  increaseGroupAndParentCommentsCount({
     group,
     parentCommentId: comment.parent as string,
   });
@@ -200,9 +200,54 @@ const updateCommentStatus = async ({
   return comment.save();
 };
 
-export default { createComment, updateCommentStatus, getAllAppComments };
+const markCommentAsSpam = async ({
+  commentId,
+  userId,
+}: {
+  commentId: string;
+  userId: string;
+}) => {
+  const comment = await Comment.findById(commentId).populate("group");
+  if (!comment)
+    throw new AppError(
+      "Comment with that id not found",
+      StatusCodes.BAD_REQUEST
+    );
 
-const updateGroupAndParentCommentsCount = ({
+  if (
+    userId !== (comment.group as IGroup)?.owner.toString() &&
+    userId !== comment.user?.toString()
+  )
+    throw new AppError(
+      "You are not authorized to perform this action",
+      StatusCodes.FORBIDDEN
+    );
+
+  if (!comment)
+    throw new AppError(
+      "Comment with that id not found or you're not authorized.",
+      StatusCodes.BAD_REQUEST
+    );
+  if (comment.isSpam)
+    throw new AppError(
+      "Comment is already marked as spam",
+      StatusCodes.BAD_REQUEST
+    );
+
+  decreaseGroupAndParentCommentCount(comment);
+
+  comment.isSpam = true;
+  return comment.save();
+};
+
+export default {
+  createComment,
+  updateCommentStatus,
+  markCommentAsSpam,
+  getAllAppComments,
+};
+
+const increaseGroupAndParentCommentsCount = ({
   group,
   parentCommentId,
 }: {
@@ -239,16 +284,25 @@ const removeComment = (
   if (userComment.status === COMMENT_STATUS.deleted)
     throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
+  decreaseGroupAndParentCommentCount(userComment);
+
+  userComment.status = COMMENT_STATUS.deleted;
+  return userComment.save();
+};
+
+const decreaseGroupAndParentCommentCount = (comment: ICommentDocument) => {
+  if (comment.status !== COMMENT_STATUS.approved) return;
+
   let totalCommentsCountToBeDecreased = 0;
 
-  const isAReply = userComment.parent;
+  const isAReply = comment.parent;
   /**
    * If comment to be deleted is a reply then update parent comment and group comment count.
    * If comment to be deleted is a parent comment then delete all child comment as well and update group count.
    */
   if (isAReply) {
     totalCommentsCountToBeDecreased = 1;
-    Comment.findById(userComment.parent).then((parentComment) => {
+    Comment.findById(comment.parent).then((parentComment) => {
       if (parentComment) {
         parentComment.repliesCount = parentComment.repliesCount - 1;
         parentComment.save();
@@ -257,7 +311,7 @@ const removeComment = (
   } else {
     Comment.updateMany(
       {
-        parent: userComment.parent,
+        parent: comment.parent,
       },
       {
         $set: {
@@ -265,17 +319,14 @@ const removeComment = (
         },
       }
     );
-    totalCommentsCountToBeDecreased = userComment.repliesCount + 1;
+    totalCommentsCountToBeDecreased = comment.repliesCount + 1;
   }
 
-  Group.findById(userComment.group).then((group) => {
+  Group.findById(comment.group).then((group) => {
     if (group) {
       group.commentsCount =
         group.commentsCount - totalCommentsCountToBeDecreased;
       group.save();
     }
   });
-
-  userComment.status = COMMENT_STATUS.deleted;
-  return userComment.save();
 };

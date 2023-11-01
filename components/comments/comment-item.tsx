@@ -12,7 +12,9 @@ export default function CommentItem({
 }: {
   comment: IComment;
 }) {
-  const [comment, setComment] = useState(commentProps);
+  const [comment, setComment] = useState<IComment | null>(commentProps);
+
+  if (!comment) return null;
 
   return (
     <div className="flex md:items-center md:flex-row flex-col w-full text-left border-t p-4 first:border-t-0 md:space-x-20">
