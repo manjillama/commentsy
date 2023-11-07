@@ -71,7 +71,7 @@ const getAllGroupCommentsInitData = async ({
   const parsedUrl = new URL(refererUrl);
   const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
 
-  if (!app.authorizedOrigins.includes(baseUrl))
+  if (!app.authorizedOrigins.some((url) => isSameDomain(url, baseUrl)))
     return {
       status: "fail",
       message: "Authorization error, URI mismatch",
@@ -152,6 +152,26 @@ const _fetchComments = (options: any, queryParams: any) => {
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .exec();
 };
+
+function isSameDomain(url1: string, url2: string) {
+  function removeWww(hostname: string) {
+    // Remove "www" if it exists at the beginning of the hostname
+    if (hostname.startsWith("www.")) {
+      return hostname.slice(4);
+    }
+    return hostname;
+  }
+  // Create URL objects for the input URLs
+  const parsedUrl1 = new URL(url1);
+  const parsedUrl2 = new URL(url2);
+
+  // Remove "www" subdomains from hostnames
+  const hostname1 = removeWww(parsedUrl1.hostname);
+  const hostname2 = removeWww(parsedUrl2.hostname);
+
+  // Compare the hostnames
+  return hostname1 === hostname2;
+}
 
 export default {
   getAllGroupCommentsInitData,
