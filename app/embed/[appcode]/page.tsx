@@ -39,7 +39,7 @@ async function getCommentsData(
 ): Promise<ClientGroupCommentsReturnType> {
   const headersList = headers();
   const referer =
-    process.env.NODE_ENV === "development"
+    process.env.NODE_ENV === config.envs.dev
       ? config.siteUrl
       : headersList.get("referer");
 
