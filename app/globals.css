@@ -6,4 +6,15 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
   --background-end-rgb: 255, 255, 255;
+  --accent: #f59e0b;
+}
+
+html,
+body {
+  background-color: #fafafa;
+  font-size: 14px;
+}
+
+a {
+  @apply transition-all;
 }

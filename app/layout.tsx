@@ -1,16 +1,18 @@
-import AuthProvider from "@/context/auth-provider";
-import "./globals.css";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { getServerSession } from "next-auth";
-import { options } from "./api/auth/[...nextauth]/options";
+import RootComponent from "@/components/root-component";
+import "./globals.css";
+import { Metadata } from "next";
+import { SITE_DATA } from "@/constants";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Commentsy - Add comments to your site in just few minutes",
-  description:
-    "Add comments to your site in just few minutes. Building community and growing engagements",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL as string),
+  title: SITE_DATA.title,
+  description: SITE_DATA.description,
+  openGraph: {
+    images: `/thumbnail.jpg`,
+  },
 };
 
 export default async function RootLayout({
@@ -18,12 +20,10 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerSession(options);
-
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider session={session}>{children}</AuthProvider>
+        <RootComponent>{children}</RootComponent>
       </body>
     </html>
   );

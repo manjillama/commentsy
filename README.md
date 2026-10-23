@@ -1,8 +1,43 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+<p align="center">
+   <br/>
+   <a href="https://authjs.dev" target="_blank">
+   <img height="64" src="https://raw.githubusercontent.com/manjillama/commentsy/dev/public/commentsy.svg" />
+   </a>
+   <a href="https://nextjs.org" target="_blank">
+   <img height="64" src="https://raw.githubusercontent.com/manjillama/commentsy/dev/public/commentsy-text.svg" />
+   </a>
+   <p align="center">Add comments to your website in just a few minutes.
+</p>
 
-## Getting Started
+<hr/>
 
-First, run the development server:
+## Tech stacks
+
+- Node.js 18
+- Next.js 13
+- NextAuth 4
+- TailwindCSS
+- TypeScript
+- MongoDB (Mongoose)
+
+### 1. Clone the repository and install dependencies
+
+```
+git clone https://github.com/manjillama/commentsy.git
+npm install
+```
+
+### 2. Configure your local environment
+
+Copy the .env.local.example file in this directory to .env.local (which will be ignored by Git):
+
+```
+cp .env.local.example .env.local
+```
+
+Add details for one or more providers (e.g. Google, GitHub, Email, etc).
+
+### 3. First, run the development server:
 
 ```bash
 npm run dev
@@ -14,23 +49,10 @@ pnpm dev
 bun dev
 ```
 
+### Or run the development server with Docker:
+
+```
+docker-compose up
+```
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.

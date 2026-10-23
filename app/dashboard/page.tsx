@@ -1,22 +1,28 @@
-import { getServerSession } from "next-auth";
-import React from "react";
-import { options } from "../api/auth/[...nextauth]/options";
-import SignoutButton from "@/components/signout-button";
-import AppDashboard from "@/components/app-dashboard";
-import Link from "next/link";
+import NewAppDialog from "@/components/app-form/new-app-dialog";
+import { withSiteLayout } from "@/hoc";
+import UserApps from "@/components/user-apps";
+import { Metadata } from "next";
+import { SITE_DATA } from "@/constants";
 
-const Dashboard = async () => {
-  const session = await getServerSession(options);
-  console.log("Current session dashboard", session);
-
-  return (
-    <div>
-      <Link href="/">Home</Link>
-      <div>{session?.user?.name}</div>
-      <SignoutButton />
-      <AppDashboard />
-    </div>
-  );
+export const metadata: Metadata = {
+  title: `Dashboard | ${SITE_DATA.title}`,
 };
 
-export default Dashboard;
+async function DashboardPage() {
+  return (
+    <div className="max-w-screen-lg mx-auto px-[15px] py-10">
+      <div className="flex items-end">
+        <div className="grow">
+          <h2 className="text-xl">Commentsy apps</h2>
+        </div>
+        <div>
+          <NewAppDialog />
+        </div>
+      </div>
+      <hr className="border-neutral-200 my-4" />
+      <UserApps />
+    </div>
+  );
+}
+
+export default withSiteLayout(DashboardPage);

@@ -1,9 +1,38 @@
-import { getToken } from "next-auth/jwt";
+// Ref: https://stackoverflow.com/questions/67560587/how-to-protect-routes-in-next-js-next-auth
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
-export default withAuth({ pages: { signIn: "/signin" } });
+const anonymousRoutes = [
+  "/signin",
+  "/signup",
+  "/embed",
+  "/contact",
+  "/docs",
+  "/legal",
+];
+const publicFileRegex = /\.(.*)$/;
 
-export const config = {
-  matcher: ["/signin", "/dashboard", "/app", "/profile"],
-};
+export default withAuth(
+  async function middleware(req) {
+    const response = NextResponse.next();
+    return response;
+  },
+  {
+    callbacks: {
+      authorized: ({ req }) => {
+        const { pathname } = req.nextUrl;
+
+        return Boolean(
+          req.cookies.get("next-auth.session-token") ||
+            pathname === "/" || // exclude home page
+            pathname.startsWith("/_next") || // exclude Next.js internals
+            pathname.startsWith("/api") || //  exclude all API routes
+            pathname.startsWith("/static") || // exclude static files
+            publicFileRegex.test(pathname) || // exclude all files in the public folder
+            anonymousRoutes.some((path) => pathname.startsWith(path))
+        );
+      },
+    },
+    pages: { signIn: "/signin", error: "/signin" },
+  }
+);
