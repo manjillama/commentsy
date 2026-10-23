@@ -29,7 +29,7 @@ export default function Footer() {
           </ul>
           <div>
             <Link
-              href="https://www.buymeacoffee.com/manjiltamang"
+              href="https://buymeacoffee.com/xmarman"
               className="hover:text-black"
               target="_blank"
               rel="noreferrer"
