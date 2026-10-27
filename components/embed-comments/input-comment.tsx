@@ -1,3 +1,7 @@
+import LoginHint from "./login-hint";
+import GifPicker from "./gif-picker";
+import { CommentGif } from "@/utils/gif";
+import { registerGifShare } from "@/lib/klipy";
 import { Session } from "next-auth";
 import Avatar from "../ui/avatar";
 import { useState } from "react";
@@ -26,10 +30,12 @@ export default function InputComment({
   setCommentData,
   user,
 }: Props) {
+  const [gif, setGif] = useState<CommentGif>();
+  const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formProps, setFormProps] = useState<{
     comment: string;
-    anonUser: null | {};
+    anonUser: null | { name?: string; email?: string };
   }>({
     comment: "",
     anonUser: null,
@@ -38,16 +44,29 @@ export default function InputComment({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!formProps.comment.trim() && !gif) {
+      setError("Add a comment or choose a GIF.");
+      return;
+    }
+    setError("");
     setSubmitting(true);
     const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
       identifier: commentData.identifier,
       comment: formProps.comment,
+      gif,
       pageTitle: parentSiteData?.title,
       pageUrl: parentSiteData?.url,
       anonUser: formProps.anonUser,
     });
+    if (data.status !== "success") {
+      setError(data.errors.join(" ") || data.message || "Unable to post. Please try again.");
+      setSubmitting(false);
+      return;
+    }
     if (data.status === "success") {
+      if (gif) void registerGifShare(gif);
+      setGif(undefined);
       data.data.commentUser = (user as IUser) ?? data.data.anonUser;
       const newComments = [...commentData.comments];
       newComments.unshift(data.data);
@@ -95,8 +114,12 @@ export default function InputComment({
         <Avatar user={user} />
       </div>
       <form onSubmit={handleSubmit} className="w-full">
+        {error && <p role="alert" className="text-red-600 mb-3">{error}</p>}
+        {!user && <LoginHint parentSiteData={parentSiteData} />}
         <div className={styles.growWrap}>
           <textarea
+            value={formProps.comment}
+            maxLength={5000}
             style={commentData.userCommentStyles.primary}
             name="comment"
             onChange={(e) =>
@@ -117,6 +140,7 @@ export default function InputComment({
         </div>
         {isInputFocused && (
           <div className="mt-4">
+            <GifPicker value={gif} onChange={setGif} palette={commentData.userCommentStyles} />
             {!user && (
               <div className="max-w-xs space-y-4 mb-4">
                 <input
@@ -124,6 +148,7 @@ export default function InputComment({
                   placeholder="Name"
                   className="border border-neutral-300 w-full rounded-lg p-2"
                   name="name"
+                  value={formProps.anonUser?.name ?? ""}
                   type="text"
                   onChange={handleAnonUserInput}
                   required
@@ -133,6 +158,7 @@ export default function InputComment({
                   placeholder="Email"
                   className="border border-neutral-300 w-full rounded-lg p-2"
                   name="email"
+                  value={formProps.anonUser?.email ?? ""}
                   type="email"
                   onChange={handleAnonUserInput}
                   required
@@ -141,6 +167,7 @@ export default function InputComment({
             )}
             <div className="flex space-x-2">
               <button
+                type="button"
                 onClick={() => {
                   setIsInputFocused(false);
                 }}

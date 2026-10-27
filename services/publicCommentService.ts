@@ -1,4 +1,5 @@
 import _ from "lodash";
+import { parseCommentStyles } from "@/utils/commentStyles";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
 import Group from "@/models/Group";
@@ -90,7 +91,7 @@ const getAllGroupCommentsInitData = async ({
       likesCount: group.likesCount,
       commentsCount: group.commentsCount,
       comments: comments as IComment[],
-      commentStyles: JSON.parse(app.commentStyles),
+      commentStyles: parseCommentStyles(app.commentStyles),
       total,
       totalCommentsAndReplies: group.commentsCount,
       size,
@@ -147,9 +148,9 @@ const _fetchComments = (options: any, queryParams: any) => {
       ...options,
       status: COMMENT_STATUS.approved,
       isSpam: false,
-      fields: "_id, repliesCount, commentUser, comment, createdAt, anonUser",
+      fields: "_id, repliesCount, commentUser, user, comment, gif, createdAt, anonUser",
     })
-    .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
+    .populate({ path: "user", select: "name image avatarBackgroundColor" })
     .exec();
 };
 

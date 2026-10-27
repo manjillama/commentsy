@@ -1,3 +1,4 @@
+import CommentContent from "./comment-content";
 import { IComment } from "@/interfaces/IComment";
 import Avatar from "../ui/avatar";
 import { getRelativeTimeString } from "@/utils";
@@ -5,7 +6,6 @@ import { ParentSiteData } from "./input-comment";
 import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
 import CommentReplies from "./comment-replies";
-import ReadMoreText from "../read-more-text";
 
 type Props = {
   comment: IComment;
@@ -33,9 +33,7 @@ export default function CommentItem({
             {getRelativeTimeString(new Date(comment.createdAt))}
           </span>
         </div>
-        <div className="whitespace-pre-wrap">
-          <ReadMoreText text={comment.comment} />
-        </div>
+        <CommentContent comment={comment} user={user} palette={commentData.userCommentStyles} />
         <CommentReplies
           comment={comment}
           commentData={commentData}

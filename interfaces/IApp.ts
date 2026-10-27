@@ -4,6 +4,7 @@ import { IUser } from "./IUser";
 export type CommentStyles = {
   light: {
     primary: {
+      borderColor?: string;
       backgroundColor: string;
       color: string;
     };
@@ -14,6 +15,7 @@ export type CommentStyles = {
   };
   dark: {
     primary: {
+      borderColor?: string;
       backgroundColor: string;
       color: string;
     };

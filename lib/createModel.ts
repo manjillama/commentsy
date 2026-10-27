@@ -1,25 +1,17 @@
 import { config } from "@/config";
-import { Model, model, Schema } from "mongoose";
+import { deleteModel, Model, model, models, Schema } from "mongoose";
 
 export default function createModel<T, TModel = Model<T>>(
   modelName: string,
   schema: Schema<T>
 ): TModel {
-  let createdModel: TModel;
   if (process.env.NODE_ENV === config.envs.dev) {
-    // In development mode, use a global variable so that the value
-    // is preserved across module reloads caused by HMR (Hot Module Replacement).
-    // @ts-ignore
-    if (!global[modelName]) {
-      createdModel = model<T, TModel>(modelName, schema);
-      // @ts-ignore
-      global[modelName] = createdModel;
-    }
-    // @ts-ignore
-    createdModel = global[modelName];
-  } else {
-    // In production mode, it's best to not use a global variable.
-    createdModel = model<T, TModel>(modelName, schema);
+    // Recompile when this module reloads so schema changes (including new
+    // fields and validators) take effect during Next.js hot reloads.
+    if (models[modelName]) deleteModel(modelName);
+    return model<T, TModel>(modelName, schema);
   }
-  return createdModel;
+
+  return (models[modelName] as TModel | undefined) ??
+    model<T, TModel>(modelName, schema);
 }

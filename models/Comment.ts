@@ -1,3 +1,4 @@
+import { isCommentGif } from "@/utils/gif";
 import { Schema } from "mongoose";
 import createModel from "@/lib/createModel";
 import { ICommentDocument } from "@/interfaces/IComment";
@@ -77,7 +78,19 @@ const commentSchema = new Schema<ICommentDocument>(
     comment: {
       type: String,
       maxLength: 5000,
-      required: [true, "Missing comment"],
+      default: "",
+      required: [function (this: ICommentDocument) { return !this.gif; }, "Add a comment or choose a GIF"],
+    },
+    gif: {
+      type: new Schema({
+        provider: { type: String, enum: ["klipy"], required: true },
+        id: { type: String, required: true, maxlength: 200 },
+        slug: { type: String, required: true, maxlength: 250 },
+        url: { type: String, required: true, maxlength: 4096 },
+        title: { type: String, default: "", maxlength: 300 },
+      }, { _id: false }),
+      validate: { validator: (gif: unknown) => gif == null || isCommentGif(gif), message: "Invalid GIF attachment" },
+      default: undefined,
     },
     status: {
       type: String,

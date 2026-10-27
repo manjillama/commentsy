@@ -1,3 +1,4 @@
+import { CommentGif } from "@/utils/gif";
 import mongoose, { ObjectId } from "mongoose";
 import { IUser } from "./IUser";
 import { COMMENT_STATUS, IGroup } from "./IGroup";
@@ -14,6 +15,7 @@ export interface IComment {
   pageUrl: string;
   repliesCount: number;
   comment: string;
+  gif?: CommentGif;
   status: `${COMMENT_STATUS}`;
   isSpam: boolean;
   createdAt: Date;

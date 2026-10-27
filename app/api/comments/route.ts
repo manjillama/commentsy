@@ -33,6 +33,7 @@ export const POST = catchAsync(async function (req: Request) {
     appCode,
     identifier,
     comment,
+    gif,
     parentCommentId,
     pageTitle,
     pageUrl,
@@ -46,6 +47,7 @@ export const POST = catchAsync(async function (req: Request) {
     pageUrl,
     parentCommentId,
     comment,
+    gif,
     userId: session?.user.id as string,
     anonUser,
   });
