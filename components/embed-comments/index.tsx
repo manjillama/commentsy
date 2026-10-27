@@ -1,4 +1,5 @@
 "use client";
+import { EmbedSessionContext, useEmbedSession } from "./embed-session";
 import { IComment } from "@/interfaces/IComment";
 import { Session } from "next-auth";
 import { useEffect, useRef, useState } from "react";
@@ -31,6 +32,7 @@ export type PageParams = {
 };
 
 export default function EmbedComments({ commentData, user, theme }: Props) {
+  const session = useEmbedSession(user);
   const [parentSiteData, setParentSiteData] = useState<ParentSiteData>(null);
   const [userCommentStyles, setUserCommentStyles] = useState<
     CommentStyles["light"] | null
@@ -82,11 +84,13 @@ export default function EmbedComments({ commentData, user, theme }: Props) {
     <div ref={embedRef} style={userCommentStyles.primary}>
       <div className="fixed inset-0 z-0" style={userCommentStyles.primary} />
       <div className="relative z-10 pb-4">
+        <EmbedSessionContext.Provider value={session.controls}>
         <CommentsContainer
           data={{ ...commentData, userCommentStyles }}
           parentSiteData={parentSiteData}
-          user={user}
+          user={session.user}
         />
+        </EmbedSessionContext.Provider>
         <div className="font-semibold text-right">
           <a href={process.env.NEXT_PUBLIC_SITE_URL} target="_blank">
             Powered by commentsy

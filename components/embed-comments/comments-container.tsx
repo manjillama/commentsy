@@ -1,6 +1,7 @@
 "use client";
+import LoginHint from "./login-hint";
 import { Session } from "next-auth";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import InputComment, { ParentSiteData } from "./input-comment";
 import CommentList from "./comment-list";
 import FetchMoreComments from "./fetch-more-comments";
@@ -26,19 +27,10 @@ export default function CommentsContainer({
   });
   const [commentData, setCommentData] = useState(data);
 
-  let [isThirdPartyCookieEnabled, setIsThirdPartyCookieEnabled] =
-    useState(false);
-
-  useEffect(() => {
-    setIsThirdPartyCookieEnabled(window.navigator.cookieEnabled);
-  }, []);
-
   return (
     <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
-      {/* <span suppressHydrationWarning>
-        {isThirdPartyCookieEnabled ? "Yes" : "No"}
-      </span> */}
       {totalCommentsCount(commentData.totalCommentsAndReplies)}
+      {!user && <LoginHint parentSiteData={parentSiteData} palette={commentData.userCommentStyles} />}
       <InputComment
         setCommentData={setCommentData}
         commentData={commentData}

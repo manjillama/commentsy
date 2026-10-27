@@ -1,4 +1,3 @@
-import LoginHint from "./login-hint";
 import GifPicker from "./gif-picker";
 import { CommentGif } from "@/utils/gif";
 import { registerGifShare } from "@/lib/klipy";
@@ -114,7 +113,6 @@ export default function InputReply({
       </div>
       <form onSubmit={handleSubmit} className="w-full">
         {error && <p role="alert" className="text-red-600 mb-3">{error}</p>}
-        {!user && <LoginHint parentSiteData={parentSiteData} />}
         <div className={styles.growWrap}>
           <textarea
             value={formProps.comment}

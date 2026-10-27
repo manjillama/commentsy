@@ -19,11 +19,11 @@ const getLoginUserFromCredentials = async ({
   email: string;
   password: string;
 }): Promise<LoginResponse | null> => {
-  if (!email || !password)
+  if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password)
     throw new AppError("CredentialsSigninMissing", StatusCodes.BAD_GATEWAY);
 
   const user = await User.findOne({
-    email,
+    email: email.trim().toLowerCase(),
   }).select("+password");
 
   if (!user) return null;
