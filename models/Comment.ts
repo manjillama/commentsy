@@ -1,3 +1,4 @@
+import { normalizePageUrl } from "@/utils/pageUrl";
 import { isCommentGif } from "@/utils/gif";
 import { Schema } from "mongoose";
 import createModel from "@/lib/createModel";
@@ -60,14 +61,11 @@ const commentSchema = new Schema<ICommentDocument>(
     pageUrl: {
       type: String,
       required: [true, "Missing page url"],
+      maxlength: 8192,
+      set: (value: string) => normalizePageUrl(value) ?? value,
       validate: {
-        validator: function (url: string) {
-          return /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-/]))?/.test(
-            url
-          );
-        },
-        message: () =>
-          `Invalid origin: URIs is required and must not contain a path or end with "/".`,
+        validator: (value: string) => normalizePageUrl(value) !== null,
+        message: "Enter a valid absolute HTTP or HTTPS page URL",
       },
     },
     repliesCount: {

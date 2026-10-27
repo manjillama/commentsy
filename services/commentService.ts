@@ -1,3 +1,4 @@
+import { normalizePageUrl } from "@/utils/pageUrl";
 import { CommentGif, isCommentGif } from "@/utils/gif";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
@@ -85,6 +86,10 @@ const createComment = async ({
       "Missing one or more fields app code (appCode), group identifier (identifier), page title (pageTitle), page url (pageUrl), comment",
       StatusCodes.BAD_REQUEST
     );
+
+  const normalizedPageUrl = normalizePageUrl(pageUrl);
+  if (!normalizedPageUrl) throw new AppError("Enter a valid absolute HTTP or HTTPS page URL", StatusCodes.BAD_REQUEST);
+  pageUrl = normalizedPageUrl;
 
   const app = await App.findOne({ code: appCode });
 

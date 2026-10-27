@@ -9,10 +9,10 @@ const mongoose = require('mongoose');
 function load(file, mocks = {}, globals = {}) {
   const loadedModule = { exports: {} };
   const source = ts.transpileModule(fs.readFileSync(file, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2020 },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX },
   }).outputText;
   const evaluate = vm.runInThisContext(`(function(module, exports, require, ${Object.keys(globals).join(",")}) { ${source}\n})`, { filename: file });
-  evaluate(loadedModule, loadedModule.exports, name => name in mocks ? mocks[name] : require(name), ...Object.values(globals));
+  evaluate(loadedModule, loadedModule.exports, name => name in mocks ? mocks[name] : name === "@/utils/pageUrl" ? load("utils/pageUrl.ts") : require(name), ...Object.values(globals));
   return loadedModule.exports;
 }
 const gifUtils = load('utils/gif.ts', {}, { URL });

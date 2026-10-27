@@ -22,7 +22,7 @@ export default function JsCode() {
           {
             type: "commentsyParentSiteData",
             title: document.title,
-            url: window.location.href.split("?")[0],
+            url: window.location.href,
           },
           "` +
     process.env.NEXT_PUBLIC_SITE_URL +
