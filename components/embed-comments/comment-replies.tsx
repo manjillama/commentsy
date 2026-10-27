@@ -5,7 +5,7 @@ import { IComment } from "@/interfaces/IComment";
 import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
 import { ParentSiteData } from "./input-comment";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import InputReply from "./input-reply";
 import Avatar from "../ui/avatar";
 import { getRelativeTimeString } from "@/utils";
@@ -27,7 +27,7 @@ export default function CommentReplies({
   const mutations = useCommentMutations();
   const removedReplies = mutations?.deleted.filter(item => item.parent === comment._id) ?? [];
   const removedIds = new Set(removedReplies.map(item => item.id));
-  const [message, setMessage] = useState("");
+  const repliesClosed = comment.status === "deleted" || comment.isSpam || Boolean(mutations?.deleted.some(item => item.id === comment._id));
   const [totalRepliesCount, setTotalRepliesCount] = useState(
     comment.repliesCount
   );
@@ -46,41 +46,52 @@ export default function CommentReplies({
   const visibleNewReplies = newSubmittComments.filter(item => !removedIds.has(item._id));
   const remainingRepliesCount = Math.max(0, totalRepliesCount - removedReplies.length);
 
+  const [nextPage, setNextPage] = useState(1);
+  const [fetchError, setFetchError] = useState("");
+  useEffect(() => {
+    if (comment.repliesCount > 0) void handleFetchReplies();
+    // Fetch the first three replies once when this thread mounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comment._id]);
+
   const handleFetchReplies = async () => {
     setIsCommentFetching(true);
-    const data = await api.get<{
-      comments: IComment[];
-      total: number;
-      size: number;
-    }>(
-      `/api/comments/${comment._id}/replies?page=1&limit=${visibleReplies.length + visibleNewReplies.length + 20}&sort=${params.sort}`
-    );
+    setFetchError("");
+    try {
+      const data = await api.get<{
+        comments: IComment[];
+        total: number;
+        size: number;
+      }>(
+        `/api/comments/${comment._id}/replies?page=${nextPage}&limit=3&sort=${params.sort}`
+      );
 
-    if (data.status === "success") {
-      const newComments = data.data.comments;
-      if (newComments.length > 0) {
-        setCommentReplies(newComments);
-        setNewSubmittiedComments([]);
-        setTotalRepliesCount(data.data.total + removedReplies.length);
-        setParams({
-          ...params,
-          currentPage: params.currentPage + 1,
-        });
-      }
-    }
-    setIsCommentFetching(false);
+      if (data.status === "success") {
+        const newComments = data.data.comments;
+        if (newComments.length > 0) {
+          setCommentReplies(current => Array.from(new Map([...current, ...newComments].map(item => [item._id, item])).values()));
+          setNewSubmittiedComments(current => current.filter(item => !newComments.some(fetched => fetched._id === item._id)));
+          setNextPage(nextPage + 1);
+          setTotalRepliesCount(data.data.total + removedReplies.length);
+          setParams({
+            ...params,
+            currentPage: params.currentPage + 1,
+          });
+        }
+      } else setFetchError("Unable to load replies. Please try again.");
+    } catch { setFetchError("Unable to load replies. Please try again."); }
+    finally { setIsCommentFetching(false); }
   };
 
   const handleSubmittedData = (newComment: IComment): void => {
     setNewSubmittiedComments([...newSubmittComments, newComment]);
-    setMessage("Reply posted.");
     setTotalRepliesCount(totalRepliesCount + 1);
   };
 
   return (
     <div>
-      <FormFeedback message={message} />
-      {showReplyInput ? (
+      <FormFeedback message={fetchError} error={Boolean(fetchError)} />
+      {!repliesClosed && (showReplyInput ? (
         <div className="pr-8">
           <InputReply
             handleSubmittedData={handleSubmittedData}
@@ -100,8 +111,8 @@ export default function CommentReplies({
         >
           Reply
         </button>
-      )}
-      {visibleReplies.length > 0 && (
+      ))}
+      {visibleReplies.length > 3 && (
         <div>
           <div className="flex items-center space-x-4">
             <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
@@ -109,10 +120,11 @@ export default function CommentReplies({
               className="opacity-50 text-sm font-semibold"
               onClick={() => {
                 setParams({ ...params, currentPage: 1 });
-                setCommentReplies([]);
+                setCommentReplies(current => current.slice(0, 3));
+                setNextPage(2);
               }}
             >
-              Hide all replies
+              Show fewer replies
             </button>
           </div>
         </div>

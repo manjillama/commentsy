@@ -120,8 +120,9 @@ function DocsPage() {
             <p className="mt-3">
               Open your app&apos;s <strong>Comments</strong> page to review and
               moderate conversations. Only approved comments appear in the widget.
-              Deleting a comment also removes its replies from the conversation,
-              so review the thread before confirming deletion.
+              Deleting a comment replaces its content with a notice. Existing replies
+              remain visible, but new replies are closed. Threads show the first
+              three replies; select View replies to load more.
               Your dashboard separately lists comments you posted while signed in.
             </p>
           </section>

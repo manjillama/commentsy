@@ -57,6 +57,9 @@ export default function CommentContent({ comment, user, palette }: {
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to delete comment."); setBusy(false); }
   }
 
+  if (comment.status === "deleted" || comment.isSpam || mutations?.deleted.some(item => item.id === comment._id))
+    return <p className="italic opacity-60 py-2">This comment was deleted or removed for violating site rules.</p>;
+
   return <div>
     {editing ? <div className="mt-3">
       <label className="block">
@@ -85,7 +88,7 @@ export default function CommentContent({ comment, user, palette }: {
       <button type="button" disabled={busy} onClick={() => setConfirming(true)}>Delete</button>
     </div>}
     {confirming && <div className="border rounded-lg p-3 mt-3 text-sm" style={palette.primary}>
-      <p>Delete this comment{comment.repliesCount > 0 ? " and its replies" : ""}?</p>
+      <p>Delete this comment? Existing replies will remain visible, but new replies will be closed.</p>
       <div className="flex gap-3 mt-2"><button type="button" disabled={busy} onClick={remove}>{busy ? "Deleting…" : "Delete"}</button><button type="button" disabled={busy} onClick={() => setConfirming(false)}>Cancel</button></div>
     </div>}
     <FormFeedback message={error || message} error={Boolean(error)} />

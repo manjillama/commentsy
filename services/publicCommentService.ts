@@ -137,21 +137,32 @@ const _fetchCommentsWithGroupId = (
   return _fetchComments({ parent: null, group: groupId }, queryParams);
 };
 
-const _fetchComments = (options: any, queryParams: any) => {
+const _fetchComments = async (options: any, queryParams: any) => {
   const query = _.pick(queryParams, ["limit", "page", "sort"]) as {};
 
-  return factoryService
+  const [comments, total, size] = await factoryService
     .find(Comment, {
       limit: 20,
       sort: "-createdAt",
       ...query,
       ...options,
-      status: COMMENT_STATUS.approved,
-      isSpam: false,
-      fields: "_id, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
+      ...(options.parent === null ? {
+        $or: [
+          { status: COMMENT_STATUS.approved, isSpam: false },
+          { repliesCount: { $gt: 0 }, $or: [{ status: COMMENT_STATUS.deleted }, { isSpam: true }] },
+        ],
+      } : { status: COMMENT_STATUS.approved, isSpam: false }),
+      fields: "_id, parent, status, isSpam, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor" })
     .exec();
+  // Never send removed content or its author details to the public widget.
+  const visible = comments.map(comment => {
+    if (comment.status === COMMENT_STATUS.approved && !comment.isSpam) return comment;
+    return { _id: comment._id, parent: comment.parent, status: "deleted", repliesCount: comment.repliesCount,
+      createdAt: comment.createdAt, comment: "", commentUser: { name: "Deleted comment", avatarBackgroundColor: "#d4d4d4" } };
+  });
+  return [visible as ICommentDocument[], total, size] as [ICommentDocument[], number, number];
 };
 
 function isSameDomain(url1: string, url2: string) {

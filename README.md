@@ -125,7 +125,7 @@ If you sandbox the iframe, include `allow-scripts`, `allow-same-origin`, `allow-
 - **Group:** a conversation associated with one app and a page identifier. The embed creates a group when needed.
 - **Comment:** belongs to an app and group. A `parent` reference makes it a reply. It can contain text, one GIF attachment, or both.
 
-The embed loads comments through `publicCommentService`; posting and author mutations go through `commentService`. API routes derive the acting user from the NextAuth session. Author edits set `editedAt`; deletion marks comments as deleted rather than removing database records. Deleting a parent also removes its visible replies from the conversation and updates counts.
+The embed loads comments through `publicCommentService`; posting and author mutations go through `commentService`. API routes derive the acting user from the NextAuth session. Author edits set `editedAt`; deletion marks comments as deleted rather than removing database records. Deleting a parent preserves its visible replies beneath a removal notice and closes new replies. Threads initially show three replies, with more available on demand.
 
 The dashboard shows the signed-in user's visible comments with pagination, separately from their owned apps. Profile settings are saved through `accountService`; JWT profile refreshes read the saved user rather than trusting client-supplied session fields.
 
