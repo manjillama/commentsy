@@ -63,8 +63,7 @@ export default function CommentItemStatusActions({
           <div className="mb-6">
             <h3 className="font-semibold text-lg">Are you sure to delete?</h3>
             <p className="text-neutral-500">
-              This action cannot be undone. Deleting a comment will also delete
-              all its replies.
+              This action cannot be undone. Existing replies will remain visible, but new replies will be closed.
             </p>
           </div>
           <div className="flex justify-end space-x-4">

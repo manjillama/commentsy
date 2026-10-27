@@ -15,7 +15,7 @@ test('comment service rejects empty content and invalid attachments before datab
 test('service saves GIF-only comments and anonymous replies with their attachment', async () => {
   for (const anonymous of [false, true]) {
     const group = { _id: base.group, commentsCount: 0, save: async () => {} };
-    const parent = { repliesCount: 0, save: async () => {} };
+    const parent = { app: base.app, group: base.group, status: 'approved', repliesCount: 0, save: async () => {} };
     const service = load('services/commentService.ts', {
       '@/utils/gif': gifUtils,
       '@/models/App': { findOne: async () => ({ _id: base.app }) },
@@ -88,8 +88,8 @@ test('author mutations enforce ownership and scope deletion to the selected thre
   await assert.rejects(service.updateOwnComment('comment-id', 'author', { comment: 'new', gif: {} }), /Invalid GIF/);
   await service.deleteOwnComment('comment-id', 'author');
   assert.equal(found.status, 'deleted');
-  assert.equal(calls.find(call => call[0] === 'replies')[1].parent, 'comment-id');
-  assert.equal(calls.find(call => call[0] === 'group')[2].$inc.commentsCount, -3);
+  assert.equal(calls.some(call => call[0] === 'replies'), false);
+  assert.equal(calls.find(call => call[0] === 'group')[2].$inc.commentsCount, -1);
   calls.length = 0;
   found = { ...found, status: 'approved', parent: 'parent-id' };
   await service.deleteOwnComment('comment-id', 'author');
@@ -107,10 +107,65 @@ test('embedded deletion updates counts and lists without navigating the iframe',
   assert.equal(afterReply.comments[0].repliesCount, 1);
   assert.equal(afterReply.total, 2);
   assert.equal(afterReply.totalCommentsAndReplies, 3);
-  const afterParent = removeDeletedComment(afterReply, { _id: 'parent' }, 2);
-  assert.equal(afterParent.comments.length, 1);
-  assert.equal(afterParent.comments[0]._id, 'other');
-  assert.equal(afterParent.total, 1);
-  assert.equal(afterParent.totalCommentsAndReplies, 1);
+  const afterParent = removeDeletedComment(afterReply, { _id: 'parent', repliesCount: 1 }, 1);
+  assert.equal(afterParent.comments.length, 2);
+  assert.equal(afterParent.comments[0].status, 'deleted');
+  assert.equal(afterParent.comments[0].comment, '');
+  assert.equal(afterParent.total, 2);
+  assert.equal(afterParent.totalCommentsAndReplies, 2);
   assert.equal(original.comments.length, 2);
+});
+
+
+test('reply creation rejects removed, nested, missing, and unrelated parents', async () => {
+  for (const parent of [null,
+    { status: 'deleted' }, { status: 'approved', isSpam: true },
+    { status: 'approved', parent: 'nested' },
+    { status: 'approved', app: 'other', group: base.group },
+    { status: 'approved', app: base.app, group: 'other' },
+  ]) {
+    const service = load('services/commentService.ts', {
+      '@/utils/gif': gifUtils,
+      '@/models/App': { findOne: async () => ({ _id: base.app }) },
+      '@/models/Group': { findOne: async () => ({ _id: base.group }) },
+      '@/models/Comment': { findById: async () => parent }, './factoryService': {},
+      '@/utils/appError': class AppError extends Error {},
+      '@/interfaces/IGroup': { COMMENT_STATUS: { approved: 'approved' } },
+      '@/interfaces/IUser': { AVATAR_BACKGROUND_COLORS: [] },
+    }).default;
+    await assert.rejects(service.createComment({ appCode: 'app', groupIdentifier: 'post',
+      comment: 'reply', pageTitle: base.pageTitle, pageUrl: base.pageUrl,
+      parentCommentId: 'parent', userId: String(base.user),
+    }), /Replies are closed/);
+  }
+});
+
+test('public threads retain removal notices without leaking deleted content', async () => {
+  let filter;
+  const service = load('services/publicCommentService.ts', {
+    '@/utils/commentStyles': { parseCommentStyles: () => ({}) },
+    '@/models/App': {}, '@/models/Comment': {}, '@/models/Group': { findOne: () => ({ lean: async () => ({ _id: 'group' }) }) },
+    '@/utils/appError': class AppError extends Error {},
+    '@/interfaces/IGroup': { COMMENT_STATUS: { approved: 'approved', deleted: 'deleted' } },
+    './factoryService': { find: (_, query) => {
+      filter = query;
+      return { populate() { return this; }, exec: async () => [[
+        { _id: 'parent', status: 'deleted', repliesCount: 2, comment: 'secret', gif, user: 'author', anonUser: { email: 'private' } },
+        { _id: 'spam', status: 'approved', isSpam: true, repliesCount: 1, comment: 'spam' },
+      ], 2, 20] };
+    } },
+  }).default;
+  const [comments] = await service.getAllGroupComments('post', {});
+  assert.equal(filter.parent, null);
+  assert.equal(filter.$or[1].repliesCount.$gt, 0);
+  await service.getAllCommentReplies('parent', {});
+  assert.equal(filter.status, 'approved');
+  assert.equal(filter.isSpam, false);
+  for (const comment of comments) {
+    assert.equal(comment.status, 'deleted');
+    assert.equal(comment.comment, '');
+    assert.equal(comment.gif, undefined);
+    assert.equal(comment.user, undefined);
+    assert.equal(comment.anonUser, undefined);
+  }
 });

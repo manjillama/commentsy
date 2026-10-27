@@ -4,7 +4,6 @@ import {
   EnvelopeClosedIcon,
   GitHubLogoIcon,
   GlobeIcon,
-  TwitterLogoIcon,
 } from "@radix-ui/react-icons";
 import { Metadata } from "next";
 import Link from "next/link";
@@ -35,15 +34,6 @@ function ContactPage() {
               target="_blank"
             >
               <GitHubLogoIcon height={32} width={32} />
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="https://twitter.com/lamamanjil"
-              className="hover:text-black"
-              target="_blank"
-            >
-              <TwitterLogoIcon height={32} width={32} />
             </Link>
           </li>
           <li>

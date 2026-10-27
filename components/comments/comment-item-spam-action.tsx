@@ -49,7 +49,7 @@ export default function CommentItemSpamAction({
           <h3 className="font-semibold text-lg">Are you absolutely sure?</h3>
           <p className="text-neutral-500">
             This action cannot be undone. Marking a comment as a spam will
-            remove it from comments and all its replies will be deleted.
+            remove its content. Existing replies will remain visible, but new replies will be closed.
           </p>
         </div>
         <div className="flex justify-end space-x-4">

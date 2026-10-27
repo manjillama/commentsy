@@ -47,7 +47,7 @@ export function parseQueryFilter(queryString: any) {
   let queryStr: any = JSON.stringify(queryObj);
   // ADVANCE FILTERING
   queryStr = JSON.parse(
-    queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match: string) => `$${match}`)
+    queryStr.replace(/"(gte|gt|lte|lt)"\s*:/g, (_match: string, operator: string) => `"$${operator}":`)
   );
 
   return queryStr;

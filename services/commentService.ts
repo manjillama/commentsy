@@ -107,6 +107,13 @@ const createComment = async ({
       StatusCodes.BAD_REQUEST
     );
 
+  if (parentCommentId) {
+    const parent = await Comment.findById(parentCommentId);
+    if (!parent || parent.parent || parent.status !== COMMENT_STATUS.approved || parent.isSpam ||
+        String(parent.app) !== String(app._id) || String(parent.group) !== String(group._id))
+      throw new AppError("Replies are closed for this comment", StatusCodes.BAD_REQUEST);
+  }
+
   let userComment;
   if (userId) {
     userComment = new Comment({
@@ -349,12 +356,6 @@ const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument) => 
   let count = 1;
   if (comment.parent) {
     await Comment.updateOne({ _id: comment.parent, repliesCount: { $gt: 0 } }, { $inc: { repliesCount: -1 } });
-  } else {
-    const replies = await Comment.updateMany(
-      { parent: comment._id, status: COMMENT_STATUS.approved, isSpam: false },
-      { $set: { status: COMMENT_STATUS.deleted } }
-    );
-    count += replies.modifiedCount;
   }
   await Group.updateOne({ _id: comment.group }, { $inc: { commentsCount: -count } });
   return count;

@@ -91,7 +91,7 @@ Search and media requests go directly from the browser to KLIPY. The app saves a
 4. Replace `{{IDENTIFIER}}` with a stable identifier for that page, such as a post slug. Different pages should have different identifiers.
 5. Choose `theme=light` or `theme=dark`, or omit it to use the visitor's device preference.
 
-Use **Appearance** to customize each theme and **Comments** to moderate the app's conversations. The standalone `/docs` page is currently a placeholder; use the app's generated integration instructions and this README.
+Use **Appearance** to customize each theme and **Comments** to moderate the app's conversations. The `/docs` page includes a user guide for integration, page identifiers, themes, moderation, and troubleshooting. Use the app's integration page for your generated embed snippets.
 
 ### Embedded sign-in and Safari
 
@@ -125,7 +125,7 @@ If you sandbox the iframe, include `allow-scripts`, `allow-same-origin`, `allow-
 - **Group:** a conversation associated with one app and a page identifier. The embed creates a group when needed.
 - **Comment:** belongs to an app and group. A `parent` reference makes it a reply. It can contain text, one GIF attachment, or both.
 
-The embed loads comments through `publicCommentService`; posting and author mutations go through `commentService`. API routes derive the acting user from the NextAuth session. Author edits set `editedAt`; deletion marks comments as deleted rather than removing database records. Deleting a parent also removes its visible replies from the conversation and updates counts.
+The embed loads comments through `publicCommentService`; posting and author mutations go through `commentService`. API routes derive the acting user from the NextAuth session. Author edits set `editedAt`; deletion marks comments as deleted rather than removing database records. Deleting a parent preserves its visible replies beneath a removal notice and closes new replies. Threads initially show three replies, with more available on demand.
 
 The dashboard shows the signed-in user's visible comments with pagination, separately from their owned apps. Profile settings are saved through `accountService`; JWT profile refreshes read the saved user rather than trusting client-supplied session fields.
 
