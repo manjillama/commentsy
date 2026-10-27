@@ -1,3 +1,4 @@
+import CommentContent from "./comment-content";
 import { IComment } from "@/interfaces/IComment";
 import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
@@ -105,10 +106,10 @@ export default function CommentReplies({
       )}
 
       {commentReplies.map((comment) => (
-        <CommentReplyItem key={comment._id} comment={comment} />
+        <CommentReplyItem key={comment._id} comment={comment} user={user} commentData={commentData} />
       ))}
       {newSubmittComments.map((comment) => (
-        <CommentReplyItem key={comment._id} comment={comment} />
+        <CommentReplyItem key={comment._id} comment={comment} user={user} commentData={commentData} />
       ))}
 
       {totalRepliesCount > 0 &&
@@ -151,7 +152,7 @@ export default function CommentReplies({
   );
 }
 
-function CommentReplyItem({ comment }: { comment: IComment }) {
+function CommentReplyItem({ comment, user, commentData }: { comment: IComment; user?: Session["user"]; commentData: CommentDataWithUserCommentSyles }) {
   return (
     <div key={comment._id} className="flex space-x-3 my-4">
       <div className="shrink-0">
@@ -166,7 +167,7 @@ function CommentReplyItem({ comment }: { comment: IComment }) {
             {getRelativeTimeString(new Date(comment.createdAt))}
           </span>
         </div>
-        <div className="whitespace-pre-wrap">{comment.comment}</div>
+        <CommentContent comment={comment} user={user} palette={commentData.userCommentStyles} />
       </div>
     </div>
   );

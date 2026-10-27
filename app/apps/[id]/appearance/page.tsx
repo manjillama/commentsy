@@ -1,4 +1,5 @@
 "use client";
+import AppearanceForm from "@/components/appearance/form";
 import { RootState } from "@/store";
 import AppError from "@/utils/appError";
 import { useSelector } from "react-redux";
@@ -25,7 +26,7 @@ export default function Appearance({
         </div>
       </header>
       <div className="max-w-screen-lg mx-auto px-[15px] py-12">
-        Coming soon.
+        <AppearanceForm key={app._id} app={app} />
       </div>
     </div>
   );

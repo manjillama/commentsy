@@ -50,6 +50,7 @@ export const options: NextAuthOptions = {
     GitHubProvider({
       clientId: keys.GITHUB_ID as string,
       clientSecret: keys.GITHUB_SECRET as string,
+      issuer: "https://github.com/login/oauth",
       async profile({ email, name, avatar_url }) {
         await dbConnect();
         const user = authService.handlePostOAuthUserSignIn(

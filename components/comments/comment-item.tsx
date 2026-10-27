@@ -1,3 +1,4 @@
+import GifImage from "@/components/embed-comments/gif-image";
 import { getRelativeTimeString } from "@/utils";
 import Avatar from "../ui/avatar";
 import { IComment } from "@/interfaces/IComment";
@@ -57,7 +58,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
     <div>
       <div className="font-medium">{comment.pageTitle}</div>
       <div className="whitespace-nowrap overflow-ellipsis overflow-hidden text-neutral-500">
-        {comment.comment}
+        {comment.comment || (comment.gif ? "GIF attachment" : "")}
       </div>
     </div>
   );
@@ -105,6 +106,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
 
       <div className="whitespace-pre-wrap">
         <ReadMoreText text={comment.comment} />
+          <GifImage gif={comment.gif} />
       </div>
       <div className="flex justify-end">
         <button

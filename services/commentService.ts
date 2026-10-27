@@ -1,3 +1,4 @@
+import { CommentGif, isCommentGif } from "@/utils/gif";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
 import Group from "@/models/Group";
@@ -42,7 +43,7 @@ const getAllAppComments = async ({
       app: appId,
       isSpam: false,
       fields:
-        "_id, repliesCount, commentUser, app, anonUser, status, comment, parent, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, commentUser, app, anonUser, status, comment, gif, parent, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .exec();
@@ -55,6 +56,7 @@ const createComment = async ({
   pageTitle,
   pageUrl,
   comment,
+  gif,
   parentCommentId,
   anonUser,
 }: {
@@ -64,13 +66,21 @@ const createComment = async ({
   pageTitle: string;
   pageUrl: string;
   comment: string;
+  gif?: CommentGif;
   parentCommentId: string;
   anonUser?: {
     name: string;
     email: string;
   };
 }) => {
-  if (!appCode || !groupIdentifier || !comment || !pageTitle || !pageUrl)
+  if (gif !== undefined && !isCommentGif(gif))
+    throw new AppError("Invalid GIF attachment", StatusCodes.BAD_REQUEST);
+  if (typeof comment !== "string" && comment !== undefined)
+    throw new AppError("Invalid comment", StatusCodes.BAD_REQUEST);
+  comment = (comment ?? "").trim();
+  if (!comment && !gif)
+    throw new AppError("Add a comment or choose a GIF", StatusCodes.BAD_REQUEST);
+  if (!appCode || !groupIdentifier || !pageTitle || !pageUrl)
     throw new AppError(
       "Missing one or more fields app code (appCode), group identifier (identifier), page title (pageTitle), page url (pageUrl), comment",
       StatusCodes.BAD_REQUEST
@@ -102,6 +112,7 @@ const createComment = async ({
       pageTitle,
       pageUrl,
       comment,
+      gif,
       status: COMMENT_STATUS.approved,
     });
   } else {
@@ -122,6 +133,7 @@ const createComment = async ({
       pageTitle,
       pageUrl,
       comment,
+      gif,
       status: COMMENT_STATUS.approved,
     });
   }
@@ -234,13 +246,33 @@ const markCommentAsSpam = async ({
       StatusCodes.BAD_REQUEST
     );
 
-  decreaseGroupAndParentCommentCount(comment);
+  await decreaseGroupAndParentCommentCount(comment);
 
   comment.isSpam = true;
   return comment.save();
 };
 
+const updateOwnComment = async (commentId: string, userId: string, data: { comment?: unknown; gif?: unknown }) => {
+  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false });
+  if (!comment) throw new AppError("Comment not found or you cannot edit it", StatusCodes.FORBIDDEN);
+  if (typeof data.comment !== "string" || (!data.comment.trim() && !data.gif))
+    throw new AppError("Add a comment or choose a GIF", StatusCodes.BAD_REQUEST);
+  if (data.gif != null && !isCommentGif(data.gif))
+    throw new AppError("Invalid GIF attachment", StatusCodes.BAD_REQUEST);
+  comment.comment = data.comment.trim();
+  comment.gif = data.gif == null ? undefined : data.gif as CommentGif;
+  return comment.save();
+};
+
+const deleteOwnComment = async (commentId: string, userId: string) => {
+  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false });
+  if (!comment) throw new AppError("Comment not found or you cannot delete it", StatusCodes.FORBIDDEN);
+  return removeComment(comment);
+};
+
 export default {
+  updateOwnComment,
+  deleteOwnComment,
   createComment,
   updateCommentStatus,
   markCommentAsSpam,
@@ -272,7 +304,7 @@ const increaseGroupAndParentCommentsCount = ({
     });
   }
 };
-const removeComment = (
+const removeComment = async (
   userComment: ICommentDocument | null
 ): Promise<ICommentDocument> => {
   if (!userComment)
@@ -284,49 +316,23 @@ const removeComment = (
   if (userComment.status === COMMENT_STATUS.deleted)
     throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
-  decreaseGroupAndParentCommentCount(userComment);
+  await decreaseGroupAndParentCommentCount(userComment);
 
   userComment.status = COMMENT_STATUS.deleted;
   return userComment.save();
 };
 
-const decreaseGroupAndParentCommentCount = (comment: ICommentDocument) => {
-  if (comment.status !== COMMENT_STATUS.approved) return;
-
-  let totalCommentsCountToBeDecreased = 0;
-
-  const isAReply = comment.parent;
-  /**
-   * If comment to be deleted is a reply then update parent comment and group comment count.
-   * If comment to be deleted is a parent comment then delete all child comment as well and update group count.
-   */
-  if (isAReply) {
-    totalCommentsCountToBeDecreased = 1;
-    Comment.findById(comment.parent).then((parentComment) => {
-      if (parentComment) {
-        parentComment.repliesCount = parentComment.repliesCount - 1;
-        parentComment.save();
-      }
-    });
+const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument) => {
+  if (comment.status !== COMMENT_STATUS.approved || comment.isSpam) return;
+  let count = 1;
+  if (comment.parent) {
+    await Comment.updateOne({ _id: comment.parent, repliesCount: { $gt: 0 } }, { $inc: { repliesCount: -1 } });
   } else {
-    Comment.updateMany(
-      {
-        parent: comment.parent,
-      },
-      {
-        $set: {
-          status: COMMENT_STATUS.deleted,
-        },
-      }
+    const replies = await Comment.updateMany(
+      { parent: comment._id, status: COMMENT_STATUS.approved, isSpam: false },
+      { $set: { status: COMMENT_STATUS.deleted } }
     );
-    totalCommentsCountToBeDecreased = comment.repliesCount + 1;
+    count += replies.modifiedCount;
   }
-
-  Group.findById(comment.group).then((group) => {
-    if (group) {
-      group.commentsCount =
-        group.commentsCount - totalCommentsCountToBeDecreased;
-      group.save();
-    }
-  });
+  await Group.updateOne({ _id: comment.group }, { $inc: { commentsCount: -count } });
 };

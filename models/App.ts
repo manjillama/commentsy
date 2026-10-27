@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 import { nanoid } from "nanoid";
 import createModel from "@/lib/createModel";
+import { DEFAULT_COMMENT_STYLES, isCommentStyles } from "@/utils/commentStyles";
 import { IAppDocument } from "@/interfaces/IApp";
 
 const appSchema = new Schema<IAppDocument>(
@@ -40,29 +41,17 @@ const appSchema = new Schema<IAppDocument>(
     },
     commentStyles: {
       type: String,
-      /** @todo Add json validator */
-      default: JSON.stringify({
-        light: {
-          primary: {
-            backgroundColor: "#fff",
-            color: "#000",
-          },
-          accent: {
-            backgroundColor: "#000",
-            color: "#fff",
-          },
+      default: JSON.stringify(DEFAULT_COMMENT_STYLES),
+      validate: {
+        validator: (value: string) => {
+          try {
+            return isCommentStyles(JSON.parse(value));
+          } catch {
+            return false;
+          }
         },
-        dark: {
-          primary: {
-            backgroundColor: "#000",
-            color: "#fff",
-          },
-          accent: {
-            backgroundColor: "#fff",
-            color: "#000",
-          },
-        },
-      }),
+        message: "Invalid comment colors. Use three- or six-digit hex colors for both themes.",
+      },
     },
   },
   {
