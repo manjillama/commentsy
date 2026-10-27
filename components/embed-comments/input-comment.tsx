@@ -33,7 +33,6 @@ export default function InputComment({
   user,
 }: Props) {
   const [gif, setGif] = useState<CommentGif>();
-  const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formProps, setFormProps] = useState<{
@@ -52,7 +51,6 @@ export default function InputComment({
       return;
     }
     setError("");
-    setSuccess("");
     setSubmitting(true);
     let pageData;
     try {
@@ -87,7 +85,6 @@ export default function InputComment({
         comments: newComments,
       });
       setIsInputFocused(false);
-      setSuccess("Comment posted.");
     }
     setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
@@ -126,7 +123,7 @@ export default function InputComment({
         <Avatar user={user} />
       </div>
       <form onSubmit={handleSubmit} className="w-full">
-        <FormFeedback message={error || success} error={Boolean(error)} />
+        <FormFeedback message={error} error />
         <div className={styles.growWrap}>
           <textarea
             value={formProps.comment}
@@ -179,6 +176,12 @@ export default function InputComment({
             )}
             <div className="flex space-x-2">
               <button
+                style={commentData.userCommentStyles.accent}
+                className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
+              >
+                Comment
+              </button>
+              <button
                 type="button"
                 onClick={() => {
                   setIsInputFocused(false);
@@ -187,12 +190,6 @@ export default function InputComment({
                 className="text-sm py-2 px-4 block rounded-lg hover:opacity-60"
               >
                 Cancel
-              </button>
-              <button
-                style={commentData.userCommentStyles.accent}
-                className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
-              >
-                Comment
               </button>
             </div>
           </div>

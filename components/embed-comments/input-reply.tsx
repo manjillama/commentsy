@@ -170,6 +170,12 @@ export default function InputReply({
           )}
           <div className="flex space-x-2">
             <button
+              style={commentData.userCommentStyles.accent}
+              className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
+            >
+              Reply
+            </button>
+            <button
               type="button"
               onClick={() => {
                 setShowReplyInput(false);
@@ -177,12 +183,6 @@ export default function InputReply({
               className="text-sm py-2 px-3 block rounded-lg hover:opacity-60"
             >
               Cancel
-            </button>
-            <button
-              style={commentData.userCommentStyles.accent}
-              className="text-sm py-2 px-5 block rounded-lg hover:opacity-75"
-            >
-              Reply
             </button>
           </div>
         </div>
