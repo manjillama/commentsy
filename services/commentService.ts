@@ -43,7 +43,7 @@ const getAllAppComments = async ({
       app: appId,
       isSpam: false,
       fields:
-        "_id, repliesCount, commentUser, app, anonUser, status, comment, gif, parent, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, commentUser, app, anonUser, status, comment, gif, editedAt, parent, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .exec();
@@ -260,6 +260,7 @@ const updateOwnComment = async (commentId: string, userId: string, data: { comme
   if (data.gif != null && !isCommentGif(data.gif))
     throw new AppError("Invalid GIF attachment", StatusCodes.BAD_REQUEST);
   comment.comment = data.comment.trim();
+  comment.editedAt = new Date();
   comment.gif = data.gif == null ? undefined : data.gif as CommentGif;
   return comment.save();
 };
@@ -270,7 +271,23 @@ const deleteOwnComment = async (commentId: string, userId: string) => {
   return removeComment(comment);
 };
 
+const getOwnComments = async (userId: string, requestedPage: number) => {
+  const filter = { user: userId, status: COMMENT_STATUS.approved, isSpam: false };
+  const pageSize = 10;
+  const total = await Comment.countDocuments(filter);
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const page = Math.min(Math.max(1, Math.floor(requestedPage) || 1), pages);
+  const comments = await Comment.find(filter)
+    .select("user comment gif pageTitle pageUrl parent repliesCount createdAt editedAt status")
+    .sort({ createdAt: -1, _id: -1 })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .lean();
+  return { comments: JSON.parse(JSON.stringify(comments)) as import("@/interfaces/IComment").IComment[], total, page, pages };
+};
+
 export default {
+  getOwnComments,
   updateOwnComment,
   deleteOwnComment,
   createComment,

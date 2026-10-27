@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { keys } from "@/config";
 import authService from "@/services/authService";
 import dbConnect from "@/lib/dbConnect";
+import User from "@/models/User";
 import { sessionCookieOptions } from "@/utils/sessionCookie";
 
 export const options: NextAuthOptions = {
@@ -24,7 +25,16 @@ export const options: NextAuthOptions = {
         throw new Error("OAuthAccountNotLinked");
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger }) {
+      if (trigger === "update" && token.sub) {
+        await dbConnect();
+        const profile = await User.findById(token.sub).select("name image avatarBackgroundColor").lean();
+        if (profile) {
+          token.name = profile.name;
+          token.picture = profile.image;
+          token.avatarBackgroundColor = profile.avatarBackgroundColor;
+        }
+      }
       if (user) token.avatarBackgroundColor = user.avatarBackgroundColor;
       token.id = token.sub;
 

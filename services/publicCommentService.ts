@@ -148,7 +148,7 @@ const _fetchComments = (options: any, queryParams: any) => {
       ...options,
       status: COMMENT_STATUS.approved,
       isSpam: false,
-      fields: "_id, repliesCount, commentUser, user, comment, gif, createdAt, anonUser",
+      fields: "_id, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor" })
     .exec();

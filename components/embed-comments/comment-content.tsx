@@ -1,4 +1,6 @@
 "use client";
+import FormFeedback from "../ui/form-feedback";
+import CommentLength from "./comment-length";
 import { useState } from "react";
 import { Session } from "next-auth";
 import { IComment } from "@/interfaces/IComment";
@@ -16,6 +18,8 @@ export default function CommentContent({ comment, user, palette }: {
   const [text, setText] = useState(comment.comment);
   const [gif, setGif] = useState<CommentGif | undefined>(comment.gif);
   const [saved, setSaved] = useState({ text: comment.comment, gif: comment.gif });
+  const [editedAt, setEditedAt] = useState(comment.editedAt);
+  const [message, setMessage] = useState("");
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -25,17 +29,19 @@ export default function CommentContent({ comment, user, palette }: {
 
   async function save() {
     if (!text.trim() && !gif) { setError("Add a comment or choose a GIF."); return; }
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setMessage("");
     const response = await api.patch<IComment>(`/api/comments/${comment._id}`, { comment: text, gif: gif ?? null });
     setBusy(false);
     if (response.status !== "success") { setError(response.errors.join(" ") || response.message); return; }
     if (gif && gif.url !== saved.gif?.url) void registerGifShare(gif);
     setSaved({ text: response.data.comment, gif: response.data.gif });
+    setEditedAt(response.data.editedAt);
+    setMessage("Comment updated.");
     setEditing(false);
   }
 
   async function remove() {
-    setBusy(true); setError("");
+    setBusy(true); setError(""); setMessage("");
     try {
       const response = await fetch(`/api/comments/${comment._id}`, { method: "DELETE" });
       const data = await response.json();
@@ -60,20 +66,22 @@ export default function CommentContent({ comment, user, palette }: {
           disabled={busy}
         />
       </label>
+      <CommentLength length={text.length} />
       <GifPicker value={gif} onChange={setGif} palette={palette} />
       <div className="flex gap-3">
         <button type="button" disabled={busy} style={palette.accent} className="rounded-lg px-4 py-2" onClick={save}>{busy ? "Saving…" : "Save changes"}</button>
         <button type="button" disabled={busy} onClick={() => { setText(saved.text); setGif(saved.gif); setEditing(false); setError(""); }}>Cancel</button>
       </div>
     </div> : <div className="whitespace-pre-wrap"><ReadMoreText text={saved.text} /><GifImage gif={saved.gif} /></div>}
+    {!editing && editedAt && <p className="text-xs opacity-50 mt-1">Edited</p>}
     {own && !editing && <div className="flex gap-3 text-xs mt-2">
-      <button type="button" disabled={busy} onClick={() => { setEditing(true); setConfirming(false); setError(""); }}>Edit</button>
+      <button type="button" disabled={busy} onClick={() => { setEditing(true); setConfirming(false); setError(""); setMessage(""); }}>Edit</button>
       <button type="button" disabled={busy} onClick={() => setConfirming(true)}>Delete</button>
     </div>}
     {confirming && <div className="border rounded-lg p-3 mt-3 text-sm" style={palette.primary}>
       <p>Delete this comment{comment.repliesCount > 0 ? " and its replies" : ""}?</p>
       <div className="flex gap-3 mt-2"><button type="button" disabled={busy} onClick={remove}>{busy ? "Deleting…" : "Delete"}</button><button type="button" disabled={busy} onClick={() => setConfirming(false)}>Cancel</button></div>
     </div>}
-    {error && <p role="alert" className="mt-2 text-sm">{error}</p>}
+    <FormFeedback message={error || message} error={Boolean(error)} />
   </div>;
 }

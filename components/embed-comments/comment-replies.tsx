@@ -1,3 +1,4 @@
+import FormFeedback from "../ui/form-feedback";
 import CommentContent from "./comment-content";
 import { IComment } from "@/interfaces/IComment";
 import { CommentDataWithUserCommentSyles } from ".";
@@ -22,6 +23,7 @@ export default function CommentReplies({
   user,
   parentSiteData,
 }: Props) {
+  const [message, setMessage] = useState("");
   const [totalRepliesCount, setTotalRepliesCount] = useState(
     comment.repliesCount
   );
@@ -62,11 +64,13 @@ export default function CommentReplies({
 
   const handleSubmittedData = (newComment: IComment): void => {
     setNewSubmittiedComments([...newSubmittComments, newComment]);
+    setMessage("Reply posted.");
     setTotalRepliesCount(totalRepliesCount + 1);
   };
 
   return (
     <div>
+      <FormFeedback message={message} />
       {showReplyInput ? (
         <div className="pr-8">
           <InputReply

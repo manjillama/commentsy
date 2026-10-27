@@ -20,6 +20,7 @@ export interface IComment {
   isSpam: boolean;
   createdAt: Date;
   updatedAt: Date;
+  editedAt?: Date;
 }
 export interface ICommentDocument
   extends mongoose.Document,
