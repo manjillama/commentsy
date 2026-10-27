@@ -91,7 +91,7 @@ Search and media requests go directly from the browser to KLIPY. The app saves a
 4. Replace `{{IDENTIFIER}}` with a stable identifier for that page, such as a post slug. Different pages should have different identifiers.
 5. Choose `theme=light` or `theme=dark`, or omit it to use the visitor's device preference.
 
-Use **Appearance** to customize each theme and **Comments** to moderate the app's conversations. The standalone `/docs` page is currently a placeholder; use the app's generated integration instructions and this README.
+Use **Appearance** to customize each theme and **Comments** to moderate the app's conversations. The `/docs` page includes a user guide for integration, page identifiers, themes, moderation, and troubleshooting. Use the app's integration page for your generated embed snippets.
 
 ### Embedded sign-in and Safari
 

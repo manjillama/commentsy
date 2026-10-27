@@ -1,4 +1,4 @@
-import { GitHubLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -15,15 +15,6 @@ export default function Footer() {
                 href="https://github.com/manjillama/commentsy"
               >
                 <GitHubLogoIcon height={20} width={20} />
-              </Link>
-            </li>
-            <li>
-              <Link
-                target="_blank"
-                className="hover:text-black"
-                href="https://twitter.com/lamamanjil"
-              >
-                <TwitterLogoIcon height={20} width={20} />
               </Link>
             </li>
           </ul>
