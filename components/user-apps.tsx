@@ -4,7 +4,6 @@ import { getRelativeTimeString } from "@/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import NewAppDialog from "./app-form/new-app-dialog";
 import { ChatBubbleIcon } from "@radix-ui/react-icons";
 
 export default function UserApps() {
@@ -12,23 +11,11 @@ export default function UserApps() {
 
   if (!apps.length)
     return (
-      <div>
-        <p>
-          Want to build something that integrates with your website and allows
-          your audiences to post comments? Create a new Commentsy App to get
-          started, follow our integration guide and start engaging with your
-          audiences in just a few minutes.
-        </p>
-        <div className="border rounded-md p-6 my-10 bg-white">
-          <div className="border border-dotted px-6 py-12 flex flex-col items-center">
-            <div className="rounded-full border h-[72px] w-[72px] flex items-center justify-center">
-              <ChatBubbleIcon height={26} width={26} />
-            </div>
-            <h2 className="my-4 text-2xl font-medium">No apps yet</h2>
-            <div>
-              <NewAppDialog />
-            </div>
-          </div>
+      <div className="bg-white border border-dashed border-neutral-300 rounded-xl p-8 flex flex-col sm:flex-row items-center gap-5">
+        <div className="rounded-xl bg-neutral-100 p-4 shrink-0"><ChatBubbleIcon height={26} width={26} className="text-neutral-500" aria-hidden="true" /></div>
+        <div className="text-center sm:text-left">
+          <h3 className="text-lg font-semibold">Have a site of your own?</h3>
+          <p className="text-sm text-neutral-500 mt-2">Create an app to add Commentsy to your website. No app is needed to post or manage your own comments.</p>
         </div>
       </div>
     );

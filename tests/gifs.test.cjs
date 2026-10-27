@@ -269,3 +269,77 @@ test('credentials login never silently redirects when the browser drops its sess
   result = { ok: false, error: 'CredentialsSignin', url: null };
   await assert.rejects(submit(), /CredentialsSignin/);
 });
+
+test('dashboard comment history is scoped to the signed-in author and paginated safely', async () => {
+  const queries = [];
+  let skipped;
+  let limited;
+  const chain = {
+    select() { return this; }, sort() { return this; },
+    skip(value) { skipped = value; return this; },
+    limit(value) { limited = value; return this; },
+    lean: async () => [{ _id: 'own-comment', user: 'author', comment: 'hello' }],
+  };
+  const service = load('services/commentService.ts', {
+    '@/utils/gif': gifUtils, '@/models/App': {}, '@/models/Group': {}, './factoryService': {},
+    '@/models/Comment': {
+      countDocuments: async filter => { queries.push(filter); return 22; },
+      find: filter => { queries.push(filter); return chain; },
+    },
+    '@/utils/appError': class AppError extends Error {},
+    '@/interfaces/IGroup': { COMMENT_STATUS: { approved: 'approved' } },
+    '@/interfaces/IUser': { AVATAR_BACKGROUND_COLORS: [] },
+  }).default;
+  const page = await service.getOwnComments('author', 999);
+  assert.equal(page.total, 22);
+  assert.equal(page.pages, 3);
+  assert.equal(page.page, 3);
+  assert.equal(skipped, 20);
+  assert.equal(limited, 10);
+  for (const query of queries) {
+    assert.equal(query.user, 'author');
+    assert.equal(query.status, 'approved');
+    assert.equal(query.isSpam, false);
+  }
+  assert.equal((await service.getOwnComments('author', -5)).page, 1);
+});
+
+test('account settings validate profile input and only update allowed profile fields', async () => {
+  const record = { name: 'Old', email: 'original@example.com', provider: 'credentials', avatarBackgroundColor: '#fed0bb', save: async () => {} };
+  const service = load('services/accountService.ts', {
+    '@/models/User': { findById: id => {
+      assert.equal(id, 'signed-in-user');
+      return Object.assign(Promise.resolve(record), { select: () => ({ lean: async () => ({ name: record.name, email: record.email, provider: record.provider, avatarBackgroundColor: record.avatarBackgroundColor }) }) });
+    } },
+    '@/utils/appError': class AppError extends Error {},
+    '@/interfaces/IUser': { AVATAR_BACKGROUND_COLORS: ['#fed0bb', '#8ecae6'], EProviders: { credentials: 'credentials' } },
+  }).default;
+  await assert.rejects(service.updateProfile('signed-in-user', { name: '  ', avatarBackgroundColor: '#fed0bb' }), /display name/);
+  await assert.rejects(service.updateProfile('signed-in-user', { name: 'Name', avatarBackgroundColor: '#123456' }), /available avatar colors/);
+  const result = await service.updateProfile('signed-in-user', { name: ' New name ', avatarBackgroundColor: '#8ecae6', email: 'changed@example.com', provider: 'github' });
+  assert.equal(result.name, 'New name');
+  assert.equal(result.email, 'original@example.com');
+  assert.equal(result.provider, 'credentials');
+  assert.equal(result.avatarBackgroundColor, '#8ecae6');
+});
+
+test('password changes require the current password and a credentials account', async () => {
+  let saves = 0;
+  const record = { provider: 'credentials', password: 'stored-hash', validatePassword: async candidate => candidate === 'current-password', save: async () => { saves++; } };
+  const service = load('services/accountService.ts', {
+    '@/models/User': { findById: () => ({ select: async () => record }) },
+    '@/utils/appError': class AppError extends Error {},
+    '@/interfaces/IUser': { AVATAR_BACKGROUND_COLORS: [], EProviders: { credentials: 'credentials' } },
+  }, { Buffer }).default;
+  await assert.rejects(service.changePassword('author', { currentPassword: 'wrong', newPassword: 'new-password' }), /incorrect/);
+  await assert.rejects(service.changePassword('author', { currentPassword: 'current-password', newPassword: 'short' }), /8–72/);
+  await assert.rejects(service.changePassword('author', { currentPassword: 'current-password', newPassword: '😃'.repeat(20) }), /8–72/);
+  await assert.rejects(service.changePassword('author', { currentPassword: 'current-password', newPassword: 'current-password' }), /different/);
+  assert.equal(saves, 0);
+  await service.changePassword('author', { currentPassword: 'current-password', newPassword: 'new-password' });
+  assert.equal(saves, 1);
+  assert.equal(record.password, 'new-password');
+  record.provider = 'github';
+  await assert.rejects(service.changePassword('author', { currentPassword: 'current-password', newPassword: 'new-password' }), /sign-in provider/);
+  assert.equal(saves, 1);
+});

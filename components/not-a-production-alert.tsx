@@ -3,8 +3,7 @@
 export default function NotAProductionAlert() {
   return (
     <div className="p-3 text-black bg-amber-300">
-      Please note that this is still a pilot project and is not yet in
-      production. Hence, it is recommended to{" "}
+      Please note that this is still a pilot project hence, it is recommended to{" "}
       <a
         href="https://github.com/manjillama/commentsy/fork"
         target="_blank"
@@ -22,7 +21,7 @@ export default function NotAProductionAlert() {
       >
         self-host
       </a>{" "}
-      this project to prevent any potential data losses.
+      this project.
     </div>
   );
 }
