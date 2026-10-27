@@ -45,3 +45,22 @@ test('comment model normalizes saved URLs and rejects unsupported schemes', () =
   assert.equal(document.pageUrl, 'https://example.com/my%20page?post=a%26b#discussion');
   assert.ok(new Comment({ ...base, comment: 'hello', pageUrl: 'javascript:alert(1)' }).validateSync()?.errors.pageUrl);
 });
+
+test('submission requests current parent metadata rather than a cached initial URL', async () => {
+  let handler;
+  let removed = false;
+  const fullUrl = 'https://example.com/?chapter=1&page=12#comments';
+  const parent = { postMessage: message => {
+    assert.equal(message.type, 'pingCommentsyParent');
+    handler({ source: {}, data: { type: 'commentsyParentSiteData', title: 'Wrong frame', url: 'https://wrong.example/' } });
+    handler({ source: parent, data: { type: 'commentsyParentSiteData', title: 'Chapter 1 · Page 12', url: fullUrl } });
+  } };
+  const page = load('utils/parentPageData.ts', {}, {
+    window: { parent, addEventListener: (_type, listener) => { handler = listener; }, removeEventListener: () => { removed = true; } },
+    setTimeout, clearTimeout,
+  });
+  const current = await page.requestParentPageData();
+  assert.equal(current.url, fullUrl);
+  assert.equal(current.title, 'Chapter 1 · Page 12');
+  assert.equal(removed, true);
+});

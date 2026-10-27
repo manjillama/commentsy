@@ -79,7 +79,7 @@ test('author mutations enforce ownership and scope deletion to the selected thre
   await assert.rejects(service.deleteOwnComment('comment-id', 'other-user'), /cannot delete/);
   assert.equal(calls[0][1].user, 'other-user');
   assert.equal(calls[1][1].user, 'other-user');
-  found = { _id: 'comment-id', user: 'author', group: 'group-id', status: 'approved', comment: 'old', gif, save: async function () { return this; } };
+  found = { $locals: {}, _id: 'comment-id', user: 'author', group: 'group-id', status: 'approved', comment: 'old', gif, save: async function () { return this; } };
   await service.updateOwnComment('comment-id', 'author', { comment: 'new', gif: null });
   assert.equal(found.comment, 'new');
   assert.ok(found.editedAt instanceof Date);
@@ -96,4 +96,21 @@ test('author mutations enforce ownership and scope deletion to the selected thre
   assert.equal(calls.some(call => call[0] === 'replies'), false);
   assert.equal(calls.find(call => call[0] === 'parent')[1]._id, 'parent-id');
   assert.equal(calls.find(call => call[0] === 'group')[2].$inc.commentsCount, -1);
+});
+
+test('embedded deletion updates counts and lists without navigating the iframe', () => {
+  const { removeDeletedComment } = load('utils/removeDeletedComment.ts');
+  const parent = { _id: 'parent', repliesCount: 2 };
+  const other = { _id: 'other', repliesCount: 0 };
+  const original = { comments: [parent, other], total: 2, totalCommentsAndReplies: 4, commentsCount: 4 };
+  const afterReply = removeDeletedComment(original, { _id: 'reply', parent: 'parent' }, 1);
+  assert.equal(afterReply.comments[0].repliesCount, 1);
+  assert.equal(afterReply.total, 2);
+  assert.equal(afterReply.totalCommentsAndReplies, 3);
+  const afterParent = removeDeletedComment(afterReply, { _id: 'parent' }, 2);
+  assert.equal(afterParent.comments.length, 1);
+  assert.equal(afterParent.comments[0]._id, 'other');
+  assert.equal(afterParent.total, 1);
+  assert.equal(afterParent.totalCommentsAndReplies, 1);
+  assert.equal(original.comments.length, 2);
 });

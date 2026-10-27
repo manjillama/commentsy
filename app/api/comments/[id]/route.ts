@@ -21,6 +21,6 @@ export const PATCH = catchAsync(async (req, { params: { id } }) => {
 
 export const DELETE = catchAsync(async (_req, { params: { id } }) => {
   const userId = await requireUser();
-  await commentService.deleteOwnComment(id, userId);
-  return Response.json({ status: "success" });
+  const comment = await commentService.deleteOwnComment(id, userId);
+  return Response.json({ status: "success", data: { deletedCount: comment.$locals.deletedCount } });
 });

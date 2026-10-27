@@ -25,9 +25,7 @@ export default function FetchMoreComments({
       total: number;
       size: number;
     }>(
-      `/api/comments?identifier=${commentData.identifier}&page=${
-        params.currentPage + 1
-      }&sort=${params.sort}`
+      `/api/comments?identifier=${encodeURIComponent(commentData.identifier)}&page=1&limit=${commentData.comments.length + commentData.size}&sort=${params.sort}`
     );
 
     if (data.status === "success") {
@@ -35,7 +33,8 @@ export default function FetchMoreComments({
       if (newComments.length > 0) {
         setCommentData({
           ...commentData,
-          comments: [...commentData.comments, ...newComments],
+          comments: newComments,
+          total: data.data.total,
         });
         setParams({
           ...params,

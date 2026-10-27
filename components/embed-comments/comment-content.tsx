@@ -1,4 +1,5 @@
 "use client";
+import { useCommentMutations } from "./comment-mutations";
 import FormFeedback from "../ui/form-feedback";
 import CommentLength from "./comment-length";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { registerGifShare } from "@/lib/klipy";
 export default function CommentContent({ comment, user, palette }: {
   comment: IComment; user?: Session["user"]; palette: CommentStyles["light"];
 }) {
+  const mutations = useCommentMutations();
   const [text, setText] = useState(comment.comment);
   const [gif, setGif] = useState<CommentGif | undefined>(comment.gif);
   const [saved, setSaved] = useState({ text: comment.comment, gif: comment.gif });
@@ -46,8 +48,12 @@ export default function CommentContent({ comment, user, palette }: {
       const response = await fetch(`/api/comments/${comment._id}`, { method: "DELETE" });
       const data = await response.json();
       if (!response.ok || data.status !== "success") throw new Error(data.message || "Unable to delete comment.");
-      // Reload the embed so pagination and comment/reply totals stay consistent.
-      window.location.reload();
+      if (mutations) {
+        mutations.onDeleted(comment, data.data.deletedCount);
+      } else {
+        // Top-level dashboard pages can safely reload their paginated history.
+        window.location.reload();
+      }
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to delete comment."); setBusy(false); }
   }
 

@@ -1,5 +1,6 @@
 "use client";
 import { EmbedSessionContext, useEmbedSession } from "./embed-session";
+import { parseParentPageData } from "@/utils/parentPageData";
 import { IComment } from "@/interfaces/IComment";
 import { Session } from "next-auth";
 import { useEffect, useRef, useState } from "react";
@@ -55,13 +56,14 @@ export default function EmbedComments({ commentData, user, theme }: Props) {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("message", function (event) {
-      if (event.data && event.data.type === "commentsyParentSiteData") {
-        if (new URL(event.data.url) && event.data.title)
-          setParentSiteData(event.data);
-      }
-    });
+    function receive(event: MessageEvent) {
+      if (event.source !== window.parent) return;
+      const data = parseParentPageData(event.data);
+      if (data) setParentSiteData(data);
+    }
+    window.addEventListener("message", receive);
     window.parent.postMessage({ type: "pingCommentsyParent" }, "*");
+    return () => window.removeEventListener("message", receive);
   }, []);
 
   useEffect(() => {
