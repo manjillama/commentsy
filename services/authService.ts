@@ -41,6 +41,7 @@ const getLoginUserFromCredentials = async ({
       email: user.email,
       provider: user.provider,
       avatarBackgroundColor: user.avatarBackgroundColor,
+      image: user.image,
     };
 
   return null;

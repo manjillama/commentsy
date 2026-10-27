@@ -1,0 +1,79 @@
+"use client";
+import { useState } from "react";
+import { Session } from "next-auth";
+import { IComment } from "@/interfaces/IComment";
+import { CommentStyles } from "@/interfaces/IApp";
+import { CommentGif } from "@/utils/gif";
+import api from "@/utils/api";
+import ReadMoreText from "../read-more-text";
+import GifImage from "./gif-image";
+import GifPicker from "./gif-picker";
+import { registerGifShare } from "@/lib/klipy";
+
+export default function CommentContent({ comment, user, palette }: {
+  comment: IComment; user?: Session["user"]; palette: CommentStyles["light"];
+}) {
+  const [text, setText] = useState(comment.comment);
+  const [gif, setGif] = useState<CommentGif | undefined>(comment.gif);
+  const [saved, setSaved] = useState({ text: comment.comment, gif: comment.gif });
+  const [editing, setEditing] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const owner = typeof comment.user === "object" && "_id" in comment.user ? String(comment.user._id) : String(comment.user ?? "");
+  const own = Boolean(user?.id && owner === user.id);
+
+  async function save() {
+    if (!text.trim() && !gif) { setError("Add a comment or choose a GIF."); return; }
+    setBusy(true); setError("");
+    const response = await api.patch<IComment>(`/api/comments/${comment._id}`, { comment: text, gif: gif ?? null });
+    setBusy(false);
+    if (response.status !== "success") { setError(response.errors.join(" ") || response.message); return; }
+    if (gif && gif.url !== saved.gif?.url) void registerGifShare(gif);
+    setSaved({ text: response.data.comment, gif: response.data.gif });
+    setEditing(false);
+  }
+
+  async function remove() {
+    setBusy(true); setError("");
+    try {
+      const response = await fetch(`/api/comments/${comment._id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok || data.status !== "success") throw new Error(data.message || "Unable to delete comment.");
+      // Reload the embed so pagination and comment/reply totals stay consistent.
+      window.location.reload();
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to delete comment."); setBusy(false); }
+  }
+
+  return <div>
+    {editing ? <div className="mt-3">
+      <label className="block">
+        <span className="block text-sm font-semibold mb-2">Edit comment</span>
+        <textarea
+          placeholder={gif ? "Add a message to your GIF (optional)..." : "Write your comment..."}
+          value={text}
+          maxLength={5000}
+          rows={3}
+          style={palette.primary}
+          className="border rounded-lg p-3 w-full resize-y"
+          onChange={event => setText(event.target.value)}
+          disabled={busy}
+        />
+      </label>
+      <GifPicker value={gif} onChange={setGif} palette={palette} />
+      <div className="flex gap-3">
+        <button type="button" disabled={busy} style={palette.accent} className="rounded-lg px-4 py-2" onClick={save}>{busy ? "Saving…" : "Save changes"}</button>
+        <button type="button" disabled={busy} onClick={() => { setText(saved.text); setGif(saved.gif); setEditing(false); setError(""); }}>Cancel</button>
+      </div>
+    </div> : <div className="whitespace-pre-wrap"><ReadMoreText text={saved.text} /><GifImage gif={saved.gif} /></div>}
+    {own && !editing && <div className="flex gap-3 text-xs mt-2">
+      <button type="button" disabled={busy} onClick={() => { setEditing(true); setConfirming(false); setError(""); }}>Edit</button>
+      <button type="button" disabled={busy} onClick={() => setConfirming(true)}>Delete</button>
+    </div>}
+    {confirming && <div className="border rounded-lg p-3 mt-3 text-sm" style={palette.primary}>
+      <p>Delete this comment{comment.repliesCount > 0 ? " and its replies" : ""}?</p>
+      <div className="flex gap-3 mt-2"><button type="button" disabled={busy} onClick={remove}>{busy ? "Deleting…" : "Delete"}</button><button type="button" disabled={busy} onClick={() => setConfirming(false)}>Cancel</button></div>
+    </div>}
+    {error && <p role="alert" className="mt-2 text-sm">{error}</p>}
+  </div>;
+}
