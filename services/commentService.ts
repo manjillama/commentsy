@@ -338,14 +338,14 @@ const removeComment = async (
   if (userComment.status === COMMENT_STATUS.deleted)
     throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
-  await decreaseGroupAndParentCommentCount(userComment);
+  userComment.$locals.deletedCount = await decreaseGroupAndParentCommentCount(userComment);
 
   userComment.status = COMMENT_STATUS.deleted;
   return userComment.save();
 };
 
 const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument) => {
-  if (comment.status !== COMMENT_STATUS.approved || comment.isSpam) return;
+  if (comment.status !== COMMENT_STATUS.approved || comment.isSpam) return 0;
   let count = 1;
   if (comment.parent) {
     await Comment.updateOne({ _id: comment.parent, repliesCount: { $gt: 0 } }, { $inc: { repliesCount: -1 } });
@@ -357,4 +357,5 @@ const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument) => 
     count += replies.modifiedCount;
   }
   await Group.updateOne({ _id: comment.group }, { $inc: { commentsCount: -count } });
+  return count;
 };

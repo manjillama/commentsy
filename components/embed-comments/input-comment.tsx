@@ -1,3 +1,4 @@
+import { requestParentPageData } from "@/utils/parentPageData";
 import CommentLength from "./comment-length";
 import FormFeedback from "../ui/form-feedback";
 import GifPicker from "./gif-picker";
@@ -53,13 +54,21 @@ export default function InputComment({
     setError("");
     setSuccess("");
     setSubmitting(true);
+    let pageData;
+    try {
+      pageData = await requestParentPageData();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Unable to read the original page address.");
+      setSubmitting(false);
+      return;
+    }
     const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
       identifier: commentData.identifier,
       comment: formProps.comment,
       gif,
-      pageTitle: parentSiteData?.title,
-      pageUrl: parentSiteData?.url,
+      pageTitle: pageData.title,
+      pageUrl: pageData.url,
       anonUser: formProps.anonUser,
     });
     if (data.status !== "success") {

@@ -1,3 +1,4 @@
+import { useCommentMutations } from "./comment-mutations";
 import FormFeedback from "../ui/form-feedback";
 import CommentContent from "./comment-content";
 import { IComment } from "@/interfaces/IComment";
@@ -23,6 +24,9 @@ export default function CommentReplies({
   user,
   parentSiteData,
 }: Props) {
+  const mutations = useCommentMutations();
+  const removedReplies = mutations?.deleted.filter(item => item.parent === comment._id) ?? [];
+  const removedIds = new Set(removedReplies.map(item => item.id));
   const [message, setMessage] = useState("");
   const [totalRepliesCount, setTotalRepliesCount] = useState(
     comment.repliesCount
@@ -38,21 +42,26 @@ export default function CommentReplies({
     []
   );
 
+  const visibleReplies = commentReplies.filter(item => !removedIds.has(item._id));
+  const visibleNewReplies = newSubmittComments.filter(item => !removedIds.has(item._id));
+  const remainingRepliesCount = Math.max(0, totalRepliesCount - removedReplies.length);
+
   const handleFetchReplies = async () => {
     setIsCommentFetching(true);
-    setNewSubmittiedComments([]);
     const data = await api.get<{
       comments: IComment[];
       total: number;
       size: number;
     }>(
-      `/api/comments/${comment._id}/replies?page=${params.currentPage}&sort=${params.sort}`
+      `/api/comments/${comment._id}/replies?page=1&limit=${visibleReplies.length + visibleNewReplies.length + 20}&sort=${params.sort}`
     );
 
     if (data.status === "success") {
       const newComments = data.data.comments;
       if (newComments.length > 0) {
-        setCommentReplies([...commentReplies, ...newComments]);
+        setCommentReplies(newComments);
+        setNewSubmittiedComments([]);
+        setTotalRepliesCount(data.data.total + removedReplies.length);
         setParams({
           ...params,
           currentPage: params.currentPage + 1,
@@ -92,7 +101,7 @@ export default function CommentReplies({
           Reply
         </button>
       )}
-      {commentReplies.length > 0 && (
+      {visibleReplies.length > 0 && (
         <div>
           <div className="flex items-center space-x-4">
             <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
@@ -109,16 +118,16 @@ export default function CommentReplies({
         </div>
       )}
 
-      {commentReplies.map((comment) => (
+      {visibleReplies.map((comment) => (
         <CommentReplyItem key={comment._id} comment={comment} user={user} commentData={commentData} />
       ))}
-      {newSubmittComments.map((comment) => (
+      {visibleNewReplies.map((comment) => (
         <CommentReplyItem key={comment._id} comment={comment} user={user} commentData={commentData} />
       ))}
 
-      {totalRepliesCount > 0 &&
-        commentReplies.length + newSubmittComments.length <
-          totalRepliesCount && (
+      {remainingRepliesCount > 0 &&
+        visibleReplies.length + visibleNewReplies.length <
+          remainingRepliesCount && (
           <div className="flex items-center space-x-4">
             <div style={{ borderTop: "1px solid #ccc" }} className="w-[25px]" />
             {isCommentFetching ? (
@@ -138,13 +147,13 @@ export default function CommentReplies({
               >
                 View{" "}
                 {Math.abs(
-                  totalRepliesCount -
-                    commentReplies.length -
-                    newSubmittComments.length
+                  remainingRepliesCount -
+                    visibleReplies.length -
+                    visibleNewReplies.length
                 )}{" "}
-                {totalRepliesCount -
-                  commentReplies.length -
-                  newSubmittComments.length >
+                {remainingRepliesCount -
+                  visibleReplies.length -
+                  visibleNewReplies.length >
                 1
                   ? "replies"
                   : "reply"}

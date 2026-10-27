@@ -1,4 +1,6 @@
 "use client";
+import { CommentMutationsContext, DeletedComment } from "./comment-mutations";
+import { removeDeletedComment } from "@/utils/removeDeletedComment";
 import LoginHint from "./login-hint";
 import { Session } from "next-auth";
 import { useState } from "react";
@@ -25,9 +27,14 @@ export default function CommentsContainer({
     currentPage: 1,
     sort: "-createdAt",
   });
+  const [deleted, setDeleted] = useState<DeletedComment[]>([]);
   const [commentData, setCommentData] = useState(data);
 
   return (
+    <CommentMutationsContext.Provider value={{ deleted, onDeleted: (comment, count) => {
+      setCommentData(current => removeDeletedComment(current, comment, count));
+      setDeleted(current => [...current, { id: comment._id, parent: comment.parent ? String(comment.parent) : undefined, count }]);
+    } }}>
     <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
       {totalCommentsCount(commentData.totalCommentsAndReplies)}
       {!user && <LoginHint parentSiteData={parentSiteData} palette={commentData.userCommentStyles} />}
@@ -50,6 +57,7 @@ export default function CommentsContainer({
         setCommentData={setCommentData}
       />
     </div>
+    </CommentMutationsContext.Provider>
   );
 }
 
