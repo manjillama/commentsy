@@ -73,3 +73,12 @@ This key is intentionally public: KLIPY requires API requests and media loads to
 Configure content filtering in the KLIPY Partner Panel and leave ads disabled for this GIF-only picker. Testing keys currently allow 100 API requests/hour; request production access before launch. See [KLIPY's integration documentation](https://docs.klipy.com/) for current requirements and limits.
 
 Run GIF validation and integration checks with `node --test tests/gifs.test.cjs`. These use a real Mongoose schema and mocked provider/database calls; no API key or database is needed.
+
+### Embedded sign-in and Safari
+
+Sign in to Commentsy in a separate tab first. In browsers that restrict iframe cookies, return to the comment widget and click **Enable signed-in comments**, allowing storage access if prompted. The widget then checks the session without reloading or clearing the draft. If permission is denied, guest commenting remains available. Browsers without the Storage Access API retain the normal sign-in flow.
+
+Serve both the host site and Commentsy over HTTPS in production. If you sandbox the iframe, include `allow-scripts`, `allow-same-origin`, `allow-popups`, `allow-popups-to-escape-sandbox`, and `allow-storage-access-by-user-activation`. The embedding site's Permissions Policy must also permit storage access. See [MDN's Storage Access API guide](https://developer.mozilla.org/en-US/docs/Web/API/Storage_Access_API/Using).
+
+
+For local HTTP embeds, use the same hostname for the host page and Commentsy (for example `http://localhost:5500` and `http://localhost:3000`). Do not mix `localhost`, `127.0.0.1`, or a LAN IP. Local HTTP uses `SameSite=Lax` cookies; genuinely cross-site iframe sign-in requires HTTPS on both sites and the HTTPS Commentsy URL in `NEXTAUTH_URL`. Storage-access approval alone does not override SameSite cookie restrictions.

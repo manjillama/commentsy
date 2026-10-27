@@ -2,12 +2,10 @@
 import { Alert, Spinner } from "@/components/ui";
 import api from "@/utils/api";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { NEXT_AUTH_ERRORS } from "../signin/signin-form";
 
 export default function SignUpForm() {
-  const router = useRouter();
   const [formProps, setFormProps] = useState({
     name: "",
     email: "",
@@ -36,13 +34,11 @@ export default function SignUpForm() {
       const res = await signIn("credentials", {
         redirect: false,
         ...formProps,
+        callbackUrl: new URLSearchParams(window.location.search).get("callbackUrl") ?? "/dashboard",
       });
       if (res) {
         if (!res.error) {
-          const queryParams = new URLSearchParams(
-            res.url ? res.url.split("?")[1] : ""
-          );
-          router.push(queryParams.get("callbackUrl") ?? "/dashboard");
+          window.location.assign(res.url ?? "/dashboard");
         } else {
           setErrors([
             (NEXT_AUTH_ERRORS as any)[res.error] ?? "Something went wrong.",

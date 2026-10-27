@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { keys } from "@/config";
 import authService from "@/services/authService";
 import dbConnect from "@/lib/dbConnect";
+import { sessionCookieOptions } from "@/utils/sessionCookie";
 
 export const options: NextAuthOptions = {
   pages: {
@@ -14,12 +15,7 @@ export const options: NextAuthOptions = {
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "none",
-        path: "/",
-        secure: true,
-      },
+      options: sessionCookieOptions(process.env.NEXTAUTH_URL, process.env.NODE_ENV === "production"),
     },
   },
   callbacks: {

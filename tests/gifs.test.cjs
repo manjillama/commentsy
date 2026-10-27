@@ -179,3 +179,93 @@ test('author mutations enforce ownership and scope deletion to the selected thre
   assert.equal(calls.find(call => call[0] === 'parent')[1]._id, 'parent-id');
   assert.equal(calls.find(call => call[0] === 'group')[2].$inc.commentsCount, -1);
 });
+
+test('iframe storage checks distinguish blocked, supported, and first-party contexts', async () => {
+  const access = load('utils/embedSession.ts');
+  let checked = 0;
+  const blocked = { hasStorageAccess: async () => { checked++; return false; } };
+  assert.equal(await access.hasEmbedStorageAccess(blocked, true), false);
+  assert.equal(checked, 1);
+  assert.equal(await access.hasEmbedStorageAccess(blocked, false), true);
+  assert.equal(checked, 1);
+  assert.equal(await access.hasEmbedStorageAccess({}, true), true);
+  assert.equal(await access.hasEmbedStorageAccess({ hasStorageAccess: async () => true }, true), true);
+});
+
+test('storage request runs synchronously during the click and propagates denial', async () => {
+  const access = load('utils/embedSession.ts');
+  let requested = false;
+  const pending = access.requestEmbedStorageAccess({ requestStorageAccess: () => { requested = true; return Promise.resolve(); } });
+  assert.equal(requested, true);
+  await pending;
+  await assert.rejects(access.requestEmbedStorageAccess({ requestStorageAccess: async () => { throw new Error('denied'); } }), /denied/);
+  await access.requestEmbedStorageAccess({});
+});
+
+test('session refresh includes cookies, skips cache, and handles signed-out and failed sessions', async () => {
+  let response = { ok: true, json: async () => ({ user: { id: 'author', name: 'Author' } }) };
+  const access = load('utils/embedSession.ts', {}, {
+    fetch: async (url, options) => {
+      assert.equal(url, '/api/auth/session');
+      assert.equal(options.credentials, 'include');
+      assert.equal(options.cache, 'no-store');
+      return response;
+    },
+  });
+  assert.equal((await access.fetchEmbedUser()).id, 'author');
+  response = { ok: true, json: async () => ({}) };
+  assert.equal(await access.fetchEmbedUser(), undefined);
+  response = { ok: false };
+  await assert.rejects(access.fetchEmbedUser(), /Could not check your sign-in/);
+});
+
+test('session cookie supports local HTTP while preserving HTTPS embed settings', () => {
+  const { sessionCookieOptions } = load('utils/sessionCookie.ts', {}, { URL });
+  const local = sessionCookieOptions('http://localhost:3000', false);
+  assert.equal(local.secure, false);
+  assert.equal(local.sameSite, 'lax');
+  const deployed = sessionCookieOptions('https://comments.example.com', true);
+  assert.equal(deployed.secure, true);
+  assert.equal(deployed.sameSite, 'none');
+  assert.equal(deployed.httpOnly, true);
+  assert.equal(sessionCookieOptions(undefined, true).secure, true);
+  assert.equal(sessionCookieOptions('https://localhost:3000', false).secure, true);
+});
+
+test('credentials normalize email, validate passwords, and preserve provider restrictions', async () => {
+  let record = { _id: 'user-id', provider: 'credentials', name: 'User', email: 'user@example.com', password: 'stored-hash', validatePassword: async (password, hash) => password === 'correct-password' && hash === 'stored-hash' };
+  const service = load('services/authService.ts', {
+    '@/models/User': { findOne: query => {
+      assert.equal(query.email, 'user@example.com');
+      return { select: async field => { assert.equal(field, '+password'); return record; } };
+    } },
+    '@/interfaces/IUser': { EProviders: { credentials: 'credentials' }, AVATAR_BACKGROUND_COLORS: [] },
+    '@/utils/appError': class AppError extends Error {},
+  }).default;
+  assert.equal((await service.getLoginUserFromCredentials({ email: ' USER@example.com ', password: 'correct-password' })).id, 'user-id');
+  assert.equal(await service.getLoginUserFromCredentials({ email: 'user@example.com', password: 'wrong' }), null);
+  await assert.rejects(service.getLoginUserFromCredentials({ email: '', password: '' }), /CredentialsSigninMissing/);
+  record = { ...record, provider: 'github' };
+  await assert.rejects(service.getLoginUserFromCredentials({ email: 'user@example.com', password: 'correct-password' }), /OAuthAccountNotLinked/);
+});
+
+test('credentials login never silently redirects when the browser drops its session cookie', async () => {
+  let retainedUser;
+  let result = { ok: true, error: null, url: 'http://localhost:3000/dashboard' };
+  const login = load('utils/credentialsLogin.ts', {
+    'next-auth/react': { signIn: async (provider, options) => {
+      assert.equal(provider, 'credentials');
+      assert.equal(options.email, 'user@example.com');
+      assert.equal(options.password, 'autofilled-password');
+      assert.equal(options.callbackUrl, '/dashboard');
+      return result;
+    } },
+    '@/utils/embedSession': { fetchEmbedUser: async () => retainedUser },
+  });
+  const submit = () => login.credentialsLogin('user@example.com', 'autofilled-password', '/dashboard');
+  await assert.rejects(submit(), /SessionCookieBlocked/);
+  retainedUser = { id: 'author' };
+  assert.equal(await submit(), 'http://localhost:3000/dashboard');
+  result = { ok: false, error: 'CredentialsSignin', url: null };
+  await assert.rejects(submit(), /CredentialsSignin/);
+});
