@@ -43,7 +43,7 @@ const getAllAppComments = async ({
       app: appId,
       isSpam: false,
       fields:
-        "_id, repliesCount, commentUser, app, anonUser, status, comment, gif, parent, pageTitle, pageUrl, createdAt",
+        "_id, repliesCount, commentUser, app, anonUser, status, comment, gif, editedAt, parent, pageTitle, pageUrl, createdAt",
     })
     .populate({ path: "user", select: "name image avatarBackgroundColor -_id" })
     .exec();
@@ -260,6 +260,7 @@ const updateOwnComment = async (commentId: string, userId: string, data: { comme
   if (data.gif != null && !isCommentGif(data.gif))
     throw new AppError("Invalid GIF attachment", StatusCodes.BAD_REQUEST);
   comment.comment = data.comment.trim();
+  comment.editedAt = new Date();
   comment.gif = data.gif == null ? undefined : data.gif as CommentGif;
   return comment.save();
 };
@@ -277,7 +278,7 @@ const getOwnComments = async (userId: string, requestedPage: number) => {
   const pages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(Math.max(1, Math.floor(requestedPage) || 1), pages);
   const comments = await Comment.find(filter)
-    .select("user comment gif pageTitle pageUrl parent repliesCount createdAt status")
+    .select("user comment gif pageTitle pageUrl parent repliesCount createdAt editedAt status")
     .sort({ createdAt: -1, _id: -1 })
     .skip((page - 1) * pageSize)
     .limit(pageSize)

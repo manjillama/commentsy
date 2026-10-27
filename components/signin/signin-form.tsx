@@ -1,7 +1,8 @@
 "use client";
 import { credentialsLogin } from "@/utils/credentialsLogin";
 import { FormEvent, useState } from "react";
-import { Alert, Spinner } from "../ui";
+import FormFeedback from "../ui/form-feedback";
+import { Spinner } from "../ui";
 
 export default function SignInForm() {
   const [formProps, setFormProps] = useState({ email: "", password: "" });
@@ -47,7 +48,7 @@ export default function SignInForm() {
 
   return (
     <form noValidate onSubmit={handleSubmit} className="space-y-4 my-4 w-full">
-      {error && <div role="alert" aria-live="assertive"><Alert variant="error">{error}</Alert></div>}
+      <FormFeedback message={error} error />
       <div>
         <label className="space-y-2">
           <span>Email</span>

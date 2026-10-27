@@ -7,7 +7,8 @@
     "dev": "next dev",
     "build": "node pre-build.js && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",

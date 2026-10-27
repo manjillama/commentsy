@@ -92,6 +92,7 @@ const commentSchema = new Schema<ICommentDocument>(
       validate: { validator: (gif: unknown) => gif == null || isCommentGif(gif), message: "Invalid GIF attachment" },
       default: undefined,
     },
+    editedAt: Date,
     status: {
       type: String,
       enum: {

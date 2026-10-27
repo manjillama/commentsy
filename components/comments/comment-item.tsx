@@ -106,6 +106,7 @@ const CommentItemDialog = ({ comment }: { comment: IComment }) => {
 
       <div className="whitespace-pre-wrap">
         <ReadMoreText text={comment.comment} />
+        {comment.editedAt && <p className="text-xs text-neutral-500 mt-1">Edited</p>}
           <GifImage gif={comment.gif} />
       </div>
       <div className="flex justify-end">

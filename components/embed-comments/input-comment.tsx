@@ -1,3 +1,5 @@
+import CommentLength from "./comment-length";
+import FormFeedback from "../ui/form-feedback";
 import GifPicker from "./gif-picker";
 import { CommentGif } from "@/utils/gif";
 import { registerGifShare } from "@/lib/klipy";
@@ -30,6 +32,7 @@ export default function InputComment({
   user,
 }: Props) {
   const [gif, setGif] = useState<CommentGif>();
+  const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formProps, setFormProps] = useState<{
@@ -48,6 +51,7 @@ export default function InputComment({
       return;
     }
     setError("");
+    setSuccess("");
     setSubmitting(true);
     const data = await api.post<IComment & { user: IUser }>("/api/comments", {
       appCode: commentData.appCode,
@@ -74,6 +78,7 @@ export default function InputComment({
         comments: newComments,
       });
       setIsInputFocused(false);
+      setSuccess("Comment posted.");
     }
     setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
@@ -98,12 +103,11 @@ export default function InputComment({
 
   if (submitting)
     return (
-      <div className="h-[32px] w-[32px] mb-6">
-        <Spinner
-          styles={{
-            backgroundColor: commentData.userCommentStyles.primary.color,
-          }}
-        />
+      <div role="status" aria-live="polite" className="flex items-center gap-3 my-4">
+        <div className="h-[24px] w-[24px] shrink-0">
+          <Spinner styles={{ backgroundColor: commentData.userCommentStyles.primary.color }} size="sm" />
+        </div>
+        <span className="text-sm opacity-70">Posting comment…</span>
       </div>
     );
 
@@ -113,7 +117,7 @@ export default function InputComment({
         <Avatar user={user} />
       </div>
       <form onSubmit={handleSubmit} className="w-full">
-        {error && <p role="alert" className="text-red-600 mb-3">{error}</p>}
+        <FormFeedback message={error || success} error={Boolean(error)} />
         <div className={styles.growWrap}>
           <textarea
             value={formProps.comment}
@@ -136,6 +140,7 @@ export default function InputComment({
             className={`w-full border border-neutral-300 rounded-lg p-3`}
           />
         </div>
+        <CommentLength length={formProps.comment.length} />
         {isInputFocused && (
           <div className="mt-4">
             <GifPicker value={gif} onChange={setGif} palette={commentData.userCommentStyles} />

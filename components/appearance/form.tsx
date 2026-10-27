@@ -7,6 +7,7 @@ import { CommentStyles, IApp } from "@/interfaces/IApp";
 import { DEFAULT_COMMENT_STYLES, parseCommentStyles } from "@/utils/commentStyles";
 import { refetchUserApps } from "@/slices/userAppsSlice";
 import api from "@/utils/api";
+import FormFeedback from "@/components/ui/form-feedback";
 import { Alert } from "@/components/ui";
 
 const fields = [
@@ -134,9 +135,7 @@ export default function AppearanceForm({ app }: { app: IApp }) {
           </button>
         </div>
       </fieldset>
-      <p className="text-sm text-neutral-600" role="status" aria-live="polite">
-        {saved ? "Appearance saved. Reload your embedded comments to see the changes." : dirty ? "You have unsaved changes. Save to apply them to your embedded comments." : "The default palettes keep the original Commentsy styling."}
-      </p>
+      <FormFeedback message={saved ? "Appearance saved. Reload your embedded comments to see the changes." : dirty ? "You have unsaved changes. Save to apply them to your embedded comments." : "The default palettes keep the original Commentsy styling."} />
     </form>
   );
 }

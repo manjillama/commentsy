@@ -72,7 +72,7 @@ This key is intentionally public: KLIPY requires API requests and media loads to
 
 Configure content filtering in the KLIPY Partner Panel and leave ads disabled for this GIF-only picker. Testing keys currently allow 100 API requests/hour; request production access before launch. See [KLIPY's integration documentation](https://docs.klipy.com/) for current requirements and limits.
 
-Run GIF validation and integration checks with `node --test tests/gifs.test.cjs`. These use a real Mongoose schema and mocked provider/database calls; no API key or database is needed.
+Run the feature test suites with `npm test`. Tests are grouped by GIFs, comments, authentication, embed sessions, dashboard, and account settings. They use a real Mongoose schema and mocked provider/database calls; no API key or database is needed.
 
 ### Embedded sign-in and Safari
 
@@ -82,3 +82,7 @@ Serve both the host site and Commentsy over HTTPS in production. If you sandbox 
 
 
 For local HTTP embeds, use the same hostname for the host page and Commentsy (for example `http://localhost:5500` and `http://localhost:3000`). Do not mix `localhost`, `127.0.0.1`, or a LAN IP. Local HTTP uses `SameSite=Lax` cookies; genuinely cross-site iframe sign-in requires HTTPS on both sites and the HTTPS Commentsy URL in `NEXTAUTH_URL`. Storage-access approval alone does not override SameSite cookie restrictions.
+
+### Automated tests
+
+GitHub Actions runs `npm ci` and `npm test` on every push and pull request. You can also run the **Tests** workflow manually from the repository's Actions tab. The workflow uses Node.js 18 to match the Dockerfile, caches npm downloads, and requires no database or API secrets.

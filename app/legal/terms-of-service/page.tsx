@@ -25,9 +25,8 @@ async function TermsOfService() {
           by these Terms. Commentsy will not be liable for any losses.
         </p>
         <p className="my-4">
-          Please note that this is not a real project and commentsy will not be
-          liable for any losses. We recommended to rather self-host this project
-          on your own and then use it.
+          Commentsy is a pilot project. For your own deployment, we recommend
+          forking and self-hosting Commentsy.
         </p>
         <p className="my-4 font-bold">Commentsy Account.</p>
         <p className="my-4">

@@ -1,4 +1,5 @@
 "use client";
+import FormFeedback from "@/components/ui/form-feedback";
 import { FormEvent, useState } from "react";
 import { useSession } from "next-auth/react";
 import { AVATAR_BACKGROUND_COLORS } from "@/interfaces/IUser";
@@ -63,8 +64,8 @@ export default function AccountSettings({ account }: { account: Account }) {
           <div className="flex flex-wrap gap-3">{AVATAR_BACKGROUND_COLORS.map(color => <button key={color} type="button" aria-label={`Avatar color ${color}`} aria-pressed={profile.avatarBackgroundColor === color} onClick={() => { setProfile({ ...profile, avatarBackgroundColor: color }); setProfileMessage(""); }} style={{ backgroundColor: color }} className={`w-8 h-8 rounded-full border-2 border-white ring-offset-2 ${profile.avatarBackgroundColor === color ? "ring-2 ring-black" : "ring-1 ring-neutral-200"}`} />)}</div>
           {account.image && <p className="text-xs text-neutral-500 mt-3">Your provider photo is shown when available. This color is used for your initials avatar.</p>}
         </fieldset>
-        {profileError && <p role="alert" className="text-sm text-red-700">{profileError}</p>}
-        <div className="flex flex-wrap gap-3 items-center"><button className={buttonClass} disabled={saving || !dirty}>{saving ? "Saving…" : "Save profile"}</button><p role="status" className="text-sm text-neutral-600">{profileMessage}</p></div>
+        {profileError && <FormFeedback message={profileError} error />}
+        <div className="flex flex-wrap gap-3 items-center"><button className={buttonClass} disabled={saving || !dirty}>{saving ? "Saving…" : "Save profile"}</button><FormFeedback message={profileMessage} /></div>
       </form>
     </section>
     <section className="bg-white border border-neutral-200 rounded-xl p-5 sm:p-7" aria-labelledby="signin-heading">
@@ -76,8 +77,8 @@ export default function AccountSettings({ account }: { account: Account }) {
       <h2 id="password-heading" className="text-xl font-semibold">Change password</h2><p className="text-sm text-neutral-500 mt-2 mb-5">Choose a new password with at least 8 characters.</p>
       <form onSubmit={changePassword} className="space-y-4">
         {([ ["currentPassword", "Current password"], ["newPassword", "New password"], ["confirmPassword", "Confirm new password"] ] as const).map(([name, label]) => <label key={name} className="block text-sm font-medium">{label}<input name={name} type="password" autoComplete={name === "currentPassword" ? "current-password" : "new-password"} required minLength={name === "currentPassword" ? undefined : 8} maxLength={100} value={passwords[name]} onChange={event => setPasswords({ ...passwords, [name]: event.target.value })} className={inputClass} disabled={changingPassword} /></label>)}
-        {passwordError && <p role="alert" className="text-sm text-red-700">{passwordError}</p>}
-        <div className="flex flex-wrap gap-3 items-center"><button disabled={changingPassword} className={buttonClass}>{changingPassword ? "Updating…" : "Update password"}</button><p role="status" className="text-sm text-neutral-600">{passwordMessage}</p></div>
+        {passwordError && <FormFeedback message={passwordError} error />}
+        <div className="flex flex-wrap gap-3 items-center"><button disabled={changingPassword} className={buttonClass}>{changingPassword ? "Updating…" : "Update password"}</button><FormFeedback message={passwordMessage} /></div>
       </form>
     </section>}
   </div>;
