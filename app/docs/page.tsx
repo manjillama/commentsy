@@ -160,7 +160,7 @@ function DocsPage() {
                 <h3>I signed in, but the widget still shows me as a guest</h3>
                 <p className="mt-2">
                   Sign in to Commentsy in a separate tab, then return to the widget
-                  and select <strong>Already signed in? Connect</strong>. Allow
+                  to reconnect automatically. If needed, select <strong>Already signed in? Connect</strong>. Allow
                   browser storage access if prompted. Browser cookie policies can
                   restrict embedded sign-in; guest posting remains available if
                   access is denied.
