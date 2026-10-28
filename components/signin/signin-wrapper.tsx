@@ -2,6 +2,9 @@
 import React, { useState } from "react";
 import SignInForm from "./signin-form";
 import OAuthProviders from "../oauth-providers";
+import AuthLayout from "../auth/auth-layout";
+import styles from "../auth/auth.module.css";
+import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
 import { ClientSafeProvider, LiteralUnion } from "next-auth/react";
 import { BuiltInProviderType } from "next-auth/providers/index";
 
@@ -16,19 +19,16 @@ export default function SignInWrapper({ providers }: Props) {
     useState(false);
 
   return (
-    <div className="container max-w-xs mx-auto flex  flex-col justify-center absolute inset-0">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        Log in to Commentsy
-      </h1>
+    <AuthLayout>
       {!showSignInUsingCredentials ? (
         <>
           <OAuthProviders providers={providers} />
-          <hr className="my-4" />
+          <div className={styles.divider}>or use your email</div>
           <button
             onClick={() => setShowSignInUsingCredentials(true)}
-            className="w-full text-blue-600 hover:underline"
+            className={styles.emailButton}
           >
-            Continue with credentials
+            <EnvelopeClosedIcon /> Continue with email
           </button>
         </>
       ) : (
@@ -36,12 +36,12 @@ export default function SignInWrapper({ providers }: Props) {
           <SignInForm />
           <button
             onClick={() => setShowSignInUsingCredentials(false)}
-            className="w-full text-blue-600 hover:underline"
+            className={styles.otherOptions}
           >
             Other login options
           </button>
         </>
       )}
-    </div>
+    </AuthLayout>
   );
 }

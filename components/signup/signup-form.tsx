@@ -74,6 +74,8 @@ export default function SignUpForm() {
             className="border border-neutral-300 w-full rounded-lg p-3"
             name="name"
             type="text"
+            autoComplete="name"
+            required
             value={formProps.name}
             onChange={handleChange}
           />
@@ -86,6 +88,8 @@ export default function SignUpForm() {
             className="border border-neutral-300 w-full rounded-lg p-3"
             name="email"
             type="email"
+            autoComplete="email"
+            required
             value={formProps.email}
             onChange={handleChange}
           />
@@ -98,8 +102,10 @@ export default function SignUpForm() {
             className="border border-neutral-300 w-full rounded-lg p-3"
             name="password"
             type="password"
+            autoComplete="new-password"
             value={formProps.password}
             onChange={handleChange}
+            placeholder="At least 8 characters"
             minLength={8}
             required
           />
@@ -116,7 +122,7 @@ export default function SignUpForm() {
             <Spinner color="light" />
           </div>
         )}
-        <span>Sign up</span>
+        <span>{isSubmitting ? "Creating your account…" : "Create account"}</span>
       </button>
     </form>
   );
