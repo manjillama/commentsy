@@ -34,7 +34,7 @@ export default function LoginHint({ parentSiteData, palette }: {
             )}
           </div>
           <p className="text-xs opacity-50 mt-2 leading-relaxed">
-            {session?.supported ? "After signing in, return here and connect your account. Allow access if asked." : "After signing in, return here to continue."}
+            {session?.supported ? "After signing in, return here. If your account doesn’t connect automatically, select Connect and allow access if asked." : "After signing in, return here to continue."}
           </p>
           {session?.message && (
             <div role="status" aria-live="polite" className="mt-3 border-t pt-3 text-xs leading-relaxed" style={{ borderColor: palette.primary.borderColor }}>

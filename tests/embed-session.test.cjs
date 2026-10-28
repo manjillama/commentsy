@@ -38,3 +38,29 @@ test('session refresh includes cookies, skips cache, and handles signed-out and 
   response = { ok: false };
   await assert.rejects(access.fetchEmbedUser(), /Could not check your sign-in/);
 });
+
+test('returning widget restores previously allowed access before checking its session', async () => {
+  const access = load('utils/embedSession.ts');
+  let allowed = false;
+  let requests = 0;
+  const document = {
+    hasStorageAccess: async () => allowed,
+    requestStorageAccess: async () => { requests++; allowed = true; },
+  };
+  assert.equal(await access.restoreEmbedStorageAccess(document, true), true);
+  assert.equal(requests, 1);
+  assert.equal(await access.restoreEmbedStorageAccess(document, true), true);
+  assert.equal(requests, 1);
+  assert.equal(await access.restoreEmbedStorageAccess(document, false), true);
+  assert.equal(requests, 1);
+});
+
+test('automatic restoration leaves Connect available when the browser requires a tap', async () => {
+  const access = load('utils/embedSession.ts');
+  assert.equal(await access.restoreEmbedStorageAccess({
+    hasStorageAccess: async () => false,
+    requestStorageAccess: async () => { throw new Error('User gesture required'); },
+  }, true), false);
+  assert.equal(await access.restoreEmbedStorageAccess({ hasStorageAccess: async () => false }, true), false);
+  assert.equal(await access.restoreEmbedStorageAccess({}, true), true);
+});

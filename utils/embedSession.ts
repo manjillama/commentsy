@@ -10,6 +10,19 @@ export async function hasEmbedStorageAccess(document: StorageAccessDocument, emb
   return document.hasStorageAccess();
 }
 
+// A previous permission grant may need activating again for a new iframe/page.
+// Without a user gesture, browsers reject requests that still need consent.
+export async function restoreEmbedStorageAccess(document: StorageAccessDocument, embedded: boolean) {
+  if (await hasEmbedStorageAccess(document, embedded)) return true;
+  if (!document.requestStorageAccess) return false;
+  try {
+    await document.requestStorageAccess();
+    return true;
+  } catch {
+    return false; // Keep the explicit Connect action for browsers requiring a tap.
+  }
+}
+
 export async function requestEmbedStorageAccess(document: StorageAccessDocument) {
   // Invoke directly from the click handler, before any await consumes activation.
   if (document.requestStorageAccess) await document.requestStorageAccess();
@@ -22,8 +35,6 @@ export async function fetchEmbedUser(): Promise<Session["user"] | undefined> {
   return session?.user?.id ? session.user : undefined;
 }
 
-export function missingEmbedSessionMessage(protocol: string) {
-  if (protocol === "http:")
-    return "Browser access was allowed, but no signed-in session reached this widget. For local HTTP testing, open both your site and Commentsy using the same hostname (for example localhost on both, rather than localhost and 127.0.0.1). Cross-site embedded sign-in requires HTTPS on both sites. Sign in again after changing the address.";
-  return "Browser access was allowed, but no signed-in session reached this widget. Sign in to Commentsy using the same hostname as this widget, then return here and try again.";
+export function missingEmbedSessionMessage() {
+  return "We couldn’t connect your account. Use the Sign in link above, then return here and select Connect if needed. You can also continue as a guest.";
 }
