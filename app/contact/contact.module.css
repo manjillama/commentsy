@@ -1,0 +1,26 @@
+.contactLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 10px;
+  transition: color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
+.contactLink:hover {
+  color: #171717;
+  background-color: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+.contactLink:focus-visible {
+  color: #171717;
+  outline: 2px solid #737373;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contactLink { transition: none; }
+  .contactLink:hover { transform: none; }
+}

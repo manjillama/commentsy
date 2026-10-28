@@ -36,9 +36,9 @@ function OAuthProvider({ provider }: { provider: ClientSafeProvider }) {
     >
       <Image
         src={`/images/${provider.name.toLowerCase()}-logo.svg`}
-        alt="me"
-        width={30}
-        height={30}
+        alt=""
+        width={20}
+        height={20}
       />
       <span> Continue with {provider.name}</span>
     </button>
