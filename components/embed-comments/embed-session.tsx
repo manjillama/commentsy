@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { Session } from "next-auth";
-import { fetchEmbedUser, restoreEmbedStorageAccess, requestEmbedStorageAccess, missingEmbedSessionMessage } from "@/utils/embedSession";
+import { fetchEmbedUser, hasEmbedStorageAccess, requestEmbedStorageAccess, missingEmbedSessionMessage } from "@/utils/embedSession";
 
 type EmbedSessionState = {
   supported: boolean;
@@ -26,10 +26,7 @@ export function useEmbedSession(initialUser?: Session["user"]) {
   const refresh = useCallback(async () => {
     const current = ++generation.current;
     const nextUser = await fetchEmbedUser();
-    if (mounted.current && current === generation.current) {
-      setUser(nextUser);
-      if (nextUser) setMessage("");
-    }
+    if (mounted.current && current === generation.current) setUser(nextUser);
     return nextUser;
   }, []);
 
@@ -39,7 +36,7 @@ export function useEmbedSession(initialUser?: Session["user"]) {
     setSupported(embedded && typeof document.requestStorageAccess === "function");
     async function check() {
       try {
-        if (await restoreEmbedStorageAccess(document, embedded)) await refresh();
+        if (await hasEmbedStorageAccess(document, embedded)) await refresh();
       } catch {
         // Guests can continue posting if cookie access or session checks fail.
       }
@@ -47,13 +44,11 @@ export function useEmbedSession(initialUser?: Session["user"]) {
     void check();
     function onVisibility() { if (document.visibilityState === "visible") void check(); }
     window.addEventListener("focus", check);
-    window.addEventListener("pageshow", check);
     document.addEventListener("visibilitychange", onVisibility);
     return () => {
       mounted.current = false;
       invalidateRequests();
       window.removeEventListener("focus", check);
-      window.removeEventListener("pageshow", check);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [refresh, invalidateRequests]);

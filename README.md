@@ -95,7 +95,7 @@ Use **Appearance** to customize each theme and **Comments** to moderate the app'
 
 ### Embedded sign-in and Safari
 
-Sign in to Commentsy in a separate tab. Return to the widget to reconnect automatically when browser access is already allowed. If needed, use **Already signed in? Connect** and allow browser storage access if prompted. The widget checks the session without clearing the comment draft. If access is denied, guest posting remains available.
+Sign in to Commentsy in a separate tab. Back in the widget, use **Already signed in? Connect** and allow browser storage access if prompted. The widget checks the session without clearing the comment draft. If access is denied, guest posting remains available.
 
 For local HTTP testing, use the same hostname for the host page and Commentsy, for example `http://localhost:5500` and `http://localhost:3000`. Do not mix `localhost`, `127.0.0.1`, and LAN IPs. Sign in using the widget's Commentsy hostname too.
 
