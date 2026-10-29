@@ -10,28 +10,27 @@ export function useFetch<T>(url: string): [boolean, T | null, string | null] {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const getSanitizedUrl = () => {
-    const [baseUrl, queryString] = url.split("?");
-    const queryParams = new URLSearchParams(queryString);
-    // Remove undefined and '' value params
-    queryParams.forEach((value, key) => {
-      if (value === "undefined" || value === "") queryParams.delete(key);
-    });
-    const updatedUrl =
-      baseUrl + (queryParams.toString() ? `?${queryParams.toString()}` : "");
-
-    return updatedUrl;
-  };
-
   useEffect(() => {
-    (async function () {
-      setFetching(true);
-      const data = await api.get<T>(getSanitizedUrl());
-      if (data.status === "success") setData(data.data);
-      else setError(data.message);
+    const controller = new AbortController();
+    let active = true;
+    const [baseUrl, queryString] = url.split("?");
+    const params = new URLSearchParams(queryString);
+    for (const [key, value] of Array.from(params.entries())) {
+      if (value === "undefined" || value === "") params.delete(key);
+    }
+    const sanitizedUrl = baseUrl + (params.size ? `?${params}` : "");
+
+    setFetching(true);
+    setError(null);
+    setData(null);
+    api.get<T>(sanitizedUrl, { signal: controller.signal }).then(response => {
+      // Older results must not replace data for a newer URL.
+      if (!active) return;
+      if (response.status === "success") setData(response.data);
+      else setError(response.message);
       setFetching(false);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    });
+    return () => { active = false; controller.abort(); };
   }, [url]);
 
   return [fetching, data, error];

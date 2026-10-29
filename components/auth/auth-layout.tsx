@@ -12,7 +12,7 @@ export default function AuthLayout({ signup = false, children }: { signup?: bool
           <Link href="/" className={styles.back}><ArrowLeftIcon /> Back to Commentsy</Link>
           <div className={styles.storyHeading}>
             <span className={styles.eyebrow}>{signup ? "YOUR CORNER OF THE INTERNET" : "GOOD TO HAVE YOU BACK"}</span>
-            <h2>{signup ? <>Big ideas deserve<br />a conversation.</> : <>The conversation<br />continues here.</>}</h2>
+            <h2>{signup ? <>Big ideas deserve<br />{" "}a conversation.</> : <>The conversation<br />{" "}continues here.</>}</h2>
             <p>{signup ? "Give your readers a place to connect. Make it yours, and see where the conversation takes you." : "Your sites, your comments, and the people behind them. Pick up right where you left off."}</p>
           </div>
           <div className={styles.conversation} aria-hidden="true">

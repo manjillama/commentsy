@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/utils/requestBody";
 import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
@@ -17,12 +18,12 @@ async function requireAccount(req: Request) {
 
 export const PATCH = catchAsync(async req => {
   const userId = await requireAccount(req);
-  const account = await accountService.updateProfile(userId, await req.json());
+  const account = await accountService.updateProfile(userId, await readJsonBody(req));
   return Response.json({ status: "success", data: account });
 });
 
 export const POST = catchAsync(async req => {
   const userId = await requireAccount(req);
-  await accountService.changePassword(userId, await req.json());
+  await accountService.changePassword(userId, await readJsonBody(req));
   return Response.json({ status: "success", data: null });
 });

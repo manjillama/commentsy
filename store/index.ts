@@ -5,12 +5,6 @@ import {
   configureStore,
 } from "@reduxjs/toolkit";
 
-export const preloadedState: PreloadedState<RootState> = {
-  apps: {
-    apps: [],
-  },
-};
-
 const reducer = {
   apps: userAppsReducer,
 };

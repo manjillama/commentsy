@@ -15,8 +15,8 @@ type Props = {
   > | null;
 };
 export default function SignInWrapper({ providers }: Props) {
-  const [showSignInUsingCredentials, setShowSignInUsingCredentials] =
-    useState(false);
+  const hasOAuthProviders = Object.values(providers ?? {}).some(provider => provider.type === "oauth");
+  const [showSignInUsingCredentials, setShowSignInUsingCredentials] = useState(!hasOAuthProviders);
 
   return (
     <AuthLayout>
@@ -34,12 +34,13 @@ export default function SignInWrapper({ providers }: Props) {
       ) : (
         <>
           <SignInForm />
-          <button
+          {hasOAuthProviders && <button
+            type="button"
             onClick={() => setShowSignInUsingCredentials(false)}
             className={styles.otherOptions}
           >
             Other login options
-          </button>
+          </button>}
         </>
       )}
     </AuthLayout>

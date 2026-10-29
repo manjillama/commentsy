@@ -29,6 +29,8 @@ const commentSchema = new Schema<ICommentDocument>(
     anonUser: new Schema({
       name: {
         type: String,
+        trim: true,
+        maxlength: 50,
         required: [true, "Missing anonymous user name (anonUser.name)"],
       },
       email: {
@@ -61,6 +63,7 @@ const commentSchema = new Schema<ICommentDocument>(
     }),
     pageTitle: {
       type: String,
+      maxlength: 1000,
       required: [true, "Missing page title"],
     },
     pageUrl: {
@@ -116,6 +119,10 @@ const commentSchema = new Schema<ICommentDocument>(
     timestamps: true,
   }
 );
+commentSchema.index({ group: 1, parent: 1, createdAt: -1, _id: -1 });
+commentSchema.index({ parent: 1, status: 1, isSpam: 1, createdAt: 1, _id: 1 });
+commentSchema.index({ app: 1, isSpam: 1, createdAt: -1, _id: -1 });
+commentSchema.index({ user: 1, status: 1, isSpam: 1, createdAt: -1, _id: -1 });
 commentSchema.virtual("commentUser").get(function () {
   return this.user ?? (this.anonUser ? {
     name: this.anonUser.name,

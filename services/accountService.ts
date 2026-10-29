@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import User from "@/models/User";
 import AppError from "@/utils/appError";
 import { AVATAR_BACKGROUND_COLORS, EProviders } from "@/interfaces/IUser";
@@ -18,6 +19,7 @@ const updateProfile = async (userId: string, data: { name?: unknown; avatarBackg
   user.name = data.name.trim();
   user.avatarBackgroundColor = data.avatarBackgroundColor as typeof AVATAR_BACKGROUND_COLORS[number];
   await user.save();
+  logger.info("account.profile.updated");
   return getAccount(userId);
 };
 
@@ -28,13 +30,16 @@ const changePassword = async (userId: string, data: { currentPassword?: unknown;
   if (!user) throw new AppError("Account not found", 404);
   if (user.provider !== EProviders.credentials)
     throw new AppError("Manage your password with your sign-in provider", 400);
-  if (!user.password || !await user.validatePassword(data.currentPassword, user.password))
+  if (!user.password || !await user.validatePassword(data.currentPassword, user.password)) {
+    logger.warn("account.password.rejected", { reason: "invalid_current_password" });
     throw new AppError("Your current password is incorrect", 400);
+  }
   if (data.currentPassword === data.newPassword)
     throw new AppError("Choose a password different from your current password", 400);
   user.password = data.newPassword;
   // The User model hashes modified passwords before saving.
   await user.save();
+  logger.info("account.password.changed");
 };
 
 export default { getAccount, updateProfile, changePassword };

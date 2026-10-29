@@ -1,6 +1,6 @@
 .page { padding: 48px 32px 64px; background: #fcfcfa; }
-.layout { display: grid; grid-template-columns: 1fr 1fr; max-width: 1120px; margin: auto; min-height: 680px; border: 1px solid #e5e5e0; border-radius: 18px; background: white; }
-.story { position: relative; display: flex; flex-direction: column; padding: 32px 44px; border-radius: 17px 0 0 17px; background: #edf2f5; }
+.layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1120px; margin: auto; min-height: 680px; border: 1px solid #e5e5e0; border-radius: 18px; background: white; }
+.story { min-width: 0; position: relative; display: flex; flex-direction: column; padding: 32px 44px; border-radius: 17px 0 0 17px; background: #edf2f5; }
 .signup .story { background: #f4eedf; }
 .back { display: inline-flex; align-items: center; gap: 8px; color: #606b73; font-size: 12px; align-self: flex-start; }
 .back:hover { color: #171717; }
@@ -23,7 +23,7 @@
 .powered { display: flex; justify-content: center; align-items: center; gap: 8px; color: #7a8388; font-size: 10px; margin-top: 32px; }
 .storyFoot { margin-top: auto; font-size: 10px; color: #737b80; letter-spacing: .3px; }
 .formPanel { display: flex; justify-content: center; align-items: center; padding: 52px 46px; min-width: 0; }
-.formContent { width: 100%; max-width: 355px; }
+.formContent { min-width: 0; width: 100%; max-width: 355px; }
 .formContent h1 { font-size: 31px; font-weight: 600; line-height: 1.2; letter-spacing: -1.2px; margin: 16px 0 10px; }
 .intro { font-size: 13px; color: #777; line-height: 1.7; margin-bottom: 30px; }
 .divider { display: flex; align-items: center; gap: 12px; color: #999; font-size: 11px; margin-block: 22px; }
@@ -35,10 +35,10 @@
 .switchAccount a { display: inline-block; color: #171717; font-weight: 500; margin-left: 4px; }
 .switchAccount a:hover { text-decoration: underline; }
 .formContent label { display: flex; flex-direction: column; font-size: 12px; font-weight: 500; }
-.formContent input { background: #fff; min-height: 46px; font-size: 14px; font-weight: 400; transition: border-color .15s, box-shadow .15s; }
+.formContent input { min-width: 0; background: #fff; min-height: 46px; font-size: 14px; font-weight: 400; transition: border-color .15s, box-shadow .15s; }
 .formContent input:focus { outline: none; border-color: #888; box-shadow: 0 0 0 3px #00000008; }
 .formContent button[type="submit"] { height: 48px; font-size: 13px; font-weight: 500; }
 .page a:focus-visible, .page button:focus-visible { outline: 2px solid #a87914; outline-offset: 4px; }
 @media (max-width: 1000px) { .story { padding: 28px; } .formPanel { padding: 40px 28px; } .response { margin-left: 18px; } .formContent h1 { font-size: 28px; } }
-@media (max-width: 760px) { .page { padding: 24px 20px 40px; } .layout { grid-template-columns: 1fr; min-height: auto; } .story { border-radius: 17px 17px 0 0; padding: 24px; } .storyHeading { margin-top: 28px; } .story h2 { font-size: 30px; } .story h2 br { display: none; } .storyHeading > p { max-width: 440px; } .conversation, .storyFoot { display: none; } .formPanel { padding: 34px 24px; } .formContent { max-width: 420px; } }
+@media (max-width: 760px) { .page { padding: 24px 20px 40px; } .layout { grid-template-columns: minmax(0, 1fr); min-height: auto; } .story { border-radius: 17px 17px 0 0; padding: 24px; } .storyHeading { margin-top: 28px; } .story h2 { font-size: 30px; } .story h2 br { display: none; } .storyHeading > p { max-width: 440px; } .conversation, .storyFoot { display: none; } .formPanel { padding: 34px 24px; } .formContent { max-width: 420px; } }
 @media (prefers-reduced-motion: reduce) { .page input { transition: none; } }

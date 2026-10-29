@@ -1,41 +1,51 @@
+import { randomUUID } from "node:crypto";
+import { safeErrorDetails, withRequestLogContext } from "@/utils/logContext";
 import { config } from "@/config";
 import AppError from "../appError";
 import OE from "./operationalErrors";
 import { StatusCodes } from "http-status-codes";
 import { NextRequest } from "next/server";
 import logger from "@/utils/logger";
+import { validateWriteRequest } from "@/utils/requestBody";
 
 export default function catchAsync(
   asyncFunction: (req: NextRequest, data?: any) => Promise<Response>
 ) {
   return async (req: NextRequest, data?: any) => {
     const started = Date.now();
-    const request = { method: req.method, path: new URL(req.url).pathname };
-    logger.info("api.request.started", request);
-    let response: Response;
-    try {
-      response = await asyncFunction(req, data);
-    } catch (error: any) {
-      // Raw driver/validation errors can contain credentials or account data.
-      logger.error("api.error", {
-        ...request,
-        errorName: error?.name,
-        errorCode: typeof error?.code === "number" ? error.code : undefined,
-      });
-      response = sendError(error);
-    }
-    logger.log(response.status >= 500 ? "error" : response.status >= 400 ? "warn" : "info", "api.request.completed", {
-      ...request,
-      status: response.status,
-      elapsedMs: Date.now() - started,
+    const context = { requestId: randomUUID(), method: req.method, path: new URL(req.url).pathname };
+    return withRequestLogContext(context, async () => {
+      let response: Response;
+      let failure: unknown;
+      try {
+        if (!["GET", "HEAD", "OPTIONS"].includes(req.method) && !context.path.startsWith("/api/auth/"))
+          validateWriteRequest(req);
+        response = await asyncFunction(req, data);
+      } catch (error: any) {
+        const caught = error instanceof Error ? error : new Error("Non-error rejection");
+        failure = caught;
+        response = sendError(markOperationalError(caught as AppError));
+      }
+      const fields = { ...context, status: response.status, elapsedMs: Date.now() - started };
+      if (response.status >= 500) {
+        logger.error("api.failed", { ...fields, ...(failure ? safeErrorDetails(failure) : {}) });
+      } else if (response.status === 401 || response.status === 403) {
+        logger.warn("api.access_denied", fields);
+      } else if (response.status === 429) {
+        // The limiter logs the first rejection per bucket/window, avoiding spam.
+      } else if (response.status >= 400) {
+        logger.debug("api.rejected", fields);
+      } else if (fields.elapsedMs >= 5000) {
+        logger.warn("api.slow", fields);
+      }
+      const headers = new Headers(response.headers);
+      headers.set("X-Request-ID", context.requestId);
+      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     });
-    return response;
   };
 }
 
 function sendError(error: AppError) {
-  error = markOperationalError(error);
-
   const errorResponse = {
     status: error.status,
     message: error.isOperational
@@ -50,6 +60,7 @@ function sendError(error: AppError) {
 
   return Response.json(errorResponse, {
     status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+    ...(error.retryAfter ? { headers: { "Retry-After": String(error.retryAfter) } } : {}),
   });
 }
 /**

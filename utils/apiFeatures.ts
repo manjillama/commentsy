@@ -53,6 +53,11 @@ export function parseQueryFilter(queryString: any) {
   return queryStr;
 }
 
+export function paginationSize(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? Math.min(40, Math.max(1, Math.floor(number))) : 40;
+}
+
 export default class APIFeatures<T extends Document> {
   constructor(
     public query: Query<
@@ -84,7 +89,7 @@ export default class APIFeatures<T extends Document> {
   // 2) SORTING
   sort(): APIFeatures<T> {
     if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(",").join("");
+      const sortBy = this.queryString.sort.split(",").join(" ");
       this.query = this.query.sort(sortBy);
     }
     return this;
@@ -105,8 +110,9 @@ export default class APIFeatures<T extends Document> {
   // 4) PAGINATION
   paginate(size: number): APIFeatures<T> {
     // Capping max size to 40
-    size = size > 40 ? 40 : size;
-    const page = +this.queryString.page || 1;
+    size = paginationSize(size);
+    const requestedPage = Number(this.queryString.page);
+    const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
     const skip = (page - 1) * size;
     // skip: skip results (offset) and limit: number of results per page
     this.query = this.query.skip(skip).limit(size);

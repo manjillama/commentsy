@@ -2,6 +2,7 @@
 import { RootState, initStore } from "@/store";
 import { PreloadedState } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
+import { useState } from "react";
 
 export default function ReduxProvider({
   preloadedState,
@@ -10,5 +11,6 @@ export default function ReduxProvider({
   preloadedState?: PreloadedState<RootState>;
   children: React.ReactNode;
 }) {
-  return <Provider store={initStore(preloadedState)}>{children}</Provider>;
+  const [store] = useState(() => initStore(preloadedState));
+  return <Provider store={store}>{children}</Provider>;
 }

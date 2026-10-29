@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import { AVATAR_BACKGROUND_COLORS, EProviders } from "@/interfaces/IUser";
 import User from "@/models/User";
 import AppError from "@/utils/appError";
@@ -26,10 +27,15 @@ const getLoginUserFromCredentials = async ({
     email: email.trim().toLowerCase(),
   }).select("+password");
 
-  if (!user) return null;
+  if (!user) {
+    logger.warn("auth.login.rejected", { reason: "invalid_credentials" });
+    return null;
+  }
 
-  if (user.provider !== EProviders.credentials)
+  if (user.provider !== EProviders.credentials) {
+    logger.warn("auth.login.rejected", { reason: "provider_mismatch" });
     throw new AppError("OAuthAccountNotLinked", StatusCodes.BAD_GATEWAY);
+  }
 
   if (
     user.provider === EProviders.credentials &&
@@ -44,6 +50,7 @@ const getLoginUserFromCredentials = async ({
       image: user.image,
     };
 
+  logger.warn("auth.login.rejected", { reason: "invalid_credentials" });
   return null;
 };
 
@@ -83,6 +90,7 @@ const handlePostOAuthUserSignIn = async (
     isEmailVerified: true,
     image,
   });
+  logger.info("account.created", { provider });
   return {
     id: newUser._id.toString(),
     name: newUser.name,

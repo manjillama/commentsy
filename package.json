@@ -5,10 +5,11 @@
   "author": "Manjil Tamang <hello@manjiltamang.com> (https://manjiltamang.com/)",
   "scripts": {
     "dev": "next dev",
-    "build": "node pre-build.js && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "check": "npm run lint && tsc --noEmit --incremental false && npm test"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.5",
