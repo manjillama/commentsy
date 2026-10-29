@@ -27,7 +27,8 @@
     "react": "latest",
     "react-dom": "latest",
     "react-paginate": "^8.2.0",
-    "react-redux": "^8.1.3"
+    "react-redux": "^8.1.3",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

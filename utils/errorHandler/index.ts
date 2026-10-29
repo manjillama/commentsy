@@ -3,16 +3,33 @@ import AppError from "../appError";
 import OE from "./operationalErrors";
 import { StatusCodes } from "http-status-codes";
 import { NextRequest } from "next/server";
+import logger from "@/utils/logger";
 
 export default function catchAsync(
   asyncFunction: (req: NextRequest, data?: any) => Promise<Response>
 ) {
   return async (req: NextRequest, data?: any) => {
+    const started = Date.now();
+    const request = { method: req.method, path: new URL(req.url).pathname };
+    logger.info("api.request.started", request);
+    let response: Response;
     try {
-      return await asyncFunction(req, data);
+      response = await asyncFunction(req, data);
     } catch (error: any) {
-      return sendError(error);
+      // Raw driver/validation errors can contain credentials or account data.
+      logger.error("api.error", {
+        ...request,
+        errorName: error?.name,
+        errorCode: typeof error?.code === "number" ? error.code : undefined,
+      });
+      response = sendError(error);
     }
+    logger.log(response.status >= 500 ? "error" : response.status >= 400 ? "warn" : "info", "api.request.completed", {
+      ...request,
+      status: response.status,
+      elapsedMs: Date.now() - started,
+    });
+    return response;
   };
 }
 

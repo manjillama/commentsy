@@ -7,8 +7,17 @@ import authService from "@/services/authService";
 import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { sessionCookieOptions } from "@/utils/sessionCookie";
+import logger from "@/utils/logger";
 
 export const options: NextAuthOptions = {
+  logger: {
+    error(code) {
+      logger.error("auth.error", { code });
+    },
+    warn(code) {
+      logger.warn("auth.warning", { code });
+    },
+  },
   pages: {
     signIn: "/signin",
     error: "/signin",
@@ -59,7 +68,7 @@ export const options: NextAuthOptions = {
       issuer: "https://github.com/login/oauth",
       async profile({ email, name, avatar_url }) {
         await dbConnect();
-        const user = authService.handlePostOAuthUserSignIn(
+        const user = await authService.handlePostOAuthUserSignIn(
           email,
           name,
           "github",
@@ -73,7 +82,7 @@ export const options: NextAuthOptions = {
       clientSecret: keys.GOOGLE_CLIENT_SECRET as string,
       async profile({ email, name, picture }) {
         await dbConnect();
-        const user = authService.handlePostOAuthUserSignIn(
+        const user = await authService.handlePostOAuthUserSignIn(
           email,
           name,
           "google",
