@@ -7,6 +7,7 @@ import { isCommentStyles } from "@/utils/commentStyles";
 import { StatusCodes } from "http-status-codes";
 
 const getAppsByUserId = async (userId: string): Promise<IApp[]> => {
+  if (!userId) throw new AppError("Sign in to manage your sites", StatusCodes.UNAUTHORIZED);
   return JSON.parse(JSON.stringify(await App.find({ user: userId }).lean()));
 };
 
@@ -14,6 +15,7 @@ const createApp = async (
   data: Pick<IApp, "name" | "description" | "authorizedOrigins" | "requireGuestApproval">,
   userId: string
 ) => {
+  if (!userId) throw new AppError("Sign in to manage your sites", StatusCodes.UNAUTHORIZED);
   const userAppsCount = await App.count({ user: userId });
   if (userAppsCount >= 10)
     throw new AppError(
@@ -34,6 +36,7 @@ const updateApp = async (
   data: Partial<Pick<IApp, "name" | "description" | "authorizedOrigins" | "requireGuestApproval" | "commentStyles">>,
   userId: string
 ) => {
+  if (!userId) throw new AppError("Sign in to manage your sites", StatusCodes.UNAUTHORIZED);
   let app = await App.findOne({ _id: appId, user: userId });
 
   if (!app)

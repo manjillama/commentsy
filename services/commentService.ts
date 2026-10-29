@@ -45,6 +45,7 @@ const getAllAppComments = async ({
   appId: string;
   queryParams: any;
 }): Promise<[ICommentDocument[], number, number]> => {
+  if (!userId) throw new AppError("Sign in to manage comments", StatusCodes.UNAUTHORIZED);
   if (!appId)
     throw new AppError(
       "Missing app id (appId) parameter",
@@ -192,10 +193,12 @@ const createComment = async ({
 
 const updateCommentStatus = async ({
   commentId,
+  appId,
   userId,
   status,
 }: {
   commentId: string;
+  appId?: string;
   userId: string;
   status: `${COMMENT_STATUS}`;
 }) => commentTransaction("comment.moderated", async session => {
@@ -211,6 +214,9 @@ const updateCommentStatus = async ({
       "Comment with that id not found",
       StatusCodes.BAD_REQUEST
     );
+
+  if (appId && String(comment.app) !== appId)
+    throw new AppError("Comment not found in this site", StatusCodes.NOT_FOUND);
 
   if (
     userId !== (comment.group as IGroup)?.owner.toString() &&
@@ -254,9 +260,11 @@ const updateCommentStatus = async ({
 
 const markCommentAsSpam = async ({
   commentId,
+  appId,
   userId,
 }: {
   commentId: string;
+  appId?: string;
   userId: string;
 }) => commentTransaction("comment.marked_spam", async session => {
   const comment = await Comment.findById(commentId, null, { session }).populate("group");
@@ -265,6 +273,9 @@ const markCommentAsSpam = async ({
       "Comment with that id not found",
       StatusCodes.BAD_REQUEST
     );
+
+  if (appId && String(comment.app) !== appId)
+    throw new AppError("Comment not found in this site", StatusCodes.NOT_FOUND);
 
   if (
     userId !== (comment.group as IGroup)?.owner.toString() &&

@@ -37,12 +37,14 @@ Commentsy is an embeddable comment widget with guest posting, signed-in author c
 
 ### Requirements
 
-- **Node.js and npm.** Docker and CI currently target Node.js 18.
+- **Node.js 20–22 and npm.** Tested and supported.
 - **MongoDB Atlas or another MongoDB replica set.** Comment writes use transactions; standalone MongoDB servers are not supported.
 
 The app uses Next.js 13, NextAuth 4, React, TypeScript, Tailwind CSS, and Mongoose. Unit tests can run without a database.
 
 ### 1. Install
+
+Use Node.js 20–22. If you use nvm, run `nvm install` and `nvm use` from the project directory.
 
 ```bash
 git clone https://github.com/manjillama/commentsy.git
@@ -79,17 +81,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and create an email/password account at `/signup`.
 
-**Google and GitHub login are optional.** Both buttons are registered, but each provider needs its own credentials before it will work. See [OAuth setup](#oauth-setup).
-
-### Using Docker instead
-
-After configuring `.env.local`:
-
-```bash
-docker compose up --build
-```
-
-Compose loads the environment file, mounts the source, and exposes port 3000. It runs the development server and **does not start MongoDB**. Use a database reachable from the container; `localhost` inside the container refers to the container itself.
+**Google and GitHub login are optional.** A provider appears only when both its client ID and secret are configured. With neither configured, the email/password form appears directly. See [OAuth setup](#oauth-setup).
 
 ## Integrating a site
 
@@ -237,7 +229,7 @@ It verifies concurrent comment/reply counts, transaction rollback, repeated dele
 
 ### Continuous integration
 
-GitHub Actions runs lint, TypeScript, and all tests on pushes and pull requests. It starts an isolated MongoDB replica set for integration tests. The **Tests** workflow can also be started manually.
+GitHub Actions runs lint, TypeScript, and all tests on pushes and pull requests. It starts a temporary MongoDB container for replica set integration tests; Docker is only needed on the CI runner, not for local development. The **Tests** workflow can also be started manually.
 
 ### Production build
 

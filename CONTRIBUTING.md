@@ -16,7 +16,7 @@ npx tsc --noEmit --incremental false
 npm test
 ```
 
-Run one suite with, for example, `node --test tests/comments.test.cjs`. Tests do not need the app server or external services. The repository currently targets Node.js 18 in Docker and CI.
+Run one suite with, for example, `node --test tests/comments.test.cjs`. Tests do not need the app server or external services. Node.js 20–22 is tested and supported. With nvm, run `nvm install` and `nvm use` in the project directory.
 
 ## Where to make changes
 

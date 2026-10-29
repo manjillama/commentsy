@@ -73,22 +73,23 @@ export const options: NextAuthOptions = {
     },
   },
   providers: [
-    GitHubProvider({
+    ...(keys.GITHUB_ID?.trim() && keys.GITHUB_SECRET?.trim() ? [GitHubProvider({
       clientId: keys.GITHUB_ID as string,
       clientSecret: keys.GITHUB_SECRET as string,
       issuer: "https://github.com/login/oauth",
       async profile({ email, name, avatar_url }) {
+        if (!email) throw new Error("OAuthProfileMissingEmail");
         await dbConnect();
         const user = await authService.handlePostOAuthUserSignIn(
           email,
-          name,
+          name || "User",
           "github",
           avatar_url
         );
         return user;
       },
-    }),
-    GoogleProvider({
+    })] : []),
+    ...(keys.GOOGLE_CLIENT_ID?.trim() && keys.GOOGLE_CLIENT_SECRET?.trim() ? [GoogleProvider({
       clientId: keys.GOOGLE_CLIENT_ID as string,
       clientSecret: keys.GOOGLE_CLIENT_SECRET as string,
       async profile({ email, name, picture }) {
@@ -101,7 +102,7 @@ export const options: NextAuthOptions = {
         );
         return user;
       },
-    }),
+    })] : []),
     CredentialsProvider({
       name: "Credentials",
       credentials: {

@@ -31,6 +31,7 @@ function OAuthProvider({ provider }: { provider: ClientSafeProvider }) {
   };
   return (
     <button
+      type="button"
       onClick={handleOAuthSignIn}
       className="flex items-center space-x-4 p-3 justify-center bg-white border border-neutral-300 w-full rounded-lg hover:bg-neutral-100"
     >

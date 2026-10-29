@@ -14,7 +14,7 @@ export const PATCH = catchAsync(async function (
   await dbConnect();
   const session = await getServerSession(options);
 
-  if (!session)
+  if (!session?.user.id)
     throw new AppError(
       "You need to be logged in to commentsy",
       StatusCodes.FORBIDDEN
@@ -22,7 +22,7 @@ export const PATCH = catchAsync(async function (
 
   const body = await readJsonBody(req);
 
-  const app = await appService.updateApp(id, body, session.user.id as string);
+  const app = await appService.updateApp(id, body, session.user.id);
 
   return Response.json({
     status: "success",
