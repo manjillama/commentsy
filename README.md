@@ -150,6 +150,16 @@ npm start
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and review checklist.
 
+## Production diagnostics
+
+Winston writes JSON logs to stdout through a single Console transport in `utils/logger.ts`. Set `LOG_LEVEL` to change the threshold (default: `info`). Logs include timestamps, levels, and a service name.
+
+The shared API wrapper logs each endpoint's method and path at the start, then its response status and elapsed milliseconds on completion. NextAuth uses the same wrapper. Controllers do not need their own request logs. Search by path and timestamp; a start without a completion can indicate a stalled request or a platform timeout.
+
+Database connection attempts also log their start, completion, and failure to help distinguish connectivity issues. Reused connections do not log another attempt.
+
+Database and API failures log error names and numeric driver codes; NextAuth logs its diagnostic codes. Request bodies, query strings, account identifiers, raw error messages, and stacks are excluded. Database timeouts are unchanged.
+
 ## Current limitations
 
 - Guest comments cannot be claimed by signing in later. Post while signed in to retain author controls.
