@@ -1,4 +1,5 @@
 import { Schema } from "mongoose";
+import { webOrigin } from "@/utils/origin";
 import { nanoid } from "nanoid";
 import createModel from "@/lib/createModel";
 import { DEFAULT_COMMENT_STYLES, isCommentStyles } from "@/utils/commentStyles";
@@ -32,13 +33,14 @@ const appSchema = new Schema<IAppDocument>(
         validator: function (origins: string[]) {
           return (
             origins.length > 0 &&
-            origins.every((origin) => /^(https?:\/\/[^/]+)$/.test(origin))
+            origins.every((origin) => webOrigin(origin) === origin)
           );
         },
         message: () =>
           `Invalid origin: URIs is required and must not contain a path or end with "/".`,
       },
     },
+    requireGuestApproval: { type: Boolean, default: false },
     commentStyles: {
       type: String,
       default: JSON.stringify(DEFAULT_COMMENT_STYLES),

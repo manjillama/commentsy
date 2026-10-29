@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   test:
-    name: Unit tests
+    name: Checks and tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -33,5 +33,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
+      - name: Check types
+        run: npx tsc --noEmit --incremental false
+
+      - name: Start test MongoDB replica set
+        run: |
+          docker run --detach --name commentsy-test-mongo --publish 27017:27017 mongo:7 --replSet rs0 --bind_ip_all
+          for attempt in $(seq 1 30); do
+            if docker exec commentsy-test-mongo mongosh --quiet --eval 'db.runCommand({ ping: 1 })' > /dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          docker exec commentsy-test-mongo mongosh --quiet --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "127.0.0.1:27017" }] })'
+          for attempt in $(seq 1 30); do
+            if docker exec commentsy-test-mongo mongosh --quiet --eval 'quit(db.hello().isWritablePrimary ? 0 : 1)' > /dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 1
+          done
+          docker logs commentsy-test-mongo
+          exit 1
+
       - name: Run tests
         run: npm test
+        env:
+          MONGODB_URI_TEST: mongodb://127.0.0.1:27017/?replicaSet=rs0&directConnection=true

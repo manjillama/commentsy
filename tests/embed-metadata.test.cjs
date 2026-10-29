@@ -20,7 +20,7 @@ test('generated embed snippet sends the complete host page URL with query and fr
       window: { location: { href: pageUrl }, addEventListener: (_type, handler) => { listener = handler; } },
       document: { title: 'My article', getElementById: () => iframe },
     });
-    listener({ data: { type: 'pingCommentsyParent' } });
+    listener({ source: iframe.contentWindow, origin: 'https://comments.example.com', data: { type: 'pingCommentsyParent' } });
     assert.equal(metadata.url, pageUrl);
     assert.equal(metadata.title, 'My article');
   }
@@ -63,4 +63,29 @@ test('submission requests current parent metadata rather than a cached initial U
   assert.equal(current.url, fullUrl);
   assert.equal(current.title, 'Chapter 1 · Page 12');
   assert.equal(removed, true);
+});
+
+test('host integration ignores messages from other windows, foreign origins, and invalid heights', () => {
+  const JsCode = load('components/code-snippets/js-code.tsx', {
+    './copy-button': { CopyButton: () => null },
+    'react-syntax-highlighter': { Prism: () => null },
+  }, { process: { env: { NEXT_PUBLIC_SITE_URL: 'https://comments.example.com' } } }).default;
+  const code = JsCode().props.children[1].props.children.replace(/^<script>\s*|\s*<\/script>$/g, '');
+  let handler;
+  let messages = 0;
+  const iframe = { style: {}, contentWindow: { postMessage: () => { messages++; } } };
+  vm.runInNewContext(code, {
+    window: { addEventListener: (_type, callback) => { handler = callback; }, location: { href: 'https://blog.example.com' } },
+    document: { title: 'Post', getElementById: () => iframe },
+  });
+  const event = { source: iframe.contentWindow, origin: 'https://comments.example.com', data: { type: 'pingCommentsyParent' } };
+  handler({ ...event, source: {} });
+  handler({ ...event, origin: 'https://evil.example' });
+  assert.equal(messages, 0);
+  handler(event);
+  assert.equal(messages, 1);
+  for (const height of ['300', -1, Infinity, 100001]) handler({ ...event, data: { type: 'commentsyResize', height } });
+  assert.equal(iframe.style.height, undefined);
+  handler({ ...event, data: { type: 'commentsyResize', height: 300 } });
+  assert.equal(iframe.style.height, '300px');
 });

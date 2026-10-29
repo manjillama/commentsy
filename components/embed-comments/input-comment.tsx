@@ -1,3 +1,4 @@
+import type { Dispatch, SetStateAction } from "react";
 import { requestParentPageData } from "@/utils/parentPageData";
 import CommentLength from "./comment-length";
 import FormFeedback from "../ui/form-feedback";
@@ -21,7 +22,7 @@ export type ParentSiteData = {
 
 type Props = {
   commentData: CommentDataWithUserCommentSyles;
-  setCommentData: (commentData: CommentDataWithUserCommentSyles) => void;
+  setCommentData: Dispatch<SetStateAction<CommentDataWithUserCommentSyles>>;
   user?: Session["user"];
   parentSiteData: ParentSiteData;
 };
@@ -34,6 +35,7 @@ export default function InputComment({
 }: Props) {
   const [gif, setGif] = useState<CommentGif>();
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formProps, setFormProps] = useState<{
     comment: string;
@@ -51,6 +53,7 @@ export default function InputComment({
       return;
     }
     setError("");
+    setMessage("");
     setSubmitting(true);
     let pageData;
     try {
@@ -78,12 +81,17 @@ export default function InputComment({
       if (gif) void registerGifShare(gif);
       setGif(undefined);
       data.data.commentUser = (user as IUser) ?? data.data.anonUser;
-      const newComments = [...commentData.comments];
-      newComments.unshift(data.data);
-      setCommentData({
-        ...commentData,
-        comments: newComments,
-      });
+      if (data.data.status === "pending") {
+        setMessage("Your comment was submitted for approval.");
+      } else {
+        setCommentData(current => ({
+          ...current,
+          comments: [data.data, ...current.comments],
+          total: current.total + 1,
+          commentsCount: current.commentsCount + 1,
+          totalCommentsAndReplies: current.totalCommentsAndReplies + 1,
+        }));
+      }
       setIsInputFocused(false);
     }
     setFormProps({ ...formProps, comment: "" });
@@ -123,7 +131,7 @@ export default function InputComment({
         <Avatar user={user} />
       </div>
       <form onSubmit={handleSubmit} className="w-full">
-        <FormFeedback message={error} error />
+        <FormFeedback message={error || message} error={Boolean(error)} />
         <div className={styles.growWrap}>
           <textarea
             value={formProps.comment}

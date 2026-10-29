@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/utils/requestBody";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import commentService from "@/services/commentService";
@@ -18,7 +19,7 @@ export const PATCH = catchAsync(async function (
       StatusCodes.FORBIDDEN
     );
 
-  const body = await req.json();
+  const body = await readJsonBody(req);
   const comment = await commentService.updateCommentStatus({
     commentId,
     userId: session.user.id as any,

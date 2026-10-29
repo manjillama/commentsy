@@ -1,3 +1,6 @@
+import logger from "@/utils/logger";
+import mongoose, { ClientSession } from "mongoose";
+import { isAuthorizedPage } from "@/utils/origin";
 import { normalizePageUrl } from "@/utils/pageUrl";
 import { CommentGif, isCommentGif } from "@/utils/gif";
 import App from "@/models/App";
@@ -8,8 +11,30 @@ import { StatusCodes } from "http-status-codes";
 import { ICommentDocument } from "@/interfaces/IComment";
 import factoryService from "./factoryService";
 import _ from "lodash";
-import { COMMENT_STATUS, IGroup, IGroupDocument } from "@/interfaces/IGroup";
+import { COMMENT_STATUS, IGroup } from "@/interfaces/IGroup";
 import { AVATAR_BACKGROUND_COLORS } from "@/interfaces/IUser";
+
+async function commentTransaction(operation: string, work: (session: ClientSession) => Promise<ICommentDocument>): Promise<ICommentDocument> {
+  let result!: ICommentDocument;
+  let attempts = 0;
+  const started = Date.now();
+  try {
+    await mongoose.connection.transaction(async session => {
+      attempts++;
+      result = await work(session);
+    });
+  } catch (error: any) {
+    // The API boundary emits the failure once, including the business operation.
+    if (error instanceof Error) Object.assign(error, { operation });
+    throw error;
+  }
+  // Emit only after commit: retries and rollbacks must not create false events.
+  const fields = { commentId: result._id?.toString(), status: result.status, reply: Boolean(result.parent) };
+  if (operation === "comment.created" || operation === "comment.edited") logger.debug(operation, fields);
+  else logger.info(operation, fields);
+  if (attempts > 1) logger.warn("comment.transaction.retried", { ...fields, operation, attempts, elapsedMs: Date.now() - started });
+  return result;
+}
 
 const getAllAppComments = async ({
   userId,
@@ -73,7 +98,7 @@ const createComment = async ({
     name: string;
     email: string;
   };
-}) => {
+}) => commentTransaction("comment.created", async session => {
   if (gif !== undefined && !isCommentGif(gif))
     throw new AppError("Invalid GIF attachment", StatusCodes.BAD_REQUEST);
   if (typeof comment !== "string" && comment !== undefined)
@@ -81,7 +106,11 @@ const createComment = async ({
   comment = (comment ?? "").trim();
   if (!comment && !gif)
     throw new AppError("Add a comment or choose a GIF", StatusCodes.BAD_REQUEST);
-  if (!appCode || !groupIdentifier || !pageTitle || !pageUrl)
+  if (typeof appCode !== "string" || !appCode || appCode.length > 100 ||
+      typeof groupIdentifier !== "string" || !groupIdentifier.trim() || groupIdentifier.length > 500 ||
+      typeof pageTitle !== "string" || !pageTitle.trim() || pageTitle.length > 1000 ||
+      typeof pageUrl !== "string" || !pageUrl ||
+      (parentCommentId != null && typeof parentCommentId !== "string"))
     throw new AppError(
       "Missing one or more fields app code (appCode), group identifier (identifier), page title (pageTitle), page url (pageUrl), comment",
       StatusCodes.BAD_REQUEST
@@ -91,15 +120,18 @@ const createComment = async ({
   if (!normalizedPageUrl) throw new AppError("Enter a valid absolute HTTP or HTTPS page URL", StatusCodes.BAD_REQUEST);
   pageUrl = normalizedPageUrl;
 
-  const app = await App.findOne({ code: appCode });
+  const app = await App.findOne({ code: appCode }, null, { session });
 
   if (!app)
     throw new AppError("App with that code not found", StatusCodes.BAD_REQUEST);
 
-  let group = await Group.findOne({
+  if (!isAuthorizedPage(app.authorizedOrigins, pageUrl))
+    throw new AppError("Page URL is not on an authorized site origin", StatusCodes.FORBIDDEN);
+
+  const group = await Group.findOne({
     app: app._id,
     identifier: groupIdentifier,
-  });
+  }, null, { session });
 
   if (!group)
     throw new AppError(
@@ -108,7 +140,7 @@ const createComment = async ({
     );
 
   if (parentCommentId) {
-    const parent = await Comment.findById(parentCommentId);
+    const parent = await Comment.findById(parentCommentId, null, { session });
     if (!parent || parent.parent || parent.status !== COMMENT_STATUS.approved || parent.isSpam ||
         String(parent.app) !== String(app._id) || String(parent.group) !== String(group._id))
       throw new AppError("Replies are closed for this comment", StatusCodes.BAD_REQUEST);
@@ -138,7 +170,7 @@ const createComment = async ({
         avatarBackgroundColor:
           AVATAR_BACKGROUND_COLORS[
             Math.floor(
-              (anonUser?.email.length ?? 0) % AVATAR_BACKGROUND_COLORS.length
+              (anonUser?.email?.length ?? 0) % AVATAR_BACKGROUND_COLORS.length
             )
           ] || "#fed0bb",
       },
@@ -146,16 +178,17 @@ const createComment = async ({
       pageUrl,
       comment,
       gif,
-      status: COMMENT_STATUS.approved,
+      status: app.requireGuestApproval ? COMMENT_STATUS.pending : COMMENT_STATUS.approved,
     });
   }
 
   await userComment.validate();
 
-  increaseGroupAndParentCommentsCount({ group, parentCommentId });
-
-  return userComment.save();
-};
+  await userComment.save({ session });
+  if (userComment.status === COMMENT_STATUS.approved)
+    await changeCommentCounts(userComment, 1, session);
+  return userComment;
+});
 
 const updateCommentStatus = async ({
   commentId,
@@ -165,14 +198,14 @@ const updateCommentStatus = async ({
   commentId: string;
   userId: string;
   status: `${COMMENT_STATUS}`;
-}) => {
+}) => commentTransaction("comment.moderated", async session => {
   if (status !== COMMENT_STATUS.approved && status !== COMMENT_STATUS.deleted)
     throw new AppError(
       "Invalid comment status provided",
       StatusCodes.BAD_REQUEST
     );
 
-  const comment = await Comment.findById(commentId).populate("group");
+  const comment = await Comment.findById(commentId, null, { session }).populate("group");
   if (!comment)
     throw new AppError(
       "Comment with that id not found",
@@ -190,7 +223,7 @@ const updateCommentStatus = async ({
 
   if (comment.status === status)
     throw new AppError(
-      `Comment alreay has ${status} status`,
+      `Comment already has ${status} status`,
       StatusCodes.BAD_REQUEST
     );
 
@@ -210,19 +243,14 @@ const updateCommentStatus = async ({
       StatusCodes.BAD_REQUEST
     );
 
-  if (status === COMMENT_STATUS.deleted) return removeComment(comment);
+  if (status === COMMENT_STATUS.deleted) return removeComment(comment, session);
 
   comment.status = status;
 
-  const group = await Group.findById((comment.group as IGroup)._id);
-
-  increaseGroupAndParentCommentsCount({
-    group,
-    parentCommentId: comment.parent as string,
-  });
-
-  return comment.save();
-};
+  await comment.save({ session });
+  if (!comment.isSpam) await changeCommentCounts(comment, 1, session);
+  return comment;
+});
 
 const markCommentAsSpam = async ({
   commentId,
@@ -230,8 +258,8 @@ const markCommentAsSpam = async ({
 }: {
   commentId: string;
   userId: string;
-}) => {
-  const comment = await Comment.findById(commentId).populate("group");
+}) => commentTransaction("comment.marked_spam", async session => {
+  const comment = await Comment.findById(commentId, null, { session }).populate("group");
   if (!comment)
     throw new AppError(
       "Comment with that id not found",
@@ -258,14 +286,14 @@ const markCommentAsSpam = async ({
       StatusCodes.BAD_REQUEST
     );
 
-  await decreaseGroupAndParentCommentCount(comment);
+  await decreaseGroupAndParentCommentCount(comment, session);
 
   comment.isSpam = true;
-  return comment.save();
-};
+  return comment.save({ session });
+});
 
-const updateOwnComment = async (commentId: string, userId: string, data: { comment?: unknown; gif?: unknown }) => {
-  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false });
+const updateOwnComment = async (commentId: string, userId: string, data: { comment?: unknown; gif?: unknown }) => commentTransaction("comment.edited", async session => {
+  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false }, null, { session });
   if (!comment) throw new AppError("Comment not found or you cannot edit it", StatusCodes.FORBIDDEN);
   if (typeof data.comment !== "string" || (!data.comment.trim() && !data.gif))
     throw new AppError("Add a comment or choose a GIF", StatusCodes.BAD_REQUEST);
@@ -274,14 +302,14 @@ const updateOwnComment = async (commentId: string, userId: string, data: { comme
   comment.comment = data.comment.trim();
   comment.editedAt = new Date();
   comment.gif = data.gif == null ? undefined : data.gif as CommentGif;
-  return comment.save();
-};
+  return comment.save({ session });
+});
 
-const deleteOwnComment = async (commentId: string, userId: string) => {
-  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false });
+const deleteOwnComment = async (commentId: string, userId: string) => commentTransaction("comment.deleted", async session => {
+  const comment = await Comment.findOne({ _id: commentId, user: userId, status: COMMENT_STATUS.approved, isSpam: false }, null, { session });
   if (!comment) throw new AppError("Comment not found or you cannot delete it", StatusCodes.FORBIDDEN);
-  return removeComment(comment);
-};
+  return removeComment(comment, session);
+});
 
 const getOwnComments = async (userId: string, requestedPage: number) => {
   const filter = { user: userId, status: COMMENT_STATUS.approved, isSpam: false };
@@ -308,33 +336,18 @@ export default {
   getAllAppComments,
 };
 
-const increaseGroupAndParentCommentsCount = ({
-  group,
-  parentCommentId,
-}: {
-  group: IGroupDocument | null;
-  parentCommentId: string | null;
-}) => {
-  if (!group)
-    throw new AppError(
-      "Group cannot be null to update comment count",
-      StatusCodes.BAD_REQUEST
-    );
-
-  group.commentsCount = group.commentsCount + 1;
-  group.save();
-
-  if (parentCommentId) {
-    Comment.findById(parentCommentId).then((parentComment): void => {
-      if (parentComment) {
-        parentComment.repliesCount = parentComment.repliesCount + 1;
-        parentComment.save();
-      }
-    });
+// Every write participates in the same transaction as the comment. Atomic
+// increments avoid lost updates; transaction retries re-check moderation state.
+const changeCommentCounts = async (comment: ICommentDocument, amount: number, session: ClientSession) => {
+  if (comment.parent) {
+    await Comment.updateOne({ _id: comment.parent }, { $inc: { repliesCount: amount } }, { session });
   }
+  const groupId = (comment.group as IGroup)?._id ?? comment.group;
+  await Group.updateOne({ _id: groupId }, { $inc: { commentsCount: amount } }, { session });
 };
 const removeComment = async (
-  userComment: ICommentDocument | null
+  userComment: ICommentDocument | null,
+  session: ClientSession
 ): Promise<ICommentDocument> => {
   if (!userComment)
     throw new AppError(
@@ -345,18 +358,14 @@ const removeComment = async (
   if (userComment.status === COMMENT_STATUS.deleted)
     throw new AppError("Comment is already deleted", StatusCodes.BAD_REQUEST);
 
-  userComment.$locals.deletedCount = await decreaseGroupAndParentCommentCount(userComment);
+  userComment.$locals.deletedCount = await decreaseGroupAndParentCommentCount(userComment, session);
 
   userComment.status = COMMENT_STATUS.deleted;
-  return userComment.save();
+  return userComment.save({ session });
 };
 
-const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument) => {
+const decreaseGroupAndParentCommentCount = async (comment: ICommentDocument, session: ClientSession) => {
   if (comment.status !== COMMENT_STATUS.approved || comment.isSpam) return 0;
-  let count = 1;
-  if (comment.parent) {
-    await Comment.updateOne({ _id: comment.parent, repliesCount: { $gt: 0 } }, { $inc: { repliesCount: -1 } });
-  }
-  await Group.updateOne({ _id: comment.group }, { $inc: { commentsCount: -count } });
-  return count;
+  await changeCommentCounts(comment, -1, session);
+  return 1;
 };

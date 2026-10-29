@@ -1,3 +1,4 @@
+import { safeErrorDetails } from "@/utils/logContext";
 import type { NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
@@ -8,14 +9,23 @@ import dbConnect from "@/lib/dbConnect";
 import User from "@/models/User";
 import { sessionCookieOptions } from "@/utils/sessionCookie";
 import logger from "@/utils/logger";
+import { authRedirect } from "@/utils/authRedirect";
 
 export const options: NextAuthOptions = {
   logger: {
-    error(code) {
-      logger.error("auth.error", { code });
+    error(code, metadata) {
+      logger.error("auth.error", { code, ...safeErrorDetails((metadata as any)?.error ?? metadata) });
     },
     warn(code) {
       logger.warn("auth.warning", { code });
+    },
+  },
+  events: {
+    async signIn({ account }) {
+      logger.info("auth.signed_in", { provider: account?.provider });
+    },
+    async signOut() {
+      logger.info("auth.signed_out");
     },
   },
   pages: {
@@ -30,8 +40,10 @@ export const options: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      if ((user as any).provider !== account?.provider)
+      if ((user as any).provider !== account?.provider) {
+        logger.warn("auth.login.rejected", { reason: "provider_mismatch", provider: account?.provider });
         throw new Error("OAuthAccountNotLinked");
+      }
       return true;
     },
     async jwt({ token, user, account, profile, trigger }) {
@@ -57,8 +69,7 @@ export const options: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      return url;
+      return authRedirect(url, baseUrl);
     },
   },
   providers: [

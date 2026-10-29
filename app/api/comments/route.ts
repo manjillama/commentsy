@@ -1,3 +1,5 @@
+import { readJsonBody } from "@/utils/requestBody";
+import { enforceRateLimit, requestClientKey } from "@/utils/rateLimit";
 import dbConnect from "@/lib/dbConnect";
 import commentService from "@/services/commentService";
 import catchAsync from "@/utils/errorHandler";
@@ -10,10 +12,10 @@ export const GET = catchAsync(async function (req: NextRequest) {
   await dbConnect();
 
   const searchParams = req.nextUrl.searchParams;
-  const { identifier, ...params } = Object.fromEntries(searchParams);
+  const { appCode, identifier, ...params } = Object.fromEntries(searchParams);
 
   const [comments, total, size] =
-    await publicCommentService.getAllGroupComments(identifier, params);
+    await publicCommentService.getAllGroupComments(appCode, identifier, params);
 
   return Response.json({
     status: "success",
@@ -28,6 +30,7 @@ export const GET = catchAsync(async function (req: NextRequest) {
 export const POST = catchAsync(async function (req: Request) {
   await dbConnect();
   const session = await getServerSession(options);
+  await enforceRateLimit(`comment-client:${requestClientKey(req)}:${session?.user.id ?? "guest"}`, 10);
 
   const {
     appCode,
@@ -38,8 +41,10 @@ export const POST = catchAsync(async function (req: Request) {
     pageTitle,
     pageUrl,
     anonUser,
-  } = await req.json();
+  } = await readJsonBody(req);
 
+  if (typeof appCode === "string" && appCode.length <= 100)
+    await enforceRateLimit(`comment-app:${appCode}`, 60);
   const userComment = await commentService.createComment({
     appCode,
     groupIdentifier: identifier,

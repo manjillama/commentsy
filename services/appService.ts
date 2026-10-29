@@ -1,3 +1,4 @@
+import logger from "@/utils/logger";
 import { IApp } from "@/interfaces/IApp";
 import _ from "lodash";
 import App from "@/models/App";
@@ -10,7 +11,7 @@ const getAppsByUserId = async (userId: string): Promise<IApp[]> => {
 };
 
 const createApp = async (
-  data: Pick<IApp, "name" | "description" | "authorizedOrigins">,
+  data: Pick<IApp, "name" | "description" | "authorizedOrigins" | "requireGuestApproval">,
   userId: string
 ) => {
   const userAppsCount = await App.count({ user: userId });
@@ -20,17 +21,17 @@ const createApp = async (
       StatusCodes.FORBIDDEN
     );
 
-  /** @todo validate data */
-  const appData = _.pick(data, ["name", "description", "authorizedOrigins"]);
-  return App.create({
-    ...appData,
-    user: userId,
-  });
+  if (data.requireGuestApproval !== undefined && typeof data.requireGuestApproval !== "boolean")
+    throw new AppError("Guest approval must be enabled or disabled", StatusCodes.BAD_REQUEST);
+  const appData = _.pick(data, ["name", "description", "authorizedOrigins", "requireGuestApproval"]);
+  const app = await App.create({ ...appData, user: userId });
+  logger.info("site.created", { appId: app._id.toString() });
+  return app;
 };
 
 const updateApp = async (
   appId: string,
-  data: Partial<Pick<IApp, "name" | "description" | "authorizedOrigins" | "commentStyles">>,
+  data: Partial<Pick<IApp, "name" | "description" | "authorizedOrigins" | "requireGuestApproval" | "commentStyles">>,
   userId: string
 ) => {
   let app = await App.findOne({ _id: appId, user: userId });
@@ -41,6 +42,8 @@ const updateApp = async (
       StatusCodes.BAD_REQUEST
     );
 
+  if (data.requireGuestApproval !== undefined && typeof data.requireGuestApproval !== "boolean")
+    throw new AppError("Guest approval must be enabled or disabled", StatusCodes.BAD_REQUEST);
   if (data.commentStyles !== undefined) {
     let styles: unknown;
     try {
@@ -62,9 +65,11 @@ const updateApp = async (
       )])
     )) };
   }
-  const appData = _.pick(data, ["name", "description", "authorizedOrigins", "commentStyles"]);
+  const appData = _.pick(data, ["name", "description", "authorizedOrigins", "commentStyles", "requireGuestApproval"]);
   app = Object.assign(app, { ...appData });
-  return app.save();
+  await app.save();
+  logger.info("site.updated", { appId: app._id.toString(), fields: Object.keys(appData) });
+  return app;
 };
 
 export default { getAppsByUserId, createApp, updateApp };

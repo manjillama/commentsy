@@ -13,8 +13,8 @@ export default function JsCode() {
    **/
   window.addEventListener("message", (event) => {
     const iframe = document.getElementById("commentsyIframe");
-    if (iframe && event.data) {
-      if (event.data.type === "commentsyResize" && event.data.height) {
+    if (iframe && event.source === iframe.contentWindow && event.origin === "` + process.env.NEXT_PUBLIC_SITE_URL + `" && event.data) {
+      if (event.data.type === "commentsyResize" && Number.isFinite(event.data.height) && event.data.height > 0 && event.data.height <= 100000) {
         iframe.style.height = \`\${event.data.height}px\`;
       }
       if (event.data.type === "pingCommentsyParent") {

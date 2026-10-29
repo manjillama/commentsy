@@ -35,6 +35,7 @@ export default function Settings({
               name: app.name,
               description: app.description,
               authorizedOrigins: app.authorizedOrigins,
+              requireGuestApproval: app.requireGuestApproval ?? false,
             }}
           />
         </div>

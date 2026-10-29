@@ -31,7 +31,14 @@ export default function CommentsContainer({
   const [commentData, setCommentData] = useState(data);
 
   return (
-    <CommentMutationsContext.Provider value={{ deleted, onDeleted: (comment, count) => {
+    <CommentMutationsContext.Provider value={{ deleted, onReplyCreated: parentId => {
+      setCommentData(current => ({
+        ...current,
+        commentsCount: current.commentsCount + 1,
+        totalCommentsAndReplies: current.totalCommentsAndReplies + 1,
+        comments: current.comments.map(comment => comment._id === parentId ? { ...comment, repliesCount: comment.repliesCount + 1 } : comment),
+      }));
+    }, onDeleted: (comment, count) => {
       setCommentData(current => removeDeletedComment(current, comment, count));
       setDeleted(current => [...current, { id: comment._id, parent: comment.parent ? String(comment.parent) : undefined, count }]);
     } }}>

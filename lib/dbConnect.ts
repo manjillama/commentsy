@@ -1,5 +1,6 @@
 import { keys } from "@/config";
 import mongoose from "mongoose";
+import { safeErrorDetails } from "@/utils/logContext";
 import logger from "@/utils/logger";
 declare global {
   var mongoose: any; // This must be a `var` and not a `let / const`
@@ -28,7 +29,7 @@ async function dbConnect() {
       bufferCommands: false,
     };
     const started = Date.now();
-    logger.info("db.connect.started");
+    logger.debug("db.connect.started");
     cached.promise = mongoose.connect(MONGODB_URI, opts)
       .then((connection) => {
         logger.info("db.connect.completed", { elapsedMs: Date.now() - started });
@@ -37,8 +38,7 @@ async function dbConnect() {
       .catch((error) => {
         logger.error("db.connect.failed", {
           elapsedMs: Date.now() - started,
-          errorName: error.name,
-          errorCode: typeof error.code === "number" ? error.code : undefined,
+          ...safeErrorDetails(error),
         });
         throw error;
       });

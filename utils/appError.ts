@@ -1,5 +1,6 @@
 class AppError extends Error {
   statusCode: number;
+  retryAfter?: number;
   status: string;
   isOperational: boolean;
 

@@ -85,7 +85,8 @@ export default function CommentReplies({
 
   const handleSubmittedData = (newComment: IComment): void => {
     setNewSubmittiedComments([...newSubmittComments, newComment]);
-    setTotalRepliesCount(totalRepliesCount + 1);
+    setTotalRepliesCount(count => count + 1);
+    mutations?.onReplyCreated(comment._id);
   };
 
   return (

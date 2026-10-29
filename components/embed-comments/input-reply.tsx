@@ -36,6 +36,7 @@ export default function InputReply({
 }: Props) {
   const [gif, setGif] = useState<CommentGif>();
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [formProps, setFormProps] = useState<{
     comment: string;
@@ -52,6 +53,7 @@ export default function InputReply({
       return;
     }
     setError("");
+    setMessage("");
     setSubmitting(true);
 
     let pageData;
@@ -81,8 +83,12 @@ export default function InputReply({
       if (gif) void registerGifShare(gif);
       setGif(undefined);
       data.data.commentUser = (user as IUser) ?? data.data.anonUser;
-      handleSubmittedData(data.data);
-      setShowReplyInput(false);
+      if (data.data.status === "pending") {
+        setMessage("Your reply was submitted for approval.");
+      } else {
+        handleSubmittedData(data.data);
+        setShowReplyInput(false);
+      }
     }
     setFormProps({ ...formProps, comment: "" });
     setSubmitting(false);
@@ -121,7 +127,7 @@ export default function InputReply({
         <Avatar user={user} size="sm" />
       </div>
       <form onSubmit={handleSubmit} className="w-full">
-        <FormFeedback message={error} error />
+        <FormFeedback message={error || message} error={Boolean(error)} />
         <div className={styles.growWrap}>
           <textarea
             value={formProps.comment}
