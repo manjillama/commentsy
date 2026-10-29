@@ -1,154 +1,107 @@
 import { SITE_DATA } from "@/constants";
 import { withSiteLayout } from "@/hoc";
 import { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: `Terms of Service | ${SITE_DATA.title}`,
 };
 
-async function TermsOfService() {
-  return (
-    <div className="bg-white min-h-screen">
-      <div className="max-w-screen-lg mx-auto px-[15px] py-10">
-        <h2 className="text-6xl font-bold">Terms of Service</h2>
+const sections: [string, string[]][] = [
+  [
+    "About these terms",
+    [
+      "These terms govern use of the hosted Commentsy website, dashboard, and embedded commenting service at commentsy.com, maintained by Manjil Tamang. By using the service, you agree to these terms. If you do not agree, do not use the hosted service. Independently hosted copies are subject to their operators’ terms.",
+      "Commentsy is a pilot project. Features, availability, and service limits may change. For a deployment you control, you can fork and self-host the software subject to its repository license."
+    ]
+  ],
+  [
+    "Accounts and eligibility",
+    [
+      "You must be at least 13 and meet any higher minimum age required for using the service where you live. If you use Commentsy for an organization, you must have authority to act for it.",
+      "Provide accurate account information and protect your password and connected Google or GitHub account. You are responsible for activity you authorize through your account. Do not impersonate others, share access without permission, or attempt to access another person’s account. Contact hello@manjiltamang.com if you suspect unauthorized access."
+    ]
+  ],
+  [
+    "Your content",
+    [
+      "You retain your rights in comments and other content you submit. You grant Commentsy permission to store, reproduce, format, and display that content as needed to operate the service, distribute it through embedded discussions, and support moderation. This permission does not transfer ownership of your content.",
+      "Only submit content you have the right to share. You are responsible for its accuracy and legality. Comments are public: other people may read, copy, or quote them. Do not submit confidential information or another person’s private data without authorization."
+    ]
+  ],
+  [
+    "Acceptable use",
+    [
+      "Do not post unlawful content, threats, harassment, hateful abuse, sexual exploitation of children, non-consensual intimate material, or content that infringes another person’s rights. Do not use Commentsy for spam, fraud, deceptive impersonation, or distributing malware.",
+      "Do not bypass authentication, moderation, origin restrictions, or other security controls; harvest personal information; or deliberately overload or disrupt the service. Report suspected security issues privately to hello@manjiltamang.com.",
+      "Communities using the widget may set additional rules. Follow those rules when participating on their websites."
+    ]
+  ],
+  [
+    "Site owners and moderation",
+    [
+      "Embed Commentsy only on websites you own or are authorized to manage. You are responsible for configuring authorized domains, complying with obligations that apply to your website, explaining your use of the widget to visitors, and moderating discussions you manage.",
+      "Site owners can moderate, hide, mark as spam, or remove comments. We may restrict content or accounts to address abuse, security risks, legal requirements, or violations of these terms. Moderation does not mean we endorse other content, and we cannot promise that every submission will be reviewed."
+    ]
+  ],
+  [
+    "Privacy and deletion",
+    [
+      "Our Privacy Policy explains the information processed by the service, including sign-in data, guest information, comments, and cookies. Read it before submitting personal information.",
+      "Comment deletion hides content through the service but may retain a database record to preserve discussion structure and support service operations. It cannot remove copies others have made. Account deletion and further data removal requests can be sent to hello@manjiltamang.com; there is no self-service account deletion feature."
+    ]
+  ],
+  [
+    "Third-party services and open source software",
+    [
+      "Google, GitHub, KLIPY, and websites embedding Commentsy operate independently and have their own terms and privacy policies. We do not control their availability or content. Choosing a GIF does not give you ownership of its underlying media.",
+      "The Commentsy source code is governed by the license included in its repository. These hosted-service terms do not replace or restrict permissions granted by that license. Rights in third-party code, media, and trademarks remain with their owners."
+    ]
+  ],
+  [
+    "Availability and responsibility",
+    [
+      "The hosted service is provided as available, without a promise of uninterrupted access, permanent storage, or fitness for a particular purpose. To the extent permitted by applicable law, we disclaim implied warranties and are not responsible for indirect or consequential losses, including lost profits or lost data, arising from use of the service.",
+      "Nothing in these terms excludes liability or limits consumer rights where doing so is prohibited by law. Keep your own copies of important content and assess whether a pilot service meets your needs."
+    ]
+  ],
+  [
+    "Ending use and changes",
+    [
+      "You may stop using Commentsy at any time. Site owners can remove the embed from their websites. We may suspend access or discontinue the hosted service, including where needed to protect users or maintain security. Retention of existing records is described in the Privacy Policy.",
+      "We may revise these terms as the service changes. We will update the date above and describe material changes on the service. Continued use after revised terms take effect means you accept them, to the extent permitted by applicable law."
+    ]
+  ],
+  [
+    "Contact",
+    [
+      "For questions about these terms, moderation concerns, copyright complaints, or account requests, email hello@manjiltamang.com. Include enough detail to identify the relevant account or content, but do not send passwords, access tokens, or other secrets."
+    ]
+  ]
+];
 
-        <p className="my-4">
-          Commentsy. (“Commentsy”, “we”, “us” or “our”) is an open source
-          project and offers an online public comment sharing platform where you
-          may login and create profiles to participate in conversations with
-          peers and enjoy an interactive experience. Our services are best only
-          for educative and experimental purpose and it is best to use other
-          commercial services of similar kind if commercial projects. These
-          Terms of Service (the “Terms”) govern your use of and access to our
-          comment sharing platform, software and website (collectively the
-          “Service”) by using the Service you understand and agree to be bound
-          by these Terms. Commentsy will not be liable for any losses.
-        </p>
-        <p className="my-4">
-          Commentsy is a pilot project. For your own deployment, we recommend
-          forking and self-hosting Commentsy.
-        </p>
-        <p className="my-4 font-bold">Commentsy Account.</p>
-        <p className="my-4">
-          By creating a Commentsy account, you agree to these Terms. When
-          creating your account, you must provide accurate and complete
-          information. You are solely responsible for the activity that occurs
-          on your account, and you must keep your account password secure. We
-          encourage you to use “strong” passwords (passwords that use a
-          combination of upper and lowercase letters, numbers and symbols) with
-          your account. You may never use another user’s account without
-          permission.
-        </p>
-        <p className="my-4 font-bold">Privacy. </p>
-        <p className="my-4">
-          The Commentsy Privacy Policy describes how we use and process the
-          information you provide to us when you use the Service. You understand
-          that by using the Services you consent to the collection, use and
-          disclosure of your information as set forth in our Privacy Policy.
-        </p>
-        <p className="my-4 font-bold">Content on the Services.</p>
-        <p className="my-4">
-          You are responsible for your use of the Services and for any content
-          you submit, post, display or otherwise make available on or through
-          the Service (“User Content”), including that such User Content
-          complies with applicable laws, rules, and regulations. You should only
-          provide Content that you are comfortable sharing with others.
-        </p>
-        <p className="my-4 font-bold">Commentsy Content</p>
-        <p className="my-4">
-          Commentsy’ name, logo, designs, trademarks, trade dress, service
-          marks, copyrights, patents or other intellectual property rights in
-          Commentsy’ software, images, text, graphics, illustrations, logos,
-          APIs etc. (the “Commentsy Content”) is the exclusive property of
-          Commentsy or its licensors. Except as explicitly provided herein,
-          nothing in these Terms shall be deemed to create a license in or to
-          Commentsy Content, and you agree not to sell, license, rent, modify,
-          distribute, copy, reproduce, transmit, publicly display, publicly
-          perform, publish, adapt, edit or create derivative works from any
-          Commentsy Content. Use of the Commentsy Content for any purpose not
-          expressly permitted by these Terms is strictly prohibited.
-        </p>
-        <p className="my-4 font-bold">Service Rules</p>
-        <p className="my-4">
-          Please review the Commentsy Service Rules below, in consideration of
-          the license to use the Services you agree to comply with the Service
-          Rules which are part of these Terms and outline what is prohibited on
-          the services. Please also note, Commentsy comments often appear in
-          websites and online communities not owned by Commentsy, these websites
-          and online communities may have their own rules about content and
-          comments on their site, please respect the rules of the communities in
-          which you are using Commentsy to comment.
-        </p>
-        <p className="my-4">
-          Bullying; Harassment; Hate Speech. We do not allow bullying or hate
-          speech on the Commentsy platform. Hate speech attacks people based on
-          “protected characteristics” which include race, ethnicity, sexual
-          orientation, religious affiliation, sex, gender, gender identity or
-          serious disability or disease. Bullying targets individuals with the
-          intention of degrading or shaming them. Bullying is especially harmful
-          to minors because they may be more vulnerable. Commentsy prohibits
-          bullying and hate speech and requires our users to respect each other
-          and comment with the respect and sensitivity of others in mind.
-        </p>
-        <p className="my-4">
-          Trademark Rights and Rights of Publicity; Impersonation. Users are
-          required to respect the intellectual property rights of others, and
-          are prohibited from posting content that violates someone else’s
-          copyright, trademark, or right of publicity. Additionally, users are
-          prohibited from impersonating others in a manner that does or is
-          intended to mislead or deceive others. Accounts portraying another
-          person in a confusing or deceptive manner may be banned at Commentsy’
-          discretion.
-        </p>
-        <p className="my-4">
-          Safety; Self-Harm. Users are prohibited from promoting or encouraging
-          suicide or self-harm. When we receive reports that a person is
-          threatening suicide or self-harm, we may take a number of steps to
-          assist them, such as reaching out to that person and providing
-          resources such as contact information for our mental health partners.
-        </p>
-        <p className="my-4">
-          Violence and Criminal Acts. Users are prohibited from promoting or
-          publicizing violent crime, theft, or fraud. We also prohibit users
-          from making credible threats of violence, serious physical harm, or
-          death. This includes, but is not limited to, promoting, publicizing or
-          threatening terrorist activity, organized hate crime, mass or serial
-          murder, human trafficking, organized violence.
-        </p>
-        <p className="my-4">
-          Child sexual exploitation. Commentsy prohibits content that sexually
-          exploits or endangers children. If we become aware of apparent child
-          exploitation, we will report it in compliance with applicable law.
-        </p>
-        <p className="my-4">
-          Inappropriate Content. Graphic media, including explicit violence,
-          gore, and pornographic content are not allowed.
-        </p>
-        <p className="my-4">
-          Deceitful data collection; Malware Collecting or harvesting any
-          personally identifiable information, including account names, from the
-          Service; attempting to interfere with, to compromise the system
-          integrity or security or to decipher any transmissions to or from the
-          servers running the Service; (v) taking any action that imposes, or
-          may impose at our sole discretion an unreasonable or
-          disproportionately large load on our infrastructure; (vi) uploading
-          data, viruses, worms, or other software agents through the Service
-          accessing any content on the Service through any technology or means
-          other than those provided or authorized by the Service; or (xiii)
-          bypassing the measures we may use to prevent or restrict access to the
-          Service, including without limitation features that prevent or
-          restrict use or copying of any content or enforce limitations on use
-          of the Service or the content therein.
-        </p>
-        <p className="my-4 font-bold">Spam.</p>
-        <p className="my-4">
-          Users are prohibited from posting or sending Spam through the service.
-          What constitutes Spam is constantly evolving. Generally, Spam means
-          repeated actions that negatively impact others, such as repeatedly
-          posting a comment with the intent to post a thread etc.
-        </p>
+function TermsOfService() {
+  return (
+    <article className="bg-white min-h-screen text-neutral-700">
+      <div className="max-w-3xl mx-auto px-5 py-12 sm:py-16">
+        <p className="text-sm mb-3">Commentsy · Legal</p>
+        <h1 className="text-4xl sm:text-5xl font-bold text-neutral-950">Terms of Service</h1>
+        <p className="mt-4 text-sm">Effective October 28, 2026</p>
+        <nav aria-label="Legal pages" className="flex flex-wrap gap-5 my-8 underline">
+          <Link href="/">About Commentsy</Link>
+          <Link href="/legal/privacy-policy">Privacy Policy</Link>
+          <a href="mailto:hello@manjiltamang.com">Contact</a>
+        </nav>
+        {sections.map(([heading, paragraphs], index) => (
+          <section key={heading} className="mt-8">
+            <h2 className="text-xl font-semibold text-neutral-950">{index + 1}. {heading}</h2>
+            {paragraphs.map(paragraph => (
+              <p key={paragraph} className="mt-3 leading-7">{paragraph}</p>
+            ))}
+          </section>
+        ))}
       </div>
-    </div>
+    </article>
   );
 }
 

@@ -1,6 +1,3 @@
-import { getServerSession } from "next-auth";
-import { options } from "./api/auth/[...nextauth]/options";
-import { redirect } from "next/navigation";
 import { withSiteLayout } from "@/hoc";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +9,6 @@ import styles from "./landing.module.css";
 async function HomePage() {
   const session = await getServerSession(options);
   if (session) redirect("/dashboard");
-
   return (
     <div className={styles.landing}>
       <section className={`${styles.container} ${styles.hero}`} aria-labelledby="hero-title">
@@ -85,3 +81,6 @@ async function HomePage() {
 }
 
 export default withSiteLayout(HomePage);
+import { getServerSession } from "next-auth";
+import { options } from "./api/auth/[...nextauth]/options";
+import { redirect } from "next/navigation";
