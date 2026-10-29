@@ -10,19 +10,6 @@ export async function hasEmbedStorageAccess(document: StorageAccessDocument, emb
   return document.hasStorageAccess();
 }
 
-// A previous permission grant may need activating again for a new iframe/page.
-// Without a user gesture, browsers reject requests that still need consent.
-export async function restoreEmbedStorageAccess(document: StorageAccessDocument, embedded: boolean) {
-  if (await hasEmbedStorageAccess(document, embedded)) return true;
-  if (!document.requestStorageAccess) return false;
-  try {
-    await document.requestStorageAccess();
-    return true;
-  } catch {
-    return false; // Keep the explicit Connect action for browsers requiring a tap.
-  }
-}
-
 export async function requestEmbedStorageAccess(document: StorageAccessDocument) {
   // Invoke directly from the click handler, before any await consumes activation.
   if (document.requestStorageAccess) await document.requestStorageAccess();
