@@ -33,6 +33,7 @@ const commentSchema = new Schema<ICommentDocument>(
       },
       email: {
         type: String,
+        select: false,
         required: [true, "Missing anonymous user email"],
         lowercase: true,
         trim: true,
@@ -53,6 +54,10 @@ const commentSchema = new Schema<ICommentDocument>(
           "Missing anonymous user avatar background color (anonUser.avatarBackgroundColor)",
         ],
       },
+    }, {
+      // Also protect newly created documents returned before another DB read.
+      toJSON: { transform: (_doc, result) => { delete result.email; return result; } },
+      toObject: { transform: (_doc, result) => { delete result.email; return result; } },
     }),
     pageTitle: {
       type: String,
@@ -112,7 +117,10 @@ const commentSchema = new Schema<ICommentDocument>(
   }
 );
 commentSchema.virtual("commentUser").get(function () {
-  return this.user ?? this.anonUser;
+  return this.user ?? (this.anonUser ? {
+    name: this.anonUser.name,
+    avatarBackgroundColor: this.anonUser.avatarBackgroundColor,
+  } : undefined);
 });
 const Comment = createModel<ICommentDocument>("Comment", commentSchema);
 

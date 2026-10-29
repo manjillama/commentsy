@@ -169,3 +169,23 @@ test('public threads retain removal notices without leaking deleted content', as
     assert.equal(comment.anonUser, undefined);
   }
 });
+
+test('guest emails stay stored but never appear in serialized comment responses', async () => {
+  const guest = new Comment({ ...base, user: undefined, comment: 'Hello', anonUser: {
+    name: 'Guest', email: 'private@example.com', avatarBackgroundColor: '#fed0bb',
+  } });
+  await guest.validate();
+  assert.equal(guest.anonUser.email, 'private@example.com');
+  assert.equal(Comment.schema.path('anonUser').schema.path('email').options.select, false);
+  for (const response of [guest.toJSON(), guest.toObject(), JSON.parse(JSON.stringify(guest))]) {
+    assert.equal(response.anonUser.email, undefined);
+    assert.equal(response.commentUser.email, undefined);
+    assert.equal(response.anonUser.name, 'Guest');
+    assert.equal(response.commentUser.name, 'Guest');
+    assert.equal(response.commentUser.avatarBackgroundColor, '#fed0bb');
+    assert.ok(!JSON.stringify(response).includes('private@example.com'));
+  }
+  // Serialization must not erase the stored field or break subsequent saves.
+  assert.equal(guest.anonUser.email, 'private@example.com');
+  await guest.validate();
+});
