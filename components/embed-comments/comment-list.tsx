@@ -1,19 +1,16 @@
 import { Session } from "next-auth";
 import { CommentDataWithUserCommentSyles } from ".";
 import CommentItem from "./comment-item";
-import { ParentSiteData } from "./input-comment";
 import { IComment } from "@/interfaces/IComment";
 
 type Props = {
   comments: CommentDataWithUserCommentSyles["comments"];
   commentData: CommentDataWithUserCommentSyles;
-  parentSiteData: ParentSiteData;
   user?: Session["user"];
 };
 export default function CommentList({
   comments,
   commentData,
-  parentSiteData,
   user,
 }: Props) {
   const transformToObject: { [key: string]: IComment } = comments.reduce(
@@ -34,7 +31,6 @@ export default function CommentList({
           user={user}
           comment={comment}
           commentData={commentData}
-          parentSiteData={parentSiteData}
         />
       ))}
     </div>

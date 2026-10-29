@@ -4,6 +4,7 @@ import { FormEvent, useId, useState } from "react";
 import { Alert, Spinner } from "../ui";
 import api from "@/utils/api";
 import { TrashIcon } from "@radix-ui/react-icons";
+import { IApp } from "@/interfaces/IApp";
 import { AppDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { pushUserApp, refetchUserApps } from "@/slices/userAppsSlice";
@@ -30,7 +31,7 @@ export default function AppForm(props: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formProps, setFormProps] = useState<FormProps>(
-    (props as any).initialFormProps ?? {
+    props.type === "edit" ? props.initialFormProps : {
       name: "",
       description: "",
       authorizedOrigins: [""],
@@ -57,8 +58,8 @@ export default function AppForm(props: Props) {
     setIsSubmitting(true);
     setErrors([]);
     let data;
-    if (props.type === "new") data = await api.post("/api/apps", formProps);
-    else data = await api.patch(`/api/apps/${props.appId}`, formProps);
+    if (props.type === "new") data = await api.post<IApp>("/api/apps", formProps);
+    else data = await api.patch<IApp>(`/api/apps/${props.appId}`, formProps);
     if (data.status !== "success") setErrors(data.errors);
     else {
       props.type === "new"
@@ -102,7 +103,7 @@ export default function AppForm(props: Props) {
           </label>
         </div>
         <AuthorizedOriginsField
-          handleChange={handleChange}
+          onChange={origins => setFormProps(current => ({ ...current, authorizedOrigins: origins }))}
           authorizedOrigins={formProps.authorizedOrigins}
         />
         <div className="flex items-start gap-2 text-sm leading-5">
@@ -167,45 +168,12 @@ export default function AppForm(props: Props) {
 
 function AuthorizedOriginsField({
   authorizedOrigins,
-  handleChange,
+  onChange,
 }: {
   authorizedOrigins: string[];
-  handleChange: (e: React.FormEvent<HTMLInputElement>) => void;
+  onChange: (origins: string[]) => void;
 }) {
   const labelId = useId();
-
-  function onChange(origin: string, index?: number) {
-    let value = [];
-    if (typeof index === "number") {
-      const newOrigin = [...authorizedOrigins];
-      newOrigin[index] = origin;
-      value = newOrigin;
-    } else value = [...authorizedOrigins, origin];
-
-    const event = {
-      currentTarget: {
-        name: "authorizedOrigins",
-        value,
-      },
-    };
-
-    handleChange(event as any);
-  }
-
-  function removeFieldAtIndex(index: number) {
-    const newOrigins = [...authorizedOrigins];
-    newOrigins.splice(index, 1);
-    const value = newOrigins;
-
-    const event = {
-      currentTarget: {
-        name: "authorizedOrigins",
-        value,
-      },
-    };
-
-    handleChange(event as any);
-  }
 
   return (
     <div>
@@ -229,11 +197,12 @@ function AuthorizedOriginsField({
               name="authorizedOrigins"
               value={origin}
               type="text"
-              onChange={(e: any) => onChange(e.currentTarget.value, i)}
+              onChange={event => onChange(authorizedOrigins.map((value, index) => index === i ? event.target.value : value))}
             />
             <button
               type="button"
-              onClick={() => removeFieldAtIndex(i)}
+              aria-label={`Remove authorized domain ${i + 1}`}
+              onClick={() => onChange(authorizedOrigins.filter((_, index) => index !== i))}
               className="hover:bg-neutral-200 p-2 h-[32px] w-[32px] rounded-full text-center"
             >
               <TrashIcon className="mx-auto" />
@@ -243,7 +212,7 @@ function AuthorizedOriginsField({
 
         <button
           type="button"
-          onClick={() => onChange("")}
+          onClick={() => onChange([...authorizedOrigins, ""])}
           className="flex items-center py-1 px-2 bg-black text-white rounded-md text-sm hover:opacity-75"
         >
           Add URI

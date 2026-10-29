@@ -39,7 +39,7 @@ export default function EmbedComments({ commentData, user, theme }: Props) {
     CommentStyles["light"] | null
   >(null);
 
-  const embedRef = useRef(null);
+  const embedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const { commentStyles } = commentData;
@@ -67,18 +67,20 @@ export default function EmbedComments({ commentData, user, theme }: Props) {
   }, []);
 
   useEffect(() => {
-    function resizeParentEmbedWindow() {
-      window.parent.postMessage(
-        { type: "commentsyResize", height: embedRef.current?.["offsetHeight"] },
-        "*"
-      );
-    }
-    resizeParentEmbedWindow();
-    const interval = setInterval(() => {
-      resizeParentEmbedWindow();
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+    const element = embedRef.current;
+    if (!element) return;
+    let lastHeight = 0;
+    const reportHeight = () => {
+      const height = element.offsetHeight;
+      if (height === lastHeight) return;
+      lastHeight = height;
+      window.parent.postMessage({ type: "commentsyResize", height }, "*");
+    };
+    const observer = new ResizeObserver(reportHeight);
+    observer.observe(element);
+    reportHeight();
+    return () => observer.disconnect();
+  }, [userCommentStyles]);
 
   if (!userCommentStyles) return null;
 

@@ -49,13 +49,11 @@ export default function CommentsContainer({
         setCommentData={setCommentData}
         commentData={commentData}
         user={user}
-        parentSiteData={parentSiteData}
       />
       <CommentList
         user={user}
         comments={commentData.comments}
         commentData={commentData}
-        parentSiteData={parentSiteData}
       />
       <FetchMoreComments
         commentData={commentData}

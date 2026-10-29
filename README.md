@@ -205,6 +205,8 @@ Searches, media requests, and search/share reporting go directly from the browse
 
 ### Local checks
 
+Run all local checks with `npm run check`, or run them individually:
+
 ```bash
 npm run lint
 npx tsc --noEmit --incremental false
