@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowTopRightIcon } from "@radix-ui/react-icons";
 import styles from "./support-project.module.css";
 
@@ -29,7 +28,7 @@ export default function SupportProject() {
           <span>Always optional. Always appreciated.</span>
         </div>
       </div>
-      <p className={styles.note}>Support funds development, with the same access for everyone. It does not purchase hosting, support, maintenance, or guaranteed availability. <Link href="/legal/terms-of-service">Service terms</Link></p>
+      <p className={styles.note}>Your support helps maintain Commentsy and bring future projects to life. Every contribution means a lot. Thank you for being part of it.</p>
     </aside>
   );
 }
