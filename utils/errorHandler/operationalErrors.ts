@@ -20,11 +20,11 @@ function handleCastErrorDB(error: AppError): AppError {
 }
 
 function handleDuplicateFieldsDB(error: AppError): AppError {
-  const duplicateField = error.message
-    .split("index: ")[1]
-    .split("dup key")[0]
-    .split("_")[0];
-  const message = `Duplicate field ${duplicateField}. Please use another value`;
+  const details = error as AppError & { keyPattern?: Record<string, unknown>; keyValue?: Record<string, unknown> };
+  const isEmail = Boolean(details.keyPattern?.email || details.keyValue?.email) || /index: email_/.test(error.message);
+  const message = isEmail
+    ? "An account with this email already exists. Sign in instead, or use one of the options below to recover access."
+    : "This value is already in use. Please choose another.";
   return new AppError(message, StatusCodes.BAD_REQUEST, [message]);
 }
 
