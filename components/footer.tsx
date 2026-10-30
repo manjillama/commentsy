@@ -18,15 +18,16 @@ export default function Footer() {
               </Link>
             </li>
           </ul>
-          <div>
+          <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
             <Link
               href="https://buymeacoffee.com/xmarman"
               className="hover:text-black"
               target="_blank"
               rel="noreferrer"
             >
-              Buy me a coffee ✨
+              Buy me a coffee
             </Link>
+            <Link href="https://patreon.com/xmarman" target="_blank" rel="noopener noreferrer" className="hover:text-black">Support on Patreon</Link>
           </div>
         </div>
         <div className="flex md:flex-row flex-col justify-between items-center">

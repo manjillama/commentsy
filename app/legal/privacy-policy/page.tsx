@@ -10,9 +10,9 @@ export const metadata = publicPageMetadata(
 
 const sections: [string, string[]][] = [
   [
-    "Who operates Commentsy",
+    "About this policy",
     [
-      "Commentsy is an open source commenting service maintained by Manjil Tamang. This policy covers the service at commentsy.com, its dashboard, and its embedded comment widgets. Independently hosted copies are operated by their own owners and may follow different policies. For privacy questions or data requests, email hello@manjiltamang.com."
+      "Commentsy is an independent, open source commenting pilot project. Commentsy is a project name, not a separate legal entity. This policy describes how the hosted service’s operator handles information. This policy covers the service at commentsy.com, its dashboard, and its embedded comment widgets. Independently hosted copies are operated by their own owners and may follow different policies. For privacy questions or data requests, email hello@manjiltamang.com."
     ]
   ],
   [
@@ -81,7 +81,7 @@ function PrivacyPolicy() {
       <div className="max-w-3xl mx-auto px-5 py-12 sm:py-16">
         <p className="text-sm mb-3">Commentsy · Legal</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-neutral-950">Privacy Policy</h1>
-        <p className="mt-4 text-sm">Effective October 28, 2026</p>
+        <p className="mt-4 text-sm">Effective October 29, 2026</p>
         <nav aria-label="Legal pages" className="flex flex-wrap gap-5 my-8 underline">
           <Link href="/">About Commentsy</Link>
           <Link href="/legal/terms-of-service">Terms of Service</Link>
