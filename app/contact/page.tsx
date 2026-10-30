@@ -1,17 +1,18 @@
-import { SITE_DATA } from "@/constants";
+import { publicPageMetadata } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
 import {
   EnvelopeClosedIcon,
   GitHubLogoIcon,
   GlobeIcon,
 } from "@radix-ui/react-icons";
-import { Metadata } from "next";
 import Link from "next/link";
 import styles from "./contact.module.css";
 
-export const metadata: Metadata = {
-  title: `Contact | ${SITE_DATA.title}`,
-};
+export const metadata = publicPageMetadata(
+  "Contact Commentsy",
+  "Get help with Commentsy, the open source website comment system. Ask about embedding comments, configuration, or contributing to the project.",
+  "/contact"
+);
 
 function ContactPage() {
   return (

@@ -1,11 +1,12 @@
-import { SITE_DATA } from "@/constants";
+import { publicPageMetadata } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
-import { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `Terms of Service | ${SITE_DATA.title}`,
-};
+export const metadata = publicPageMetadata(
+  "Terms of Service | Commentsy",
+  "Read the terms for using Commentsy and its embeddable website comment system.",
+  "/legal/terms-of-service"
+);
 
 const sections: [string, string[]][] = [
   [

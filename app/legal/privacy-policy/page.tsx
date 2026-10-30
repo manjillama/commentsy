@@ -1,11 +1,12 @@
-import { SITE_DATA } from "@/constants";
+import { publicPageMetadata } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
-import { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `Privacy Policy | ${SITE_DATA.title}`,
-};
+export const metadata = publicPageMetadata(
+  "Privacy Policy | Commentsy",
+  "Learn how Commentsy collects and uses account information, comments, and technical data.",
+  "/legal/privacy-policy"
+);
 
 const sections: [string, string[]][] = [
   [
