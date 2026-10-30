@@ -71,3 +71,32 @@ test('unverified credentials sign-in opens confirmation page without requiring a
   });
   assert.equal(await login.credentialsLogin(' User+test@example.com ', 'correct-password', '/dashboard'), '/verify-email#email=user%2Btest%40example.com');
 });
+
+test('OAuth provider mismatch rejects before changing the existing account or sending email', async () => {
+  for (const provider of ['github', 'credentials', 'google']) {
+    let saves = 0;
+    let welcomes = 0;
+    const record = { _id: 'existing', provider, image: 'original-avatar', isEmailVerified: true, welcomeEmailPending: true, save: async () => { saves++; } };
+    const service = load('services/authService.ts', {
+      '@/models/User': { findOne: async () => record, create: async () => { throw new Error('Must not create another account'); } },
+      '@/services/accountEmailService': { sendWelcome: async () => { welcomes++; } },
+      '@/interfaces/IUser': { EProviders: { credentials: 'credentials' } },
+      '@/utils/appError': load('utils/appError.ts').default,
+    }).default;
+    await assert.rejects(service.handlePostOAuthUserSignIn('user@example.com', 'Changed name', provider === 'google' ? 'github' : 'google', 'new-avatar'), /OAuthAccountNotLinked/);
+    assert.equal(record.image, 'original-avatar');
+    assert.equal(record.provider, provider);
+    assert.equal(saves, 0);
+    assert.equal(welcomes, 0);
+  }
+});
+
+test('matching OAuth provider awaits profile save and propagates persistence failures', async () => {
+  const record = { _id: 'existing', provider: 'github', image: 'old', save: async () => { throw new Error('Save failed'); } };
+  const service = load('services/authService.ts', {
+    '@/models/User': { findOne: async () => record },
+    '@/interfaces/IUser': { EProviders: { credentials: 'credentials' } },
+    '@/utils/appError': load('utils/appError.ts').default,
+  }).default;
+  await assert.rejects(service.handlePostOAuthUserSignIn('user@example.com', 'User', 'github', 'new'), /Save failed/);
+});
