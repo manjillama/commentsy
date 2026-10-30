@@ -1,6 +1,6 @@
 /* eslint-disable import/no-anonymous-default-export */
 import { Model, Document } from "mongoose";
-import APIFeatures, { parseQueryFilter } from "@/utils/apiFeatures";
+import APIFeatures, { parseQueryFilter, paginationSize } from "@/utils/apiFeatures";
 
 type Find<T> = {
   populate: (options: any) => Find<T>;
@@ -12,10 +12,10 @@ type Find<T> = {
  * @param  {any} query
  * @returns [collection, total, size]
  */
-function find<T extends Document>(model: Model<T>, query: any): Find<T> {
+function find<T extends Document>(model: Model<T>, query: any, countFilter?: any): Find<T> {
   const { limit } = query;
 
-  const size = limit && !Number.isNaN(Number(limit)) ? Number(limit) : 40;
+  const size = paginationSize(limit);
 
   const features = new APIFeatures(model.find(), query)
     .filter()
@@ -23,7 +23,7 @@ function find<T extends Document>(model: Model<T>, query: any): Find<T> {
     .limitFields()
     .paginate(size);
 
-  const totalCountFilter = parseQueryFilter(query);
+  const totalCountFilter = countFilter ?? parseQueryFilter(query);
 
   return {
     populate(options: any) {

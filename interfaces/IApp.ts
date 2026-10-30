@@ -33,6 +33,7 @@ export interface IApp {
   description: string;
   authorizedOrigins: Array<string>;
   commentStyles: string;
+  requireGuestApproval?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

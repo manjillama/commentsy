@@ -39,10 +39,15 @@ const userSchema = new Schema<IUserDocument>(
     },
     password: {
       type: String,
+      required: [function (this: IUserDocument) { return this.provider === EProviders.credentials; }, "Missing password"],
+      validate: { validator: (value: string) => Buffer.byteLength(value, "utf8") <= 72, message: "Password must be at most 72 UTF-8 bytes" },
       minlength: 8,
       maxLength: 100,
       select: false,
     },
+    passwordResetHash: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
+    sessionVersion: { type: Number, default: 0, select: false },
     isEmailVerified: {
       type: Boolean,
       default: false,

@@ -12,7 +12,7 @@ export default function AuthLayout({ signup = false, children }: { signup?: bool
           <Link href="/" className={styles.back}><ArrowLeftIcon /> Back to Commentsy</Link>
           <div className={styles.storyHeading}>
             <span className={styles.eyebrow}>{signup ? "YOUR CORNER OF THE INTERNET" : "GOOD TO HAVE YOU BACK"}</span>
-            <h2>{signup ? <>Big ideas deserve<br />a conversation.</> : <>The conversation<br />continues here.</>}</h2>
+            <h2>{signup ? <>Big ideas deserve<br />{" "}a conversation.</> : <>The conversation<br />{" "}continues here.</>}</h2>
             <p>{signup ? "Give your readers a place to connect. Make it yours, and see where the conversation takes you." : "Your sites, your comments, and the people behind them. Pick up right where you left off."}</p>
           </div>
           <div className={styles.conversation} aria-hidden="true">
@@ -28,6 +28,9 @@ export default function AuthLayout({ signup = false, children }: { signup?: bool
             <span className={styles.eyebrow}>{signup ? "LET’S GET YOU STARTED" : "YOUR COMMENTSY"}</span>
             <h1 id="auth-title">{signup ? "Make yourself at home." : "Welcome back."}</h1>
             <p className={styles.intro}>{signup ? "Create your account and join the conversation." : "Log in to your Commentsy account."}</p>
+            <p className="my-4 text-sm leading-6 text-neutral-600">
+              By creating an account or signing in, you agree to the <Link className="underline" href="/legal/terms-of-service">Terms of Service</Link>. Read our <Link className="underline" href="/legal/privacy-policy">Privacy Policy</Link> to understand how we handle your information.
+            </p>
             {children}
             <p className={styles.switchAccount}>{signup ? "Already part of the conversation?" : "New around here?"} <Link href={signup ? "/signin" : "/signup"}>{signup ? "Log in" : "Create an account"} <span aria-hidden="true">↗</span></Link></p>
           </div>

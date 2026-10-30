@@ -1,0 +1,21 @@
+.support { margin-block: 48px; border: 1px solid #e9e3d6; border-radius: 16px; background: #faf7ef; overflow: hidden; }
+.invitation { display: flex; align-items: center; gap: 22px; padding: 30px 32px; }
+.illustration { flex: 0 0 84px; color: #82683c; transform: rotate(-8deg); }
+.illustration svg { display: block; width: 84px; height: 84px; }
+.copy { flex: 1; min-width: 0; }
+.eyebrow { display: block; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; color: #82745c; line-height: 1.7; }
+.support .title { margin: 9px 0 8px; font-size: 23px; line-height: 1.25; letter-spacing: -.65px; font-weight: 500; color: #302a21; }
+.description { font-size: 13px; line-height: 1.8; color: #756c5d; }
+.action { min-width: 0; max-width: 100%; flex-shrink: 1; display: flex; flex-direction: column; align-items: center; gap: 11px; }
+.button { box-sizing: border-box; max-width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 18px; border: 1px solid #d8c9aa; border-radius: 8px; padding: 12px 17px; font-size: 12px; font-weight: 500; color: #443824; background: #fffdf8; transition: background .15s, border-color .15s; }
+.button:hover { background: #f0e7d5; border-color: #bba47c; }
+.button:focus-visible, .note a:focus-visible { outline: 2px solid #82683c; outline-offset: 4px; }
+.action > span { font-size: 10px; color: #756c5d; }
+.note { margin: 0; padding: 14px 32px; border-top: 1px solid #e9e3d6; font-size: 11px; line-height: 1.8; color: #756c5d; }
+.note a { text-decoration: underline; text-underline-offset: 3px; white-space: nowrap; }
+@media (max-width: 900px) { .invitation { flex-wrap: wrap; gap: 16px; } .action { width: calc(100% - 100px); margin-left: 100px; align-items: flex-start; } }
+@media (max-width: 540px) { .invitation { padding: 24px 20px; gap: 12px; } .illustration { flex-basis: 56px; } .illustration svg { width: 56px; height: 64px; } .support .title { font-size: 21px; } .eyebrow { font-size: 8px; letter-spacing: 1px; } .action { width: calc(100% - 68px); margin: 8px 0 0 68px; gap: 9px; } .options .button { width: 100%; justify-content: space-between; } .note { padding: 14px 20px; } }
+
+.options { width: 100%; min-width: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+
+.button svg { flex-shrink: 0; }

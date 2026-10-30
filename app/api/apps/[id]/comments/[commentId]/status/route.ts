@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/utils/requestBody";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import commentService from "@/services/commentService";
@@ -8,20 +9,21 @@ import { getServerSession } from "next-auth";
 
 export const PATCH = catchAsync(async function (
   req: Request,
-  { params: { commentId } }: { params: { commentId: string } }
+  { params: { id, commentId } }: { params: { id: string; commentId: string } }
 ) {
   await dbConnect();
   const session = await getServerSession(options);
-  if (!session)
+  if (!session?.user.id)
     throw new AppError(
       "You need to be logged in to post a comment",
       StatusCodes.FORBIDDEN
     );
 
-  const body = await req.json();
+  const body = await readJsonBody(req);
   const comment = await commentService.updateCommentStatus({
     commentId,
-    userId: session.user.id as any,
+    appId: id,
+    userId: session.user.id,
     status: body.status,
   });
 

@@ -5,6 +5,8 @@ const vm = require('node:vm');
 const ts = require('typescript');
 const mongoose = require('mongoose');
 
+let logContext;
+
 // Load the actual TS modules without introducing a second build or test dependency.
 function load(file, mocks = {}, globals = {}) {
   const loadedModule = { exports: {} };
@@ -12,7 +14,18 @@ function load(file, mocks = {}, globals = {}) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX },
   }).outputText;
   const evaluate = vm.runInThisContext(`(function(module, exports, require, ${Object.keys(globals).join(",")}) { ${source}\n})`, { filename: file });
-  evaluate(loadedModule, loadedModule.exports, name => name in mocks ? mocks[name] : name === "@/utils/pageUrl" ? load("utils/pageUrl.ts") : require(name), ...Object.values(globals));
+  const resolve = name => {
+    if (name in mocks) return mocks[name];
+    if (name === '@/utils/logger') return { info() {}, warn() {}, error() {}, debug() {}, log() {} };
+    if (name === '@/utils/logContext') return logContext ??= load('utils/logContext.ts');
+    if (name === '@/utils/pageUrl') return load('utils/pageUrl.ts');
+    if (name === '@/utils/origin') return load('utils/origin.ts');
+    if (name === '@/utils/commentCursor') return load('utils/commentCursor.ts', {
+      '@/utils/appError': load('utils/appError.ts').default,
+    });
+    return require(name);
+  };
+  evaluate(loadedModule, loadedModule.exports, resolve, ...Object.values(globals));
   return loadedModule.exports;
 }
 const gifUtils = load('utils/gif.ts', {}, { URL });

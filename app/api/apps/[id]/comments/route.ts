@@ -13,7 +13,7 @@ export const GET = catchAsync(async function (
 ) {
   await dbConnect();
   const session = await getServerSession(options);
-  if (!session)
+  if (!session?.user.id)
     throw new AppError(
       "You need to be logged in to post a comment",
       StatusCodes.FORBIDDEN
@@ -24,7 +24,7 @@ export const GET = catchAsync(async function (
 
   const [comments, total, size] = await commentService.getAllAppComments({
     appId: id,
-    userId: session.user.id as string,
+    userId: session.user.id,
     queryParams: params,
   });
 

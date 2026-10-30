@@ -6,6 +6,7 @@ const groupSchema = new Schema<IGroupDocument>(
   {
     identifier: {
       type: String,
+      maxlength: 500,
       required: [true, "Missing group identifier (identifier)"],
     },
     owner: {

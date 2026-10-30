@@ -1,4 +1,6 @@
 import _ from "lodash";
+import { commentCursorFilter } from "@/utils/commentCursor";
+import { isAuthorizedPage } from "@/utils/origin";
 import { parseCommentStyles } from "@/utils/commentStyles";
 import App from "@/models/App";
 import Comment from "@/models/Comment";
@@ -49,6 +51,10 @@ const getAllGroupCommentsInitData = async ({
       message: "Invalid or missing parameters.",
     };
 
+  // Validate before any writes, including creating a new conversation.
+  if (!isAuthorizedPage(app.authorizedOrigins, refererUrl))
+    return { status: "fail", message: "Authorization error, URI mismatch" };
+
   let group: IGroup | null = await Group.findOne({
     app: app?._id,
     identifier: groupIdentifier,
@@ -56,26 +62,20 @@ const getAllGroupCommentsInitData = async ({
     .select("identifier likesCount commentsCount")
     .lean();
 
-  if (!group)
-    group = await Group.create({
-      identifier: groupIdentifier,
-      owner: app.user,
-      app: app._id,
-    });
+  if (!group) {
+    try {
+      group = await Group.create({ identifier: groupIdentifier, owner: app.user, app: app._id });
+    } catch (error: any) {
+      // Another first visitor may have created the same conversation.
+      if (error?.code !== 11000) throw error;
+      group = await Group.findOne({ app: app._id, identifier: groupIdentifier }).lean();
+    }
+  }
 
   if (!group)
     return {
       status: "fail",
       message: "Comments group with that identifier could not be created",
-    };
-
-  const parsedUrl = new URL(refererUrl);
-  const baseUrl = `${parsedUrl.protocol}//${parsedUrl.host}`;
-
-  if (!app.authorizedOrigins.some((url) => isSameDomain(url, baseUrl)))
-    return {
-      status: "fail",
-      message: "Authorization error, URI mismatch",
     };
 
   const [comments, total, size] = await _fetchCommentsWithGroupId(
@@ -100,12 +100,15 @@ const getAllGroupCommentsInitData = async ({
 };
 
 const getAllGroupComments = async (
+  appCode: string,
   groupIdentifier: string,
   queryParams: any
 ): Promise<[ICommentDocument[], number, number]> => {
-  const group = await Group.findOne({
-    identifier: groupIdentifier,
-  }).lean();
+  if (typeof appCode !== "string" || !appCode || typeof groupIdentifier !== "string" || !groupIdentifier)
+    throw new AppError("Missing app code or page identifier", StatusCodes.BAD_REQUEST);
+  const app = await App.findOne({ code: appCode }).lean();
+  if (!app) throw new AppError("App not found", StatusCodes.NOT_FOUND);
+  const group = await Group.findOne({ app: app._id, identifier: groupIdentifier }).lean();
 
   if (!group)
     throw new AppError(
@@ -138,22 +141,30 @@ const _fetchCommentsWithGroupId = (
 };
 
 const _fetchComments = async (options: any, queryParams: any) => {
-  const query = _.pick(queryParams, ["limit", "page", "sort"]) as {};
+  const query = _.pick(queryParams, ["limit", "page"]) as {};
+  const sort = queryParams?.sort === "createdAt" ? "createdAt,_id" : "-createdAt,-_id";
 
+  const filter = {
+    ...options,
+    ...(options.parent === null ? {
+      $or: [
+        { status: COMMENT_STATUS.approved, isSpam: false },
+        { repliesCount: { $gt: 0 }, $or: [{ status: COMMENT_STATUS.deleted }, { isSpam: true }] },
+      ],
+    } : { status: COMMENT_STATUS.approved, isSpam: false }),
+  };
+  const cursor = queryParams?.after ? { $and: [commentCursorFilter(queryParams.after, sort === "createdAt,_id")] } : {};
   const [comments, total, size] = await factoryService
     .find(Comment, {
       limit: 20,
-      sort: "-createdAt",
       ...query,
-      ...options,
-      ...(options.parent === null ? {
-        $or: [
-          { status: COMMENT_STATUS.approved, isSpam: false },
-          { repliesCount: { $gt: 0 }, $or: [{ status: COMMENT_STATUS.deleted }, { isSpam: true }] },
-        ],
-      } : { status: COMMENT_STATUS.approved, isSpam: false }),
+      // Cursor requests start at the boundary rather than a mutable page offset.
+      ...(queryParams?.after ? { page: 1 } : {}),
+      sort,
+      ...filter,
+      ...cursor,
       fields: "_id, parent, status, isSpam, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
-    })
+    }, filter)
     .populate({ path: "user", select: "name image avatarBackgroundColor" })
     .exec();
   // Never send removed content or its author details to the public widget.
@@ -164,26 +175,6 @@ const _fetchComments = async (options: any, queryParams: any) => {
   });
   return [visible as ICommentDocument[], total, size] as [ICommentDocument[], number, number];
 };
-
-function isSameDomain(url1: string, url2: string) {
-  function removeWww(hostname: string) {
-    // Remove "www" if it exists at the beginning of the hostname
-    if (hostname.startsWith("www.")) {
-      return hostname.slice(4);
-    }
-    return hostname;
-  }
-  // Create URL objects for the input URLs
-  const parsedUrl1 = new URL(url1);
-  const parsedUrl2 = new URL(url2);
-
-  // Remove "www" subdomains from hostnames
-  const hostname1 = removeWww(parsedUrl1.hostname);
-  const hostname2 = removeWww(parsedUrl2.hostname);
-
-  // Compare the hostnames
-  return hostname1 === hostname2;
-}
 
 export default {
   getAllGroupCommentsInitData,

@@ -2,6 +2,7 @@ const { test, assert, load, mongoose, gifUtils, gif, Comment, base } = require('
 
 test('comment service rejects empty content and invalid attachments before database writes', async () => {
   const service = load('services/commentService.ts', {
+    mongoose: { connection: { transaction: work => work({ testSession: true }) } },
     '@/utils/gif': gifUtils,
     '@/models/App': { findOne: () => { throw new Error('unexpected database access'); } },
     '@/models/Comment': {}, '@/models/Group': {}, './factoryService': {},
@@ -17,13 +18,15 @@ test('service saves GIF-only comments and anonymous replies with their attachmen
     const group = { _id: base.group, commentsCount: 0, save: async () => {} };
     const parent = { app: base.app, group: base.group, status: 'approved', repliesCount: 0, save: async () => {} };
     const service = load('services/commentService.ts', {
+    mongoose: { connection: { transaction: work => work({ testSession: true }) } },
       '@/utils/gif': gifUtils,
-      '@/models/App': { findOne: async () => ({ _id: base.app }) },
+      '@/models/App': { findOne: async () => ({ _id: base.app, authorizedOrigins: ['https://example.com'] }) },
       '@/models/Comment': class extends Comment {
         async save() { return this; }
         static async findById() { return parent; }
+        static async updateOne(_filter, update) { parent.repliesCount += update.$inc.repliesCount; }
       },
-      '@/models/Group': { findOne: async () => group }, './factoryService': {},
+      '@/models/Group': { findOne: async () => group, updateOne: async (_filter, update) => { group.commentsCount += update.$inc.commentsCount; } }, './factoryService': {},
       '@/utils/appError': class AppError extends Error {},
       '@/interfaces/IGroup': { COMMENT_STATUS: { approved: 'approved' } },
       '@/interfaces/IUser': { AVATAR_BACKGROUND_COLORS: ['#fed0bb'] },
@@ -64,6 +67,7 @@ test('author mutations enforce ownership and scope deletion to the selected thre
   const calls = [];
   let found = null;
   const service = load('services/commentService.ts', {
+    mongoose: { connection: { transaction: work => work({ testSession: true }) } },
     '@/utils/gif': gifUtils, '@/models/App': {}, './factoryService': {},
     '@/models/Comment': {
       findOne: async query => { calls.push(['find', query]); return found; },
@@ -125,8 +129,9 @@ test('reply creation rejects removed, nested, missing, and unrelated parents', a
     { status: 'approved', app: base.app, group: 'other' },
   ]) {
     const service = load('services/commentService.ts', {
+    mongoose: { connection: { transaction: work => work({ testSession: true }) } },
       '@/utils/gif': gifUtils,
-      '@/models/App': { findOne: async () => ({ _id: base.app }) },
+      '@/models/App': { findOne: async () => ({ _id: base.app, authorizedOrigins: ['https://example.com'] }) },
       '@/models/Group': { findOne: async () => ({ _id: base.group }) },
       '@/models/Comment': { findById: async () => parent }, './factoryService': {},
       '@/utils/appError': class AppError extends Error {},
@@ -144,7 +149,7 @@ test('public threads retain removal notices without leaking deleted content', as
   let filter;
   const service = load('services/publicCommentService.ts', {
     '@/utils/commentStyles': { parseCommentStyles: () => ({}) },
-    '@/models/App': {}, '@/models/Comment': {}, '@/models/Group': { findOne: () => ({ lean: async () => ({ _id: 'group' }) }) },
+    '@/models/App': { findOne: () => ({ lean: async () => ({ _id: base.app }) }) }, '@/models/Comment': {}, '@/models/Group': { findOne: () => ({ lean: async () => ({ _id: 'group' }) }) },
     '@/utils/appError': class AppError extends Error {},
     '@/interfaces/IGroup': { COMMENT_STATUS: { approved: 'approved', deleted: 'deleted' } },
     './factoryService': { find: (_, query) => {
@@ -155,7 +160,7 @@ test('public threads retain removal notices without leaking deleted content', as
       ], 2, 20] };
     } },
   }).default;
-  const [comments] = await service.getAllGroupComments('post', {});
+  const [comments] = await service.getAllGroupComments('app', 'post', {});
   assert.equal(filter.parent, null);
   assert.equal(filter.$or[1].repliesCount.$gt, 0);
   await service.getAllCommentReplies('parent', {});

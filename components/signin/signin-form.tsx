@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { credentialsLogin } from "@/utils/credentialsLogin";
 import { FormEvent, useState } from "react";
 import FormFeedback from "../ui/form-feedback";
@@ -77,6 +78,8 @@ export default function SignInForm() {
           />
         </label>
       </div>
+
+      <div className="text-right text-sm"><Link href="/forgot-password" className="underline underline-offset-4">Forgot password?</Link></div>
 
       <button
         disabled={isSubmitting}

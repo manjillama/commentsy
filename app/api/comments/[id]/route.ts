@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/utils/requestBody";
 import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
@@ -14,7 +15,7 @@ async function requireUser() {
 
 export const PATCH = catchAsync(async (req, { params: { id } }) => {
   const userId = await requireUser();
-  const body = await req.json();
+  const body = await readJsonBody(req);
   const comment = await commentService.updateOwnComment(id, userId, body);
   return Response.json({ status: "success", data: comment });
 });

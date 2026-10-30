@@ -1,13 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useId, useState } from "react";
 import { Alert, Spinner } from "../ui";
 import api from "@/utils/api";
 import { TrashIcon } from "@radix-ui/react-icons";
+import { IApp } from "@/interfaces/IApp";
 import { AppDispatch } from "@/store";
 import { useDispatch } from "react-redux";
 import { pushUserApp, refetchUserApps } from "@/slices/userAppsSlice";
 import Toast from "../ui/toast";
+import GuestApprovalHelp from "./guest-approval-help";
+import FieldHelp from "./field-help";
 
 type Props =
   | { from: "dialog"; type: "new"; setOpen: (open: boolean) => void }
@@ -22,15 +25,17 @@ type FormProps = {
   name: string;
   description: string;
   authorizedOrigins: string[];
+  requireGuestApproval?: boolean;
 };
 export default function AppForm(props: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [formProps, setFormProps] = useState<FormProps>(
-    (props as any).initialFormProps ?? {
+    props.type === "edit" ? props.initialFormProps : {
       name: "",
       description: "",
       authorizedOrigins: [""],
+      requireGuestApproval: false,
     }
   );
   const [errors, setErrors] = useState<string[]>([]);
@@ -53,8 +58,8 @@ export default function AppForm(props: Props) {
     setIsSubmitting(true);
     setErrors([]);
     let data;
-    if (props.type === "new") data = await api.post("/api/apps", formProps);
-    else data = await api.patch(`/api/apps/${props.appId}`, formProps);
+    if (props.type === "new") data = await api.post<IApp>("/api/apps", formProps);
+    else data = await api.patch<IApp>(`/api/apps/${props.appId}`, formProps);
     if (data.status !== "success") setErrors(data.errors);
     else {
       props.type === "new"
@@ -98,9 +103,17 @@ export default function AppForm(props: Props) {
           </label>
         </div>
         <AuthorizedOriginsField
-          handleChange={handleChange}
+          onChange={origins => setFormProps(current => ({ ...current, authorizedOrigins: origins }))}
           authorizedOrigins={formProps.authorizedOrigins}
         />
+        <div className="flex items-start gap-2 text-sm leading-5">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-black" checked={formProps.requireGuestApproval ?? false}
+              onChange={event => setFormProps({ ...formProps, requireGuestApproval: event.target.checked })} />
+            <span>Require approval for guest comments and replies</span>
+          </label>
+          <GuestApprovalHelp />
+        </div>
         <hr />
         <div>
           <label className="space-y-2">
@@ -119,6 +132,7 @@ export default function AppForm(props: Props) {
             <div>
               <button
                 className="py-2 px-4 block bg-white border border-neutral-200 text-black rounded-lg hover:bg-neutral-200"
+                type="button"
                 onClick={() => props.setOpen(false)}
               >
                 Cancel
@@ -154,63 +168,41 @@ export default function AppForm(props: Props) {
 
 function AuthorizedOriginsField({
   authorizedOrigins,
-  handleChange,
+  onChange,
 }: {
   authorizedOrigins: string[];
-  handleChange: (e: React.FormEvent<HTMLInputElement>) => void;
+  onChange: (origins: string[]) => void;
 }) {
-  function onChange(origin: string, index?: number) {
-    let value = [];
-    if (typeof index === "number") {
-      const newOrigin = [...authorizedOrigins];
-      newOrigin[index] = origin;
-      value = newOrigin;
-    } else value = [...authorizedOrigins, origin];
-
-    const event = {
-      currentTarget: {
-        name: "authorizedOrigins",
-        value,
-      },
-    };
-
-    handleChange(event as any);
-  }
-
-  function removeFieldAtIndex(index: number) {
-    const newOrigins = [...authorizedOrigins];
-    newOrigins.splice(index, 1);
-    const value = newOrigins;
-
-    const event = {
-      currentTarget: {
-        name: "authorizedOrigins",
-        value,
-      },
-    };
-
-    handleChange(event as any);
-  }
+  const labelId = useId();
 
   return (
     <div>
-      <label className="space-y-2">
-        <span className="text-neutral-500">Authorized domains*</span>
+      <div className="space-y-2">
+        <div className="relative flex items-center gap-2">
+          <span id={labelId} className="text-neutral-500">Authorized domains*</span>
+          <FieldHelp label="About authorized domains" alignToField>
+            <span className="mb-2 block">List the website origins allowed to use this widget. Include http:// or https://, with no path or trailing slash.</span>
+            <span className="mb-2 block">Locally, include your host page&apos;s port, e.g. http://localhost:5500. Different protocols, ports, localhost, and 127.0.0.1 are separate origins.</span>
+            <span className="block">Add example.com, www.example.com, and other subdomains separately, each with its protocol. Wildcards aren&apos;t supported.</span>
+          </FieldHelp>
+        </div>
 
         {authorizedOrigins.map((origin, i) => (
           <div key={i} className="flex items-center space-x-2">
             <input
+              aria-labelledby={labelId}
               placeholder="https://www.example.com"
               autoComplete="off"
               className="border border-neutral-300 w-full rounded-lg p-3"
               name="authorizedOrigins"
               value={origin}
               type="text"
-              onChange={(e: any) => onChange(e.currentTarget.value, i)}
+              onChange={event => onChange(authorizedOrigins.map((value, index) => index === i ? event.target.value : value))}
             />
             <button
               type="button"
-              onClick={() => removeFieldAtIndex(i)}
+              aria-label={`Remove authorized domain ${i + 1}`}
+              onClick={() => onChange(authorizedOrigins.filter((_, index) => index !== i))}
               className="hover:bg-neutral-200 p-2 h-[32px] w-[32px] rounded-full text-center"
             >
               <TrashIcon className="mx-auto" />
@@ -220,12 +212,12 @@ function AuthorizedOriginsField({
 
         <button
           type="button"
-          onClick={() => onChange("")}
+          onClick={() => onChange([...authorizedOrigins, ""])}
           className="flex items-center py-1 px-2 bg-black text-white rounded-md text-sm hover:opacity-75"
         >
           Add URI
         </button>
-      </label>
+      </div>
     </div>
   );
 }

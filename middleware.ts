@@ -3,6 +3,8 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 const anonymousRoutes = [
+  "/forgot-password",
+  "/reset-password",
   "/signin",
   "/signup",
   "/embed",
@@ -18,12 +20,13 @@ export default withAuth(
     return response;
   },
   {
+    cookies: { sessionToken: { name: "next-auth.session-token" } },
     callbacks: {
-      authorized: ({ req }) => {
+      authorized: ({ req, token }) => {
         const { pathname } = req.nextUrl;
 
         return Boolean(
-          req.cookies.get("next-auth.session-token") ||
+          token ||
             pathname === "/" || // exclude home page
             pathname.startsWith("/_next") || // exclude Next.js internals
             pathname.startsWith("/api") || //  exclude all API routes

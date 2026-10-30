@@ -1,17 +1,18 @@
-import { SITE_DATA } from "@/constants";
+import { publicPageMetadata } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
-import { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `Privacy Policy | ${SITE_DATA.title}`,
-};
+export const metadata = publicPageMetadata(
+  "Privacy Policy | Commentsy",
+  "Learn how Commentsy collects and uses account information, comments, and technical data.",
+  "/legal/privacy-policy"
+);
 
 const sections: [string, string[]][] = [
   [
-    "Who operates Commentsy",
+    "About this policy",
     [
-      "Commentsy is an open source commenting service maintained by Manjil Tamang. This policy covers the service at commentsy.com, its dashboard, and its embedded comment widgets. Independently hosted copies are operated by their own owners and may follow different policies. For privacy questions or data requests, email hello@manjiltamang.com."
+      "Commentsy is an independent, open source commenting pilot project. Commentsy is a project name, not a separate legal entity. This policy describes how the hosted service’s operator handles information. This policy covers the service at commentsy.com, its dashboard, and its embedded comment widgets. Independently hosted copies are operated by their own owners and may follow different policies. For privacy questions or data requests, email hello@manjiltamang.com."
     ]
   ],
   [
@@ -34,7 +35,7 @@ const sections: [string, string[]][] = [
     [
       "Comments are intended for public discussion. Your display name, avatar or profile image, comment text, GIFs, and timestamps may be visible to readers, website owners, and search engines. Do not post confidential information or personal data you do not want others to see.",
       "Guest posting is not anonymous to the service: we store the name and email address you submit. Your guest name and avatar are shown with your comment. Guest email addresses are excluded from comment responses, including public discussions and moderation responses.",
-      "We use infrastructure providers, including Vercel for hosting and MongoDB Atlas for database storage, to operate the hosted service. These providers process information as needed to deliver their services. Google and GitHub handle their own authentication pages under their respective privacy policies. We may disclose information where legally required or necessary to address fraud, abuse, or security incidents."
+      "We use infrastructure providers, including Vercel for hosting, MongoDB Atlas for database storage, and Resend for password-recovery emails, to operate the hosted service. These providers process information as needed to deliver their services. Google and GitHub handle their own authentication pages under their respective privacy policies. We may disclose information where legally required or necessary to address fraud, abuse, or security incidents."
     ]
   ],
   [
@@ -80,7 +81,7 @@ function PrivacyPolicy() {
       <div className="max-w-3xl mx-auto px-5 py-12 sm:py-16">
         <p className="text-sm mb-3">Commentsy · Legal</p>
         <h1 className="text-4xl sm:text-5xl font-bold text-neutral-950">Privacy Policy</h1>
-        <p className="mt-4 text-sm">Effective October 28, 2026</p>
+        <p className="mt-4 text-sm">Effective October 29, 2026</p>
         <nav aria-label="Legal pages" className="flex flex-wrap gap-5 my-8 underline">
           <Link href="/">About Commentsy</Link>
           <Link href="/legal/terms-of-service">Terms of Service</Link>

@@ -4,7 +4,6 @@ import CommentContent from "./comment-content";
 import { IComment } from "@/interfaces/IComment";
 import { CommentDataWithUserCommentSyles } from ".";
 import { Session } from "next-auth";
-import { ParentSiteData } from "./input-comment";
 import { useEffect, useState } from "react";
 import InputReply from "./input-reply";
 import Avatar from "../ui/avatar";
@@ -16,13 +15,11 @@ type Props = {
   comment: IComment;
   commentData: CommentDataWithUserCommentSyles;
   user?: Session["user"];
-  parentSiteData: ParentSiteData;
 };
 export default function CommentReplies({
   comment,
   commentData,
   user,
-  parentSiteData,
 }: Props) {
   const mutations = useCommentMutations();
   const removedReplies = mutations?.deleted.filter(item => item.parent === comment._id) ?? [];
@@ -85,7 +82,8 @@ export default function CommentReplies({
 
   const handleSubmittedData = (newComment: IComment): void => {
     setNewSubmittiedComments([...newSubmittComments, newComment]);
-    setTotalRepliesCount(totalRepliesCount + 1);
+    setTotalRepliesCount(count => count + 1);
+    mutations?.onReplyCreated(comment._id);
   };
 
   return (
@@ -96,12 +94,9 @@ export default function CommentReplies({
           <InputReply
             handleSubmittedData={handleSubmittedData}
             parentCommentId={comment._id}
-            commentReplies={commentReplies}
-            setCommentReplies={setCommentReplies}
             setShowReplyInput={setShowReplyInput}
             commentData={commentData}
             user={user}
-            parentSiteData={parentSiteData}
           />
         </div>
       ) : (

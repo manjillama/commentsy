@@ -27,6 +27,9 @@ export interface IUser {
   name: string;
   email: string;
   password: string;
+  passwordResetHash?: string;
+  passwordResetExpires?: Date;
+  sessionVersion?: number;
   isEmailVerified: boolean;
   image?: string;
   avatarBackgroundColor: AvatarBackgroundColorType;

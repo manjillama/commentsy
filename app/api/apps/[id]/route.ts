@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/utils/requestBody";
 import dbConnect from "@/lib/dbConnect";
 import catchAsync from "@/utils/errorHandler";
 import { getServerSession } from "next-auth";
@@ -13,15 +14,15 @@ export const PATCH = catchAsync(async function (
   await dbConnect();
   const session = await getServerSession(options);
 
-  if (!session)
+  if (!session?.user.id)
     throw new AppError(
       "You need to be logged in to commentsy",
       StatusCodes.FORBIDDEN
     );
 
-  const body = await req.json();
+  const body = await readJsonBody(req);
 
-  const app = await appService.updateApp(id, body, session.user.id as string);
+  const app = await appService.updateApp(id, body, session.user.id);
 
   return Response.json({
     status: "success",

@@ -16,7 +16,7 @@ npx tsc --noEmit --incremental false
 npm test
 ```
 
-Run one suite with, for example, `node --test tests/comments.test.cjs`. Tests do not need the app server or external services. The repository currently targets Node.js 18 in Docker and CI.
+Run one suite with, for example, `node --test tests/comments.test.cjs`. Tests do not need the app server or external services. Node.js 20–22 is tested and supported. With nvm, run `nvm install` and `nvm use` in the project directory.
 
 ## Where to make changes
 
@@ -35,7 +35,7 @@ Choose the checks relevant to the change:
 - Embeds: host-page metadata, resizing, theme colors, and Safari storage-access approval/denial. Keep local hostnames consistent; use HTTPS for cross-site authentication tests.
 - Account/settings: validation, save feedback, session/profile refresh, and provider-specific controls.
 
-Automated suites mock external services and database operations. A passing test suite does not replace a real browser/database check for changes to those integrations.
+Unit suites mock external services and database operations. Supply `MONGODB_URI_TEST` with a replica set URI to enable the optional database integration suite described in README. CI runs both. Real browser checks remain necessary for OAuth and embedded authentication.
 
 ## Pull requests
 
@@ -50,4 +50,4 @@ Before opening a PR:
 - [ ] Include related service, model, interface, API, and test changes together.
 - [ ] Exclude `.env.local`, credentials, personal data, and generated build output.
 
-GitHub Actions runs the tests on pushes and pull requests. Lint and TypeScript checks still need to be run locally.
+GitHub Actions runs lint, TypeScript, unit tests, and replica-set integration tests on pushes and pull requests. Run the local checks before opening a PR.

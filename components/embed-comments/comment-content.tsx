@@ -44,17 +44,15 @@ export default function CommentContent({ comment, user, palette }: {
 
   async function remove() {
     setBusy(true); setError(""); setMessage("");
-    try {
-      const response = await fetch(`/api/comments/${comment._id}`, { method: "DELETE" });
-      const data = await response.json();
-      if (!response.ok || data.status !== "success") throw new Error(data.message || "Unable to delete comment.");
-      if (mutations) {
-        mutations.onDeleted(comment, data.data.deletedCount);
-      } else {
-        // Top-level dashboard pages can safely reload their paginated history.
-        window.location.reload();
-      }
-    } catch (reason) { setError(reason instanceof Error ? reason.message : "Unable to delete comment."); setBusy(false); }
+    const response = await api.delete<{ deletedCount: number }>(`/api/comments/${comment._id}`);
+    if (response.status !== "success") {
+      setError(response.errors.join(" ") || response.message);
+      setBusy(false);
+      return;
+    }
+    if (mutations) mutations.onDeleted(comment, response.data.deletedCount);
+    else window.location.reload();
+
   }
 
   if (comment.status === "deleted" || comment.isSpam || mutations?.deleted.some(item => item.id === comment._id))
