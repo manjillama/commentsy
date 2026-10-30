@@ -1,3 +1,5 @@
+import { SITE_DATA } from "@/constants";
+import { homeMetadata, siteUrl } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,18 +8,38 @@ import HtmlCode from "@/components/code-snippets/html-code";
 import JsCode from "@/components/code-snippets/js-code";
 import styles from "./landing.module.css";
 
+export const metadata = homeMetadata();
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    { "@type": "WebSite", "@id": `${siteUrl}/#website`, name: "Commentsy", url: siteUrl },
+    {
+      "@type": "SoftwareApplication",
+      name: "Commentsy",
+      url: siteUrl,
+      description: SITE_DATA.description,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Web",
+      sameAs: "https://github.com/manjillama/commentsy",
+      featureList: ["Embeddable website comments", "Threaded replies", "Guest comment approval", "Custom light and dark themes"],
+    },
+  ],
+};
+
 async function HomePage() {
   const session = await getServerSession(options);
   if (session) redirect("/dashboard");
   return (
     <div className={styles.landing}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />
       <section className={`${styles.container} ${styles.hero}`} aria-labelledby="hero-title">
         <div className={styles.heroCopy}>
           <a className={styles.eyebrow} href="https://github.com/manjillama/commentsy">
             <GitHubLogoIcon width={15} height={15} /> Open source. Open conversations.
           </a>
-          <h1 id="hero-title">Your content.<br />Their thoughts.<br /><span>One conversation.</span></h1>
-          <p className={styles.lead}>Add comments to your website in just a few minutes. Give your readers a place to connect, ask questions, and keep the conversation going.</p>
+          <h1 id="hero-title">Comments for<br />your website.<br /><span>Your conversation.</span></h1>
+          <p className={styles.lead}>Commentsy is an open source, embeddable comment system for websites and blogs. Add threaded discussions in minutes, customize the theme, and manage comments from one dashboard.</p>
           <div className={styles.actions}>
             <Link className={styles.primaryButton} href="/signup">Get started <ArrowRightIcon /></Link>
             <a className={styles.secondaryButton} href="#how-it-works">See how it works <span aria-hidden="true">↗</span></a>
@@ -55,7 +77,7 @@ async function HomePage() {
               <div className={styles.featureImage}><span className={styles.stageNote}>A little more you.</span><Image src="/images/banner-4.png" alt="Appearance editor showing custom comment colors and a live light mode preview" width={918} height={806} sizes="(max-width: 760px) 90vw, 650px" /></div>
             </article>
             <article className={styles.featureCard}>
-              <div className={styles.featureCopy}><span className={styles.featureNumber}>02 / STAY IN THE LOOP</span><h3>One home for your conversations.</h3><p>Manage your sites and revisit the comments you&apos;ve shared, all from your personal Commentsy dashboard.</p></div>
+              <div className={styles.featureCopy}><span className={styles.featureNumber}>02 / STAY IN THE LOOP</span><h3>Comment moderation in one place.</h3><p>Review comments and replies across your sites. Require approval for guest posts, approve pending comments, and mark unwanted posts as spam from your Commentsy dashboard.</p></div>
               <div className={styles.featureImage}><span className={styles.stageNote}>Everything in its place.</span><Image src="/images/banner-5.png" alt="Commentsy dashboard with personal comment activity and connected sites" width={806} height={806} sizes="(max-width: 760px) 90vw, 650px" /></div>
             </article>
           </div>
@@ -72,6 +94,19 @@ async function HomePage() {
         <div className={styles.codeGrid}>
           <div className={styles.codeCard}><div className={styles.stepHeading}><span>1</span><div><h3>Make room for the conversation</h3><p>Place this HTML where you want comments to appear.</p></div></div><HtmlCode appCode="{{YOUR_APP_CODE}}" /></div>
           <div className={styles.codeCard}><div className={styles.stepHeading}><span>2</span><div><h3>Add the finishing touch</h3><p>Paste this JavaScript inside your HTML head tag.</p></div></div><JsCode /></div>
+        </div>
+      </section>
+
+      <section className={`${styles.container} ${styles.setup}`} aria-labelledby="faq-title">
+        <div className={styles.sectionHeading}>
+          <h2 id="faq-title">A simple comment system for your website</h2>
+          <p>What to know before adding Commentsy to your site.</p>
+        </div>
+        <div className="grid gap-8 md:grid-cols-2 leading-relaxed">
+          <article><h3 className="text-xl font-semibold mb-2">How do I add comments to my website?</h3><p>Create an account, register your site, and copy the iframe and JavaScript snippets into your pages. Each page gets its own discussion through a stable identifier. <Link href="/docs" className="underline">Follow the integration guide</Link>.</p></article>
+          <article><h3 className="text-xl font-semibold mb-2">Can I use Commentsy with a static blog?</h3><p>Yes. You can embed Commentsy on a blog, static HTML site, or other website that allows an iframe and JavaScript. Your website does not need its own comment backend.</p></article>
+          <article><h3 className="text-xl font-semibold mb-2">Can visitors comment without an account?</h3><p>Visitors can post as guests or sign in. Enable guest approval to review guest comments and replies before they appear publicly.</p></article>
+          <article><h3 className="text-xl font-semibold mb-2">Is Commentsy open source?</h3><p>Yes. Explore the source on <a href="https://github.com/manjillama/commentsy" className="underline">GitHub</a> and self-host your own instance. Customize light and dark themes to match your website.</p></article>
         </div>
       </section>
 

@@ -1,13 +1,12 @@
-import { SITE_DATA } from "@/constants";
+import { publicPageMetadata } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
-import { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = {
-  title: `Docs | ${SITE_DATA.title}`,
-  description:
-    "Learn how to add Commentsy to your website, customize your comments, and manage conversations.",
-};
+export const metadata = publicPageMetadata(
+  "Add Comments to Your Website | Commentsy Docs",
+  "Learn how to embed Commentsy, configure authorized domains, customize comment themes, and moderate website comments and replies.",
+  "/docs"
+);
 
 const sections = [
   { id: "quick-start", title: "Add comments to your site" },

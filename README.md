@@ -16,6 +16,7 @@ Commentsy is an embeddable comment widget with guest posting, signed-in author c
 - [Local setup](#local-setup)
 - [Integrating a site](#integrating-a-site)
 - [Environment variables](#environment-variables)
+- [Search indexing](#search-indexing)
 - [Development checks](#development-checks)
 - [Project structure](#project-structure)
 - [How the data fits together](#how-the-data-fits-together)
@@ -192,6 +193,14 @@ Create a browser API key in the [KLIPY Partner Panel](https://partner.klipy.com)
 Without a key, text posting works and saved GIFs remain visible.
 
 Searches, media requests, and search/share reporting go directly from the browser to KLIPY. Reporting uses an anonymous per-page identifier rather than account details. Commentsy stores the selected GIF's metadata and original media URL, not the GIF file.
+
+## Search indexing
+
+Set `NEXT_PUBLIC_SITE_URL` to the production public origin before building (for example, `https://commentsy.com`). Public pages use this origin for canonical URLs, social previews, and `/sitemap.xml`. Rebuild after changing it.
+
+The homepage, docs, contact, and legal pages allow indexing. Account pages, authentication, site dashboards, embeds, and API responses use `noindex`; these are also excluded from the sitemap. Robots rules allow crawlers to read page-level `noindex` directives and block API crawling. These directives control search indexing, not access permissions.
+
+After deploying, submit `/sitemap.xml` to Google Search Console and inspect the homepage URL. Search engines decide when to crawl and how to rank pages; metadata and structured data do not guarantee rankings or rich results.
 
 ## Development checks
 
