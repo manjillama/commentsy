@@ -45,6 +45,9 @@ const userSchema = new Schema<IUserDocument>(
       maxLength: 100,
       select: false,
     },
+    passwordResetHash: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
+    sessionVersion: { type: Number, default: 0, select: false },
     isEmailVerified: {
       type: Boolean,
       default: false,

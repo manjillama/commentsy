@@ -35,7 +35,7 @@ const sections: [string, string[]][] = [
     [
       "Comments are intended for public discussion. Your display name, avatar or profile image, comment text, GIFs, and timestamps may be visible to readers, website owners, and search engines. Do not post confidential information or personal data you do not want others to see.",
       "Guest posting is not anonymous to the service: we store the name and email address you submit. Your guest name and avatar are shown with your comment. Guest email addresses are excluded from comment responses, including public discussions and moderation responses.",
-      "We use infrastructure providers, including Vercel for hosting and MongoDB Atlas for database storage, to operate the hosted service. These providers process information as needed to deliver their services. Google and GitHub handle their own authentication pages under their respective privacy policies. We may disclose information where legally required or necessary to address fraud, abuse, or security incidents."
+      "We use infrastructure providers, including Vercel for hosting, MongoDB Atlas for database storage, and Resend for password-recovery emails, to operate the hosted service. These providers process information as needed to deliver their services. Google and GitHub handle their own authentication pages under their respective privacy policies. We may disclose information where legally required or necessary to address fraud, abuse, or security incidents."
     ]
   ],
   [
