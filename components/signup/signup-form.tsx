@@ -1,9 +1,8 @@
 "use client";
 import { Alert, Spinner } from "@/components/ui";
 import api from "@/utils/api";
-import { signIn } from "next-auth/react";
 import { FormEvent, useState } from "react";
-import { NEXT_AUTH_ERRORS } from "../signin/signin-form";
+import Link from "next/link";
 
 export default function SignUpForm() {
   const [formProps, setFormProps] = useState({
@@ -11,6 +10,8 @@ export default function SignUpForm() {
     email: "",
     password: "",
   });
+  const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [created, setCreated] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<any[]>([]);
 
@@ -29,26 +30,16 @@ export default function SignUpForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const data = await api.post("/api/signup", formProps);
+    const data = await api.post<{ message: string }>("/api/signup", formProps);
     if (data.status === "success") {
-      const res = await signIn("credentials", {
-        redirect: false,
-        ...formProps,
-        callbackUrl: new URLSearchParams(window.location.search).get("callbackUrl") ?? "/dashboard",
-      });
-      if (res) {
-        if (!res.error) {
-          window.location.assign(res.url ?? "/dashboard");
-        } else {
-          setErrors([
-            (NEXT_AUTH_ERRORS as any)[res.error] ?? "Something went wrong.",
-          ]);
-        }
-      } else setErrors(["Something went wrong."]);
+      setConfirmationMessage(data.data.message);
+      setCreated(true);
     } else setErrors(data.errors);
 
     setIsSubmitting(false);
   };
+
+  if (created) return <div className="my-6 space-y-4 text-sm leading-6"><p>{confirmationMessage}</p><p><Link className="underline" href="/verify-email">Resend confirmation email</Link> · <Link className="underline" href="/signin">Back to sign in</Link></p></div>;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 my-4 w-full">
@@ -65,6 +56,13 @@ export default function SignUpForm() {
               <li key={error}>{error}</li>
             ))}
           </ul>
+          {errors.some(error => typeof error === "string" && error.startsWith("An account with this email already exists.")) && (
+            <nav aria-label="Account access options" className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm underline underline-offset-4">
+              <Link href="/signin">Sign in</Link>
+              <Link href="/forgot-password">Reset password</Link>
+              <Link href="/verify-email">Resend confirmation</Link>
+            </nav>
+          )}
         </Alert>
       ) : null}
       <div>

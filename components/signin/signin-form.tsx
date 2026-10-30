@@ -103,6 +103,7 @@ export default function SignInForm() {
 export const NEXT_AUTH_ERRORS = {
   SessionCookieBlocked: "Your login was accepted, but this browser did not retain the session. Open Commentsy in a regular tab and try again. For local development, use the same localhost address configured in NEXTAUTH_URL and restart the dev server.",
   CredentialsUnavailable: "The login service is unavailable. Please try again.",
+  EmailNotVerified: "Confirm your email before signing in.",
   CredentialsSignin: "Incorrect email or password",
   CredentialsSigninMissing: "Please provide both email and password",
   OAuthAccountNotLinked:

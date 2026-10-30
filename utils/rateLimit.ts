@@ -11,10 +11,12 @@ export function requestClientKey(req: Pick<Request, "headers">): string {
 
 /** Shared fixed-window limits survive restarts and apply across server instances. */
 export async function enforceRateLimit(key: string, limit: number, windowMs = 60_000) {
+  const development = process.env.NODE_ENV === "development";
+  if (development && process.env.RATE_LIMIT_IN_DEV !== "true") return;
   const secret = process.env.NEXTAUTH_SECRET;
   if (!secret) throw new Error("NEXTAUTH_SECRET is required for rate limiting");
   const window = Math.floor(Date.now() / windowMs);
-  const id = createHmac("sha256", secret).update(`${key}:${window}`).digest("hex");
+  const id = createHmac("sha256", secret).update(`${development ? "development:" : ""}${key}:${window}`).digest("hex");
   const update = {
     $inc: { count: 1 },
     $setOnInsert: { expiresAt: new Date((window + 1) * windowMs) },

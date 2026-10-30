@@ -31,7 +31,7 @@ test('credentials-only sign-in/up show their forms immediately with no dead alte
     }).default;
     const view = Wrapper({ providers: { credentials: { id: 'credentials', type: 'credentials' } } });
     assert.equal(initialState, true);
-    const content = view.props.children;
+    const content = kind === "signin" ? view.props.children[1] : view.props.children;
     assert.equal(content.props.children[0].type, Form);
     assert.equal(content.props.children[1], false);
   }

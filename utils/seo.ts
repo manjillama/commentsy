@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SITE_DATA } from "@/constants";
 
 // Keep all search and share URLs on the configured public origin.
 export const siteUrl = new URL(process.env.NEXT_PUBLIC_SITE_URL as string).origin;
@@ -27,5 +26,3 @@ export function publicPageMetadata(title: string, description: string, path: str
     },
   };
 }
-
-export const homeMetadata = () => publicPageMetadata(SITE_DATA.title, SITE_DATA.description, "/");

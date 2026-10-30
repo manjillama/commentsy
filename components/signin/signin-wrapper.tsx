@@ -9,17 +9,19 @@ import { ClientSafeProvider, LiteralUnion } from "next-auth/react";
 import { BuiltInProviderType } from "next-auth/providers/index";
 
 type Props = {
+  emailConfirmed?: boolean;
   providers: Record<
     LiteralUnion<BuiltInProviderType>,
     ClientSafeProvider
   > | null;
 };
-export default function SignInWrapper({ providers }: Props) {
+export default function SignInWrapper({ providers, emailConfirmed = false }: Props) {
   const hasOAuthProviders = Object.values(providers ?? {}).some(provider => provider.type === "oauth");
-  const [showSignInUsingCredentials, setShowSignInUsingCredentials] = useState(!hasOAuthProviders);
+  const [showSignInUsingCredentials, setShowSignInUsingCredentials] = useState(emailConfirmed || !hasOAuthProviders);
 
   return (
     <AuthLayout>
+      {emailConfirmed && <p role="status" className="my-4 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-900">Email confirmed. Log in with your email and password to continue.</p>}
       {!showSignInUsingCredentials ? (
         <>
           <OAuthProviders providers={providers} />
