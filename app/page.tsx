@@ -1,3 +1,4 @@
+import SupportProject from "@/components/support-project";
 import { SITE_DATA } from "@/constants";
 import { homeMetadata, siteUrl } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
@@ -97,18 +98,34 @@ async function HomePage() {
         </div>
       </section>
 
-      <section className={`${styles.container} ${styles.setup}`} aria-labelledby="faq-title">
-        <div className={styles.sectionHeading}>
-          <h2 id="faq-title">A simple comment system for your website</h2>
-          <p>What to know before adding Commentsy to your site.</p>
+      <section className={`${styles.container} ${styles.faq}`} aria-labelledby="faq-title">
+        <div className={styles.faqIntro}>
+          <span className={styles.kicker}>A FEW THINGS TO KNOW</span>
+          <h2 id="faq-title">Small setup.<br />Good questions.</h2>
+          <p>Everything you need to get the conversation started.</p>
+          <Link href="/docs" className={styles.textLink}>Explore the docs <ArrowRightIcon aria-hidden="true" /></Link>
         </div>
-        <div className="grid gap-8 md:grid-cols-2 leading-relaxed">
-          <article><h3 className="text-xl font-semibold mb-2">How do I add comments to my website?</h3><p>Create an account, register your site, and copy the iframe and JavaScript snippets into your pages. Each page gets its own discussion through a stable identifier. <Link href="/docs" className="underline">Follow the integration guide</Link>.</p></article>
-          <article><h3 className="text-xl font-semibold mb-2">Can I use Commentsy with a static blog?</h3><p>Yes. You can embed Commentsy on a blog, static HTML site, or other website that allows an iframe and JavaScript. Your website does not need its own comment backend.</p></article>
-          <article><h3 className="text-xl font-semibold mb-2">Can visitors comment without an account?</h3><p>Visitors can post as guests or sign in. Enable guest approval to review guest comments and replies before they appear publicly.</p></article>
-          <article><h3 className="text-xl font-semibold mb-2">Is Commentsy open source?</h3><p>Yes. Explore the source on <a href="https://github.com/manjillama/commentsy" className="underline">GitHub</a> and self-host your own instance. Customize light and dark themes to match your website.</p></article>
+        <div className={styles.faqList}>
+          <details className={styles.faqItem}>
+            <summary>How do I add comments to my website?<span aria-hidden="true" className={styles.faqToggle} /></summary>
+            <div className={styles.faqAnswer}><p>Create an account, register your site, and copy the iframe and JavaScript snippets into your pages. A stable identifier gives each page its own discussion. <Link href="/docs">Follow the integration guide</Link>.</p></div>
+          </details>
+          <details className={styles.faqItem}>
+            <summary>Will it work with my static blog?<span aria-hidden="true" className={styles.faqToggle} /></summary>
+            <div className={styles.faqAnswer}><p>Yes. Commentsy works on blogs, static HTML sites, and other websites that allow an iframe and JavaScript. Your site does not need its own comment backend.</p></div>
+          </details>
+          <details className={styles.faqItem}>
+            <summary>Do my visitors need an account?<span aria-hidden="true" className={styles.faqToggle} /></summary>
+            <div className={styles.faqAnswer}><p>No. Visitors can post as guests or sign in. Turn on guest approval to review guest comments and replies before they appear publicly.</p></div>
+          </details>
+          <details className={styles.faqItem}>
+            <summary>Can I self-host Commentsy?<span aria-hidden="true" className={styles.faqToggle} /></summary>
+            <div className={styles.faqAnswer}><p>Yes. Commentsy is open source. Get the code and setup instructions on <a href="https://github.com/manjillama/commentsy">GitHub</a> to run your own instance, with custom light and dark themes.</p></div>
+          </details>
         </div>
       </section>
+
+      <div className={styles.container}><SupportProject /></div>
 
       <section className={`${styles.container} ${styles.closing}`} aria-labelledby="closing-title"><div><span className={styles.kicker}>LET&apos;S TALK.</span><h2 id="closing-title">Give your next visitor a voice.</h2><p>Bring the conversation to your corner of the internet.</p></div><Link className={styles.primaryButton} href="/signup">Get started with Commentsy <ArrowRightIcon /></Link></section>
     </div>

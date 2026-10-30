@@ -367,3 +367,9 @@ Unexpected failures can include up to eight parsed stack file locations. Site/co
 - **Password recovery:** there is no password-reset email flow. Password changes require the current password and do not revoke existing JWT sessions.
 - **Usage limits:** each account can create up to 10 apps. Each comment/reply allows up to 5,000 characters and one GIF.
 - **Manual verification:** real OAuth redirects, provider network behavior, and Safari permission prompts still need browser checks. Unit tests mock external calls; the optional integration suite covers MongoDB persistence and transactions.
+
+### Password recovery email
+
+Set `RESEND_API_KEY` on the server and verify your sending domain in Resend. `EMAIL_FROM` defaults to `Commentsy <no-reply@commentsy.com>`; self-hosted deployments must set their own verified sender. Set `NEXT_PUBLIC_SITE_URL` to the trusted public origin used in reset links. Restart the server after changing environment variables. Never use a `NEXT_PUBLIC_` variable for the API key.
+
+Email/password accounts can request recovery from `/forgot-password`. The response does not reveal whether an account exists; Google/GitHub accounts are not sent reset emails. Links expire after 30 minutes, are single-use, and a new request replaces the previous link. Resetting the password invalidates existing sessions on their next server validation. If email delivery fails, operational logs record the failure without exposing addresses or reset tokens. Disable link and open tracking in Resend for recovery emails.

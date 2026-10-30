@@ -75,3 +75,21 @@
 @media (max-width: 1000px) { .hero { gap: 24px; padding-top: 64px; } .hero h1 { letter-spacing: -2px; } .heroVisual { height: 410px; } .frontPreview { top: 90px; } .visualCaption { bottom: 10px; } .useCases { flex-direction: column; gap: 16px; } .featureCard, .activityFeature { gap: 36px; } .featureImage, .activityImage { padding: 36px 18px 18px; } }
 @media (max-width: 760px) { .container { width: calc(100% - 40px); } .hero { grid-template-columns: 1fr; padding-top: 48px; padding-bottom: 30px; gap: 30px; } .hero h1 { font-size: clamp(40px, 8vw, 58px); } .heroCopy { max-width: 520px; } .lead { font-size: 15px; } .heroVisual { height: clamp(330px, 85vw, 530px); width: min(100%, 530px); margin-inline: auto; } .frontPreview { left: 2%; top: 70px; width: 82%; } .backPreview { right: 3%; } .visualBackdrop { inset: 0 0 30px; } .visualCaption { bottom: 0; right: 0; } .useCases { text-align: center; padding-bottom: 28px; } .useCases > div { justify-content: center; gap: 6px; } .productSection, .setup { padding-block: 52px; } .sectionHeading { margin-bottom: 40px; } .featureGrid { gap: 60px; } .featureCard, .featureCard:nth-child(2), .activityFeature { grid-template-columns: 1fr; gap: 20px; } .featureCard:nth-child(2) .featureCopy, .featureCard:nth-child(2) .featureImage { grid-column: auto; grid-row: auto; } .featureCopy, .activityFeature > div:first-child { padding: 0; } .featureCopy p, .activityFeature p { max-width: 440px; } .featureImage { margin-inline: 6px; } .activityFeature { margin-top: 60px; padding-top: 50px; } .codeGrid { grid-template-columns: 1fr; gap: 20px; } .setupHeading { align-items: start; flex-direction: column; gap: 18px; } .closing { flex-direction: column; align-items: start; padding: 28px; margin-bottom: 40px; } .closing h2 { font-size: 27px; } }
 @media (prefers-reduced-motion: reduce) { .landing a { transition: none; } .primaryButton:hover { transform: none; } }
+
+.faq { display: grid; grid-template-columns: .8fr 1.2fr; gap: 80px; padding-block: 80px; border-top: 1px solid #eaeaea; }
+.faqIntro > p { max-width: 260px; margin-top: 20px; color: #737373; font-size: 14px; line-height: 1.8; }
+.faqIntro .textLink { margin-top: 24px; }
+.faqList { min-width: 0; border-top: 1px solid #e5e5e5; }
+.faqItem { border-bottom: 1px solid #e5e5e5; }
+.faqItem summary { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 25px 0; cursor: pointer; list-style: none; color: #262626; font-size: 15px; font-weight: 500; line-height: 1.6; }
+.faqItem summary::-webkit-details-marker { display: none; }
+.faqItem summary:hover { color: #82683c; }
+.faqItem summary:focus-visible { outline: 2px solid #a87914; outline-offset: 5px; border-radius: 2px; }
+.faqToggle { position: relative; flex: 0 0 24px; height: 24px; border-radius: 50%; background: #f5f4f0; }
+.faqToggle::before, .faqToggle::after { content: ""; position: absolute; background: #666; left: 7px; top: 11px; width: 10px; height: 1px; }
+.faqToggle::after { transform: rotate(90deg); }
+.faqItem[open] .faqToggle::after { display: none; }
+.faqItem[open] .faqToggle { background: #f4ecd8; }
+.faqAnswer { padding: 0 44px 25px 0; font-size: 14px; line-height: 1.9; color: #737373; }
+.faqAnswer a { color: #262626; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 760px) { .faq { grid-template-columns: 1fr; gap: 32px; padding-block: 52px; } .faqIntro > p { max-width: none; } .faqItem summary { font-size: 14px; padding-block: 21px; gap: 16px; } .faqAnswer { padding-right: 20px; } }

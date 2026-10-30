@@ -1,3 +1,4 @@
+import SupportProject from "@/components/support-project";
 import NewAppDialog from "@/components/app-form/new-app-dialog";
 import { withSiteLayout } from "@/hoc";
 import UserApps from "@/components/user-apps";
@@ -83,6 +84,7 @@ async function DashboardPage({ searchParams }: { searchParams?: { page?: string 
           </div>
           <UserApps />
         </section>
+        <SupportProject />
       </div>
     </div>
   );
