@@ -82,3 +82,24 @@ test('password reset revokes old sessions while a fresh sign-in receives the cur
   assert.equal(fresh.sessionVersion, 1);
   assert.equal((await jwt({ token: fresh })).id, 'id');
 });
+
+test('profile refresh reads account once and preserves session revocation', async () => {
+  let reads = 0;
+  const options = load('app/api/auth/[...nextauth]/options.ts', {
+    '@/config': { keys: {} }, '@/services/authService': {}, '@/lib/dbConnect': async () => {},
+    '@/models/User': { findById: () => {
+      reads++;
+      return { select: () => ({ lean: async () => ({ sessionVersion: 2, name: 'Updated', image: 'avatar', avatarBackgroundColor: '#fed0bb' }) }) };
+    } },
+    '@/utils/sessionCookie': { sessionCookieOptions: () => ({}) }, '@/utils/authRedirect': {},
+  }).options;
+  const jwt = options.callbacks.jwt;
+  const token = await jwt({ token: { sub: 'id', sessionVersion: 2 }, trigger: 'update' });
+  assert.equal(reads, 1);
+  assert.equal(token.name, 'Updated');
+  assert.equal(token.picture, 'avatar');
+  assert.equal(token.avatarBackgroundColor, '#fed0bb');
+  reads = 0;
+  assert.deepEqual(await jwt({ token: { sub: 'id', sessionVersion: 1 }, trigger: 'update' }), {});
+  assert.equal(reads, 1);
+});

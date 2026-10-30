@@ -49,19 +49,16 @@ export const options: NextAuthOptions = {
     async jwt({ token, user, account, profile, trigger }) {
       if (token.sub) {
         await dbConnect();
-        const accountState = await User.findById(token.sub).select("+sessionVersion").lean();
+        const accountState = await User.findById(token.sub)
+          .select("name image avatarBackgroundColor +sessionVersion").lean();
         if (!accountState) return {};
         const version = accountState.sessionVersion ?? 0;
         if (user) token.sessionVersion = version;
         else if ((token.sessionVersion ?? 0) !== version) return {};
-      }
-      if (trigger === "update" && token.sub) {
-        await dbConnect();
-        const profile = await User.findById(token.sub).select("name image avatarBackgroundColor").lean();
-        if (profile) {
-          token.name = profile.name;
-          token.picture = profile.image;
-          token.avatarBackgroundColor = profile.avatarBackgroundColor;
+        if (trigger === "update") {
+          token.name = accountState.name;
+          token.picture = accountState.image;
+          token.avatarBackgroundColor = accountState.avatarBackgroundColor;
         }
       }
       if (user) token.avatarBackgroundColor = user.avatarBackgroundColor;
