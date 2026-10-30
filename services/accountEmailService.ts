@@ -49,11 +49,11 @@ export async function sendWelcome(userId: string, email: string) {
     const claim = await User.updateOne({
       _id: userId, welcomeEmailSentAt: null,
       $or: [{ welcomeEmailClaimedAt: null }, { welcomeEmailClaimedAt: { $lt: new Date(Date.now() - 60_000) } }],
-    }, { $set: { welcomeEmailPending: true, welcomeEmailClaimedAt: new Date() } });
+    }, { $set: { welcomeEmailClaimedAt: new Date() } });
     if (!claim.modifiedCount) return;
     claimed = true;
     await send(email, undefined, `welcome-${userId}`);
-    await User.updateOne({ _id: userId }, { $set: { welcomeEmailSentAt: new Date() }, $unset: { welcomeEmailPending: 1, welcomeEmailClaimedAt: 1 } });
+    await User.updateOne({ _id: userId }, { $set: { welcomeEmailSentAt: new Date() }, $unset: { welcomeEmailClaimedAt: 1 } });
     logger.info('email.welcome_accepted');
   } catch (error) {
     logger.error('email.welcome_failed', safeErrorDetails(error));

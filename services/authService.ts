@@ -46,7 +46,7 @@ const getLoginUserFromCredentials = async ({
       logger.info("auth.email_verification_required");
       throw new AppError("EmailNotVerified", 403);
     }
-    if (user.welcomeEmailPending) await sendWelcome(String(user._id), user.email);
+    await sendWelcome(String(user._id), user.email);
     return {
       id: user._id.toString(),
       name: user.name,
@@ -84,7 +84,7 @@ const handlePostOAuthUserSignIn = async (
       user.image = image;
       await user.save();
     }
-    if (user.isEmailVerified && user.welcomeEmailPending) await sendWelcome(String(user._id), user.email);
+    if (user.isEmailVerified) await sendWelcome(String(user._id), user.email);
     return {
       id: user._id.toString(),
       name: user.name,
@@ -99,7 +99,6 @@ const handlePostOAuthUserSignIn = async (
     name,
     provider,
     isEmailVerified: true,
-    welcomeEmailPending: true,
     image,
   });
   logger.info("account.created", { provider });
