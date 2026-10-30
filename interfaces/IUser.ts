@@ -29,7 +29,6 @@ export interface IUser {
   password: string;
   emailVerificationHash?: string;
   emailVerificationExpires?: Date;
-  welcomeEmailPending?: boolean;
   welcomeEmailClaimedAt?: Date;
   welcomeEmailSentAt?: Date;
   passwordResetHash?: string;

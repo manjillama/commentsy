@@ -47,7 +47,6 @@ const userSchema = new Schema<IUserDocument>(
     },
     emailVerificationHash: { type: String, select: false },
     emailVerificationExpires: { type: Date, select: false },
-    welcomeEmailPending: { type: Boolean, default: false },
     welcomeEmailClaimedAt: { type: Date, select: false },
     welcomeEmailSentAt: { type: Date, select: false },
     passwordResetHash: { type: String, select: false },

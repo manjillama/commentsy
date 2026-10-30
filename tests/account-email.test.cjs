@@ -85,10 +85,10 @@ test('credentials reject unverified email only after a correct password', async 
   await assert.rejects(service.getLoginUserFromCredentials({ email: 'person@example.com', password: 'correct' }), /EmailNotVerified/);
 });
 
-test('OAuth welcomes only newly created accounts', async () => {
+test('OAuth checks welcome delivery on creation and returning sign-in', async () => {
   let existing = null;
   let welcomes = 0;
-  const record = { _id: 'id', provider: 'google', email: 'person@example.com', image: undefined };
+  const record = { _id: 'id', provider: 'google', isEmailVerified: true, email: 'person@example.com', image: undefined };
   const service = load('services/authService.ts', {
     '@/models/User': { findOne: async () => existing, create: async input => { assert.equal(input.isEmailVerified, true); return record; } },
     '@/services/accountEmailService': { sendWelcome: async () => { welcomes++; } },
@@ -97,7 +97,7 @@ test('OAuth welcomes only newly created accounts', async () => {
   await service.handlePostOAuthUserSignIn(record.email, 'Person', 'google');
   existing = record;
   await service.handlePostOAuthUserSignIn(record.email, 'Person', 'google');
-  assert.equal(welcomes, 1);
+  assert.equal(welcomes, 2);
 });
 
 test('successful signup shows confirmation instructions without attempting an unverified sign-in', async () => {
@@ -187,16 +187,16 @@ test('welcome is marked sent only after provider acceptance; failed sends remain
   const accepted = setup();
   await accepted.service.sendWelcome('id', 'person@example.com');
   assert.ok(!accepted.calls.writes[0].update.$set.welcomeEmailSentAt);
-  assert.equal(accepted.calls.writes[0].update.$set.welcomeEmailPending, true);
+  assert.ok(accepted.calls.writes[0].update.$set.welcomeEmailClaimedAt instanceof Date);
   assert.ok(accepted.calls.writes[1].update.$set.welcomeEmailSentAt instanceof Date);
   const failed = setup({ delivery: false });
   await failed.service.sendWelcome('id', 'person@example.com');
   assert.ok(failed.calls.writes.every(write => !write.update.$set?.welcomeEmailSentAt));
 });
 
-test('successful verified credentials login retries a pending welcome email', async () => {
+test('verified credentials login checks welcome delivery even for older accounts', async () => {
   let welcomes = 0;
-  const user = { _id: 'id', provider: 'credentials', isEmailVerified: true, welcomeEmailPending: true, email: 'person@example.com', validatePassword: async () => true };
+  const user = { _id: 'id', provider: 'credentials', isEmailVerified: true, email: 'person@example.com', validatePassword: async () => true };
   const service = load('services/authService.ts', {
     '@/models/User': { findOne: () => ({ select: async () => user }) },
     '@/services/accountEmailService': { sendWelcome: async () => { welcomes++; } },
@@ -204,9 +204,8 @@ test('successful verified credentials login retries a pending welcome email', as
   }).default;
   await service.getLoginUserFromCredentials({ email: user.email, password: 'correct-password' });
   assert.equal(welcomes, 1);
-  user.welcomeEmailPending = false;
   await service.getLoginUserFromCredentials({ email: user.email, password: 'correct-password' });
-  assert.equal(welcomes, 1);
+  assert.equal(welcomes, 2);
 });
 
 test('account email designs include useful next steps and escaped links in HTML plus plain text', () => {

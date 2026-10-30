@@ -331,7 +331,7 @@ test('signup allowlists fields and validates bcrypt length before account creati
   const req = body => new Request('https://comments.example.com/api/signup', { method: 'POST', body: JSON.stringify(body) });
   const data = { name: '  Guest  ', email: 'guest@example.com', password: 'test-password', isEmailVerified: true, provider: 'google', _id: 'chosen-id', image: 'chosen-image' };
   const response = await route.POST(req(data));
-  assert.deepEqual(saved, { name: 'Guest', email: data.email, password: data.password, provider: 'credentials', welcomeEmailPending: true });
+  assert.deepEqual(saved, { name: 'Guest', email: data.email, password: data.password, provider: 'credentials' });
   assert.equal((await response.json()).data.password, undefined);
   for (const password of [undefined, '', 'é'.repeat(40)]) await assert.rejects(route.POST(req({ ...data, password })), error => error.statusCode === 400);
 });

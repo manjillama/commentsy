@@ -17,7 +17,7 @@ export const POST = catchAsync(async function (req: Request) {
   if (typeof body.name !== "string" || !body.name.trim() || typeof body.email !== "string")
     throw new AppError("Enter your name and email address", 400);
   const user: any = await User.create({
-    name: body.name.trim(), email: body.email, password: body.password, provider: "credentials", welcomeEmailPending: true,
+    name: body.name.trim(), email: body.email, password: body.password, provider: "credentials",
   });
   logger.info("account.created", { provider: "credentials" });
   const verificationSent = await sendVerification(user.email);

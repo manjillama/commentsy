@@ -76,7 +76,7 @@ test('OAuth provider mismatch rejects before changing the existing account or se
   for (const provider of ['github', 'credentials', 'google']) {
     let saves = 0;
     let welcomes = 0;
-    const record = { _id: 'existing', provider, image: 'original-avatar', isEmailVerified: true, welcomeEmailPending: true, save: async () => { saves++; } };
+    const record = { _id: 'existing', provider, image: 'original-avatar', isEmailVerified: true, save: async () => { saves++; } };
     const service = load('services/authService.ts', {
       '@/models/User': { findOne: async () => record, create: async () => { throw new Error('Must not create another account'); } },
       '@/services/accountEmailService': { sendWelcome: async () => { welcomes++; } },
