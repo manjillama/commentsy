@@ -1,4 +1,4 @@
 export const SITE_DATA = {
-  title: "Commentsy | Open Source Comment System for Websites",
-  description: "Add an embeddable comment system to your website or blog with Commentsy. Open source commenting with threaded replies, guest approval, and custom themes.",
+  title: "Commentsy | Good Content Deserves a Conversation",
+  description: "Bring conversations to your website with Commentsy. Open source comments, threaded replies, and custom themes. A simple alternative to Disqus.",
 };
