@@ -23,7 +23,7 @@ export default function HtmlCode({ appCode }: { appCode: string }) {
     appCode +
     `?identifier={{IDENTIFIER}}&theme=light"
   style="width:100%;border:none;overflow:hidden"
-/>`;
+></iframe>`;
   return (
     <div className="relative">
       <CopyButton textToCopy={htmlCode} />
