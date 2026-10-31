@@ -31,10 +31,20 @@ test('sitemap contains only public marketing pages and robots advertises the sam
 });
 
 test('private routes, embeds, and API responses send noindex headers', async () => {
-  const rules = (await require('../next.config.js').headers()).filter(rule => rule.headers.some(header => header.key === "X-Robots-Tag"));
+  const rules = (await require('../next.config.js').headers()).filter(rule => !rule.has && rule.headers.some(header => header.key === "X-Robots-Tag"));
   assert.deepEqual(rules.map(rule => rule.source), [
     '/api/:path*', '/embed/:path*', '/apps/:path*', '/dashboard', '/account', '/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email',
   ]);
   for (const rule of rules) assert.deepEqual(rule.headers, [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]);
   assert.match(fs.readFileSync('app/layout.tsx', 'utf8'), /robots: \{ index: false, follow: false \}/);
+});
+
+
+test('Vercel hostnames are excluded from indexing without affecting production domains', async () => {
+  const rule = (await require('../next.config.js').headers()).find(rule => rule.has?.some(condition => condition.type === 'host'));
+  assert.equal(rule.source, '/:path*');
+  assert.deepEqual(rule.headers, [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]);
+  const host = new RegExp(`^(?:${rule.has[0].value})$`);
+  for (const value of ['commentsy.vercel.app', 'commentsy-preview-123.vercel.app']) assert.ok(host.test(value));
+  for (const value of ['commentsy.com', 'www.commentsy.com', 'commentsy.vercel.app.example.com']) assert.ok(!host.test(value));
 });

@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   async headers() {
-    return [{ source: "/reset-password", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }] }, ...["/api/:path*", "/embed/:path*", "/apps/:path*", "/dashboard", "/account", "/signin", "/signup", "/forgot-password", "/reset-password", "/verify-email"].map(source => ({
+    return [{
+      source: "/:path*",
+      has: [{ type: "host", value: "[a-zA-Z0-9-]+\\.vercel\\.app" }],
+      headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+    }, { source: "/reset-password", headers: [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }] }, ...["/api/:path*", "/embed/:path*", "/apps/:path*", "/dashboard", "/account", "/signin", "/signup", "/forgot-password", "/reset-password", "/verify-email"].map(source => ({
       source,
       headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
     }))];
