@@ -33,7 +33,7 @@ test('sitemap contains only public marketing pages and robots advertises the sam
 test('private routes, embeds, and API responses send noindex headers', async () => {
   const rules = (await require('../next.config.js').headers()).filter(rule => rule.headers.some(header => header.key === "X-Robots-Tag"));
   assert.deepEqual(rules.map(rule => rule.source), [
-    '/api/:path*', '/embed/:path*', '/apps/:path*', '/dashboard', '/account', '/signin', '/signup', '/forgot-password', '/reset-password',
+    '/api/:path*', '/embed/:path*', '/apps/:path*', '/dashboard', '/account', '/signin', '/signup', '/forgot-password', '/reset-password', '/verify-email',
   ]);
   for (const rule of rules) assert.deepEqual(rule.headers, [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]);
   assert.match(fs.readFileSync('app/layout.tsx', 'utf8'), /robots: \{ index: false, follow: false \}/);

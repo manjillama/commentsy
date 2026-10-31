@@ -1,3 +1,4 @@
+import { sendVerification } from "@/services/accountEmailService";
 import logger from "@/utils/logger";
 import { readJsonBody } from "@/utils/requestBody";
 import { enforceRateLimit, requestClientKey } from "@/utils/rateLimit";
@@ -19,7 +20,7 @@ export const POST = catchAsync(async function (req: Request) {
     name: body.name.trim(), email: body.email, password: body.password, provider: "credentials",
   });
   logger.info("account.created", { provider: "credentials" });
-  user.password = undefined;
+  const verificationSent = await sendVerification(user.email);
 
-  return Response.json({ status: "success", data: user });
+  return Response.json({ status: "success", data: { verificationSent, message: verificationSent ? "Your account is created. Check your inbox to confirm your email before signing in." : "Your account is created, but we couldn’t send the confirmation email. Please request a new confirmation link." } });
 });

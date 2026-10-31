@@ -1,6 +1,6 @@
 import SupportProject from "@/components/support-project";
 import { SITE_DATA } from "@/constants";
-import { homeMetadata, siteUrl } from "@/utils/seo";
+import { publicPageMetadata, siteUrl } from "@/utils/seo";
 import { withSiteLayout } from "@/hoc";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,7 +9,7 @@ import HtmlCode from "@/components/code-snippets/html-code";
 import JsCode from "@/components/code-snippets/js-code";
 import styles from "./landing.module.css";
 
-export const metadata = homeMetadata();
+export const metadata = publicPageMetadata(SITE_DATA.title, SITE_DATA.description, "/");
 
 const structuredData = {
   "@context": "https://schema.org",

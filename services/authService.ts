@@ -1,3 +1,4 @@
+import { sendWelcome } from "@/services/accountEmailService";
 import logger from "@/utils/logger";
 import { AVATAR_BACKGROUND_COLORS, EProviders } from "@/interfaces/IUser";
 import User from "@/models/User";
@@ -40,7 +41,12 @@ const getLoginUserFromCredentials = async ({
   if (
     user.provider === EProviders.credentials &&
     (await user.validatePassword(password, user.password))
-  )
+  ) {
+    if (!user.isEmailVerified) {
+      logger.info("auth.email_verification_required");
+      throw new AppError("EmailNotVerified", 403);
+    }
+    await sendWelcome(String(user._id), user.email);
     return {
       id: user._id.toString(),
       name: user.name,
@@ -49,7 +55,7 @@ const getLoginUserFromCredentials = async ({
       avatarBackgroundColor: user.avatarBackgroundColor,
       image: user.image,
     };
-
+  }
   logger.warn("auth.login.rejected", { reason: "invalid_credentials" });
   return null;
 };
@@ -70,10 +76,15 @@ const handlePostOAuthUserSignIn = async (
 ): Promise<LoginResponse> => {
   const user = await User.findOne({ email });
   if (user) {
+    if (user.provider !== provider) {
+      logger.warn("auth.login.rejected", { reason: "provider_mismatch", provider });
+      throw new AppError("OAuthAccountNotLinked", 403);
+    }
     if (user.image !== image) {
       user.image = image;
-      user.save();
+      await user.save();
     }
+    if (user.isEmailVerified) await sendWelcome(String(user._id), user.email);
     return {
       id: user._id.toString(),
       name: user.name,
@@ -91,6 +102,7 @@ const handlePostOAuthUserSignIn = async (
     image,
   });
   logger.info("account.created", { provider });
+  await sendWelcome(String(newUser._id), newUser.email);
   return {
     id: newUser._id.toString(),
     name: newUser.name,

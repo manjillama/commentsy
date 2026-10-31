@@ -10,11 +10,11 @@ export const metadata: Metadata = {
   title: `Login | ${SITE_DATA.title}`,
 };
 
-async function SignInPage() {
+async function SignInPage({ searchParams }: { searchParams?: { emailConfirmed?: string } }) {
   const session = await getServerSession(options);
   if (session) redirect("/dashboard");
 
-  return <SignIn />;
+  return <SignIn emailConfirmed={searchParams?.emailConfirmed === "1"} />;
 }
 
 export default withSiteLayout(SignInPage);

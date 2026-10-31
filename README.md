@@ -167,6 +167,7 @@ Set all three URL variables to the same Commentsy origin, without a trailing sla
 | --- | --- |
 | `NEXT_PUBLIC_KLIPY_API_KEY` | Public browser key for the [GIF picker](#optional-gif-picker). |
 | `AUTH_REDIRECT_ORIGINS` | Operator-managed, comma-separated exact origins allowed after sign-in, such as `https://blog.example.com`. |
+| `RATE_LIMIT_IN_DEV` | Set to `true` to enable server rate limits during `npm run dev`; disabled by default in development. Enabled local limits use separate buckets. Production always enforces limits. |
 | `RATE_LIMIT_IP_HEADER` | Client-IP header overwritten by a trusted proxy. See [Client identification](#client-identification). |
 | `LOG_LEVEL` | Server log threshold. Defaults to `info`; use `debug` for additional diagnostics. |
 | `MONGODB_URI_TEST` | Replica set URI to enable [database integration tests](#database-integration-tests). |
@@ -373,3 +374,11 @@ Unexpected failures can include up to eight parsed stack file locations. Site/co
 Set `RESEND_API_KEY` on the server and verify your sending domain in Resend. `EMAIL_FROM` defaults to `Commentsy <no-reply@commentsy.com>`; self-hosted deployments must set their own verified sender. Set `NEXT_PUBLIC_SITE_URL` to the trusted public origin used in reset links. Restart the server after changing environment variables. Never use a `NEXT_PUBLIC_` variable for the API key.
 
 Email/password accounts can request recovery from `/forgot-password`. The response does not reveal whether an account exists; Google/GitHub accounts are not sent reset emails. Links expire after 30 minutes, are single-use, and a new request replaces the previous link. Resetting the password invalidates existing sessions on their next server validation. If email delivery fails, operational logs record the failure without exposing addresses or reset tokens. Disable link and open tracking in Resend for recovery emails.
+
+### Account email confirmation and welcome
+
+New email/password accounts must confirm their email before signing in. Confirmation links expire after 24 hours and are verified automatically when the link opens in the browser, then redirect to email/password sign-in. `/verify-email` also lets users request a new link; requests are rate-limited and do not reveal account existence. Verification tokens are hashed in the database and sent in URL fragments so access logs do not receive them. Disable email link tracking in Resend so recovery and confirmation links are not rewritten.
+
+Welcome emails are sent after email confirmation, or when a new Google/GitHub account is created. On each successful sign-in, the welcome sender checks `welcomeEmailSentAt`; older accounts without it also receive a welcome email. Once accepted, it is not sent again. Sending failures are logged without email addresses or tokens and do not undo a successful account creation or confirmation. Failed welcome emails leave `welcomeEmailSentAt` unset and are retried on a later successful sign-in. The sent timestamp records provider acceptance, not guaranteed inbox delivery. There is no background email retry queue.
+
+Existing email/password accounts whose `isEmailVerified` value is false must also confirm using `/verify-email`; password recovery does not bypass confirmation. Existing sessions are not automatically revoked by this change. No accounts are silently marked verified. The operator must configure Resend before enabling registration.

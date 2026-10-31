@@ -16,6 +16,7 @@ function load(file, mocks = {}, globals = {}) {
   const evaluate = vm.runInThisContext(`(function(module, exports, require, ${Object.keys(globals).join(",")}) { ${source}\n})`, { filename: file });
   const resolve = name => {
     if (name in mocks) return mocks[name];
+    if (name === "@/services/accountEmailService") return { sendWelcome: async () => {}, sendVerification: async () => {} };
     if (name === '@/utils/logger') return { info() {}, warn() {}, error() {}, debug() {}, log() {} };
     if (name === '@/utils/logContext') return logContext ??= load('utils/logContext.ts');
     if (name === '@/utils/pageUrl') return load('utils/pageUrl.ts');

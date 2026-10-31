@@ -403,3 +403,23 @@ test('reply submission updates the widget total and parent count without changin
   assert.equal(current.totalCommentsAndReplies, 2);
   assert.equal(current.comments[0].repliesCount, 1);
 });
+
+test('development bypasses rate limits by default; opt-in and production still enforce them', async () => {
+  const ids = [];
+  const mocks = {
+    '@/models/RateLimit': { findOneAndUpdate: async query => { ids.push(query._id); return { count: 2 }; } },
+    '@/utils/appError': AppError,
+  };
+  const local = load('utils/rateLimit.ts', mocks, { process: { env: { NODE_ENV: 'development' } } });
+  await local.enforceRateLimit('client', 1);
+  assert.equal(ids.length, 0);
+  for (const env of [
+    { NODE_ENV: 'development', RATE_LIMIT_IN_DEV: 'true', NEXTAUTH_SECRET: 'test' },
+    { NODE_ENV: 'production', RATE_LIMIT_IN_DEV: 'false', NEXTAUTH_SECRET: 'test' },
+  ]) {
+    const rate = load('utils/rateLimit.ts', mocks, { process: { env } });
+    await assert.rejects(rate.enforceRateLimit('client', 1, 24 * 60 * 60_000), error => error.statusCode === 429);
+  }
+  assert.equal(ids.length, 2);
+  assert.notEqual(ids[0], ids[1]);
+});

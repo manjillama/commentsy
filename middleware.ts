@@ -3,6 +3,7 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 const anonymousRoutes = [
+  "/verify-email",
   "/forgot-password",
   "/reset-password",
   "/signin",
