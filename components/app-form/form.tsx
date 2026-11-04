@@ -16,11 +16,11 @@ type Props =
   | { from: "dialog"; type: "new"; setOpen: (open: boolean) => void }
   | { from: "settings"; type: "new" }
   | {
-      from: "settings";
-      type: "edit";
-      initialFormProps: FormProps;
-      appId: string;
-    };
+    from: "settings";
+    type: "edit";
+    initialFormProps: FormProps;
+    appId: string;
+  };
 type FormProps = {
   name: string;
   description: string;
@@ -183,7 +183,7 @@ function AuthorizedOriginsField({
           <FieldHelp label="About authorized domains" alignToField>
             <span className="mb-2 block">List the website origins allowed to use this widget. Include http:// or https://, with no path or trailing slash.</span>
             <span className="mb-2 block">Locally, include your host page&apos;s port, e.g. http://localhost:5500. Different protocols, ports, localhost, and 127.0.0.1 are separate origins.</span>
-            <span className="block">Add example.com, www.example.com, and other subdomains separately, each with its protocol. Wildcards aren&apos;t supported.</span>
+            <span className="block">Add either example.com or www.example.com to allow both, including the protocol. Other subdomains need separate entries. Wildcards aren&apos;t supported.</span>
           </FieldHelp>
         </div>
 

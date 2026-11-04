@@ -27,12 +27,12 @@ Commentsy is an embeddable comment widget with guest posting, signed-in author c
 
 ## What you can do
 
-| For site owners | For readers |
-| --- | --- |
-| Add a comment widget using two snippets. | Post text, a GIF, or both. |
-| Manage multiple sites from a dashboard. | Comment as a guest or sign in. |
-| Moderate comments and optionally approve guest submissions. | Edit and delete comments posted while signed in. |
-| Customize colors for light and dark mode. | Revisit signed-in comments across sites from the dashboard. |
+| For site owners                                             | For readers                                                 |
+| ----------------------------------------------------------- | ----------------------------------------------------------- |
+| Add a comment widget using two snippets.                    | Post text, a GIF, or both.                                  |
+| Manage multiple sites from a dashboard.                     | Comment as a guest or sign in.                              |
+| Moderate comments and optionally approve guest submissions. | Edit and delete comments posted while signed in.            |
+| Customize colors for light and dark mode.                   | Revisit signed-in comments across sites from the dashboard. |
 
 ## Local setup
 
@@ -94,15 +94,15 @@ Open [http://localhost:3000](http://localhost:3000) and create an email/password
 4. Replace `{{IDENTIFIER}}` with a stable page identifier, such as a post slug. Use a different identifier for each conversation; keep it stable when the page URL changes.
 5. Set `theme=light` or `theme=dark`, or omit the parameter to follow the visitor's device preference.
 
-Origins match exactly. Add both `https://example.com` and `https://www.example.com` if your site serves both.
+Adding either `https://example.com` or `https://www.example.com` allows both. Protocol and port must still match. Other subdomains, such as `blog.example.com`, need separate entries.
 
 ### Customize and moderate
 
-| Page | Use it to |
-| --- | --- |
-| **Appearance** | Customize each theme's colors. |
-| **Comments** | Review, approve, delete, or mark comments as spam. |
-| **Settings** | Update site details, authorized origins, and guest approval. |
+| Page           | Use it to                                                    |
+| -------------- | ------------------------------------------------------------ |
+| **Appearance** | Customize each theme's colors.                               |
+| **Comments**   | Review, approve, delete, or mark comments as spam.           |
+| **Settings**   | Update site details, authorized origins, and guest approval. |
 
 Enable **Require approval for guest comments and replies** to hold new guest submissions for review. This is off by default. Changing the setting does not automatically approve existing pending submissions.
 
@@ -124,9 +124,9 @@ External return destinations must appear in the operator's `AUTH_REDIRECT_ORIGIN
 
 Use the same hostname everywhere, for example `http://localhost:5500` for the host page and `http://localhost:3000` for Commentsy. Sign in using that Commentsy hostname too. Do not mix `localhost`, `127.0.0.1`, and LAN IPs.
 
-| Environment | Session cookie | What to test |
-| --- | --- | --- |
-| Local HTTP | `SameSite=Lax` | Same-hostname integration on different ports. |
+| Environment      | Session cookie          | What to test                                        |
+| ---------------- | ----------------------- | --------------------------------------------------- |
+| Local HTTP       | `SameSite=Lax`          | Same-hostname integration on different ports.       |
 | Production HTTPS | `SameSite=None; Secure` | Real cross-site embedded sign-in, including Safari. |
 
 Storage-access approval alone does not override SameSite restrictions. Test cross-site authentication with HTTPS on both sites.
@@ -147,12 +147,12 @@ Keep `.env.local` private. Variables prefixed with `NEXT_PUBLIC_` are included i
 
 ### Required settings
 
-| Variable | Purpose |
-| --- | --- |
-| `MONGODB_URI` | MongoDB replica set connection string. |
-| `NEXTAUTH_SECRET` | Private session secret; keep it stable between deployments. |
-| `NEXTAUTH_URL` | Canonical Commentsy origin; also controls session cookie settings. |
-| `SITE_URL` | Server-side Commentsy origin; used as the development embed referrer fallback. |
+| Variable               | Purpose                                                                                       |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| `MONGODB_URI`          | MongoDB replica set connection string.                                                        |
+| `NEXTAUTH_SECRET`      | Private session secret; keep it stable between deployments.                                   |
+| `NEXTAUTH_URL`         | Canonical Commentsy origin; also controls session cookie settings.                            |
+| `SITE_URL`             | Server-side Commentsy origin; used as the development embed referrer fallback.                |
 | `NEXT_PUBLIC_SITE_URL` | Public browser-facing origin for links, metadata, and embed snippets. Required when building. |
 
 Set all three URL variables to the same Commentsy origin, without a trailing slash.
@@ -163,14 +163,14 @@ Set all three URL variables to the same Commentsy origin, without a trailing sla
 
 ### Optional settings
 
-| Variable | Purpose |
-| --- | --- |
-| `NEXT_PUBLIC_KLIPY_API_KEY` | Public browser key for the [GIF picker](#optional-gif-picker). |
-| `AUTH_REDIRECT_ORIGINS` | Operator-managed, comma-separated exact origins allowed after sign-in, such as `https://blog.example.com`. |
-| `RATE_LIMIT_IN_DEV` | Set to `true` to enable server rate limits during `npm run dev`; disabled by default in development. Enabled local limits use separate buckets. Production always enforces limits. |
-| `RATE_LIMIT_IP_HEADER` | Client-IP header overwritten by a trusted proxy. See [Client identification](#client-identification). |
-| `LOG_LEVEL` | Server log threshold. Defaults to `info`; use `debug` for additional diagnostics. |
-| `MONGODB_URI_TEST` | Replica set URI to enable [database integration tests](#database-integration-tests). |
+| Variable                    | Purpose                                                                                                                                                                            |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_KLIPY_API_KEY` | Public browser key for the [GIF picker](#optional-gif-picker).                                                                                                                     |
+| `AUTH_REDIRECT_ORIGINS`     | Operator-managed, comma-separated exact origins allowed after sign-in, such as `https://blog.example.com`.                                                                         |
+| `RATE_LIMIT_IN_DEV`         | Set to `true` to enable server rate limits during `npm run dev`; disabled by default in development. Enabled local limits use separate buckets. Production always enforces limits. |
+| `RATE_LIMIT_IP_HEADER`      | Client-IP header overwritten by a trusted proxy. See [Client identification](#client-identification).                                                                              |
+| `LOG_LEVEL`                 | Server log threshold. Defaults to `info`; use `debug` for additional diagnostics.                                                                                                  |
+| `MONGODB_URI_TEST`          | Replica set URI to enable [database integration tests](#database-integration-tests).                                                                                               |
 
 Legacy `CORS_WHITELISTS`, `CRYPTO_SECRET`, and `CRYPTO_IV` entries remain in `config/keys.ts`. No current feature consumes them; they are not required.
 
@@ -178,10 +178,10 @@ Legacy `CORS_WHITELISTS`, `CRYPTO_SECRET`, and `CRYPTO_IV` entries remain in `co
 
 Create a GitHub OAuth App and/or a Google OAuth **Web application** client.
 
-| Provider | Environment variables | Local callback URL |
-| --- | --- | --- |
-| GitHub | `GITHUB_ID`, `GITHUB_SECRET` | `http://localhost:3000/api/auth/callback/github` |
-| Google | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `http://localhost:3000/api/auth/callback/google` |
+| Provider | Environment variables                      | Local callback URL                               |
+| -------- | ------------------------------------------ | ------------------------------------------------ |
+| GitHub   | `GITHUB_ID`, `GITHUB_SECRET`               | `http://localhost:3000/api/auth/callback/github` |
+| Google   | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | `http://localhost:3000/api/auth/callback/google` |
 
 Use `http://localhost:3000` as the local application/homepage URL where requested. For deployment, replace it with your HTTPS origin in both the provider settings and environment variables.
 
@@ -254,27 +254,27 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow, browser che
 
 ## Project structure
 
-| Path | Responsibility |
-| --- | --- |
-| `app/` | App Router pages and layouts: dashboard, account, site settings, and embeds. |
-| `app/api/` | HTTP handlers for authentication, apps, comments, moderation, and account settings. |
-| `components/embed-comments/` | Embedded forms, GIF picker, author controls, and browser session access. |
-| `components/account/`, `components/appearance/` | Account and theme editors. |
-| `services/` | Database operations and business rules, including ownership checks. |
-| `models/`, `interfaces/` | Mongoose schemas and TypeScript data contracts. |
-| `lib/` | Database/model helpers and KLIPY browser client. |
-| `utils/` | API wrapper, validation, logging, cookies, sessions, and error handling. |
-| `context/`, `store/`, `slices/` | Session providers and Redux state for the app list. |
-| `tests/` | Feature suites, integration tests, and shared TS-loading/mocking helpers. |
+| Path                                            | Responsibility                                                                      |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `app/`                                          | App Router pages and layouts: dashboard, account, site settings, and embeds.        |
+| `app/api/`                                      | HTTP handlers for authentication, apps, comments, moderation, and account settings. |
+| `components/embed-comments/`                    | Embedded forms, GIF picker, author controls, and browser session access.            |
+| `components/account/`, `components/appearance/` | Account and theme editors.                                                          |
+| `services/`                                     | Database operations and business rules, including ownership checks.                 |
+| `models/`, `interfaces/`                        | Mongoose schemas and TypeScript data contracts.                                     |
+| `lib/`                                          | Database/model helpers and KLIPY browser client.                                    |
+| `utils/`                                        | API wrapper, validation, logging, cookies, sessions, and error handling.            |
+| `context/`, `store/`, `slices/`                 | Session providers and Redux state for the app list.                                 |
+| `tests/`                                        | Feature suites, integration tests, and shared TS-loading/mocking helpers.           |
 
 ## How the data fits together
 
-| Model | Role |
-| --- | --- |
-| **User** | Owns apps and signed-in comments. Guest details live on individual comments. |
-| **App** | One website integration, with an owner, public embed code, authorized origins, and serialized theme colors. |
-| **Group** | A conversation identified by an app and a page identifier. Created by the embed when needed. |
-| **Comment** | Belongs to an app and group. A `parent` reference makes it a reply. Supports text, one GIF, or both. |
+| Model       | Role                                                                                                        |
+| ----------- | ----------------------------------------------------------------------------------------------------------- |
+| **User**    | Owns apps and signed-in comments. Guest details live on individual comments.                                |
+| **App**     | One website integration, with an owner, public embed code, authorized origins, and serialized theme colors. |
+| **Group**   | A conversation identified by an app and a page identifier. Created by the embed when needed.                |
+| **Comment** | Belongs to an app and group. A `parent` reference makes it a reply. Supports text, one GIF, or both.        |
 
 ### Reading and writing comments
 
@@ -294,18 +294,18 @@ The dashboard paginates the signed-in user's visible comments separately from th
 
 Custom API writes accept JSON objects up to **32 KiB** and reject foreign browser origins. Signup accepts only name, email, and password. Passwords are required and limited to bcrypt's **72-byte** input limit.
 
-Configured site origins match protocol, hostname, and port exactly. App codes and page metadata are public, so origin validation does not prove a request came from a human. Guest approval provides an additional publication control.
+Configured site origins match protocol and port exactly, treating a hostname and its `www` version as equivalent. Other subdomains require separate entries. App codes and page metadata are public, so origin validation does not prove a request came from a human. Guest approval provides an additional publication control.
 
 ### Rate limits
 
 Limits use MongoDB-backed fixed windows and apply across application instances.
 
-| Action | Limit per minute |
-| --- | --- |
-| Comment/reply attempts per client/account | 10 |
-| Comment/reply attempts across one app | 60 |
-| Signup attempts per client | 5 |
-| Credential login attempts per client | 20 |
+| Action                                    | Limit per minute |
+| ----------------------------------------- | ---------------- |
+| Comment/reply attempts per client/account | 10               |
+| Comment/reply attempts across one app     | 60               |
+| Signup attempts per client                | 5                |
+| Credential login attempts per client      | 20               |
 
 Exceeded limits return **HTTP 429** with a `Retry-After` header. Bucket identities are HMAC-hashed with `NEXTAUTH_SECRET`, and a TTL index removes expired buckets. Limits fail closed when the database is unavailable.
 
@@ -333,14 +333,14 @@ Winston writes JSON logs to stdout through one Console transport. Logs include t
 
 ### What gets logged
 
-| Level | Events |
-| --- | --- |
-| **Error** | Unexpected API failures, database connection failures, and NextAuth errors. |
-| **Warn** | Access denials, rejected credential logins, incorrect-current-password attempts, transaction retries, and successful API requests taking at least five seconds. |
-| **Warn, once per bucket/window** | The first request exceeding a rate limit. Further rate-limit rejections remain silent at the API layer. |
-| **Info** | Account creation, sign-in/out, profile/password changes, site creation/settings changes, moderation/deletion/spam marking, and new database connections. |
-| **Debug** | Validation rejections, comment creation/edits, and database connection starts. |
-| **Silent** | Routine successful API requests, including `/api/auth/session` polling, and reused database connections. |
+| Level                            | Events                                                                                                                                                          |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Error**                        | Unexpected API failures, database connection failures, and NextAuth errors.                                                                                     |
+| **Warn**                         | Access denials, rejected credential logins, incorrect-current-password attempts, transaction retries, and successful API requests taking at least five seconds. |
+| **Warn, once per bucket/window** | The first request exceeding a rate limit. Further rate-limit rejections remain silent at the API layer.                                                         |
+| **Info**                         | Account creation, sign-in/out, profile/password changes, site creation/settings changes, moderation/deletion/spam marking, and new database connections.        |
+| **Debug**                        | Validation rejections, comment creation/edits, and database connection starts.                                                                                  |
+| **Silent**                       | Routine successful API requests, including `/api/auth/session` polling, and reused database connections.                                                        |
 
 Comment success events appear only after commit. Retries and rollbacks cannot produce false success logs. Transaction retry warnings include the operation, attempt count, and timing. Database timeouts are unchanged.
 

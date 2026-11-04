@@ -53,9 +53,8 @@ function DocsPage() {
               <li>
                 Enter a name, description, and authorized domains. Use your
                 website&apos;s full origin, such as <code>https://www.example.com</code>,
-                without a path or trailing slash. Add each origin you use,
-                including <code>https://example.com</code> if you also serve that
-                address. For local testing, include the port, for example <code>http://localhost:5500</code>.
+                without a path or trailing slash. Adding either the bare domain
+                or its <code>www</code> version allows both. Add other subdomains separately. For local testing, include the port, for example <code>http://localhost:5500</code>.
               </li>
               <li>
                 Open the app to find its integration instructions. Copy the
@@ -134,7 +133,7 @@ function DocsPage() {
                 <p className="mt-2">
                   Check the app code in your iframe URL and the authorized domains
                   in Settings. Match the host page&apos;s protocol, hostname, and
-                  port exactly. Ensure your website sends a referrer with iframe
+                  port exactly; the bare domain and its www version are interchangeable. Ensure your website sends a referrer with iframe
                   requests; a policy that suppresses it can prevent authorization.
                 </p>
               </div>
