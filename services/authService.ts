@@ -21,7 +21,12 @@ const getLoginUserFromCredentials = async ({
   email: string;
   password: string;
 }): Promise<LoginResponse | null> => {
-  if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password)
+  if (
+    typeof email !== "string" ||
+    !email.trim() ||
+    typeof password !== "string" ||
+    !password
+  )
     throw new AppError("CredentialsSigninMissing", StatusCodes.BAD_GATEWAY);
 
   const user = await User.findOne({
@@ -72,12 +77,15 @@ const handlePostOAuthUserSignIn = async (
   email: string,
   name: string,
   provider: `${EProviders}`,
-  image?: string
+  image?: string,
 ): Promise<LoginResponse> => {
   const user = await User.findOne({ email });
   if (user) {
     if (user.provider !== provider) {
-      logger.warn("auth.login.rejected", { reason: "provider_mismatch", provider });
+      logger.warn("auth.login.rejected", {
+        reason: "provider_mismatch",
+        provider,
+      });
       throw new AppError("OAuthAccountNotLinked", 403);
     }
     if (user.image !== image) {

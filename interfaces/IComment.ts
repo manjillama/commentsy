@@ -23,5 +23,4 @@ export interface IComment {
   editedAt?: Date;
 }
 export interface ICommentDocument
-  extends mongoose.Document,
-    Omit<IComment, "_id"> {}
+  extends mongoose.Document, Omit<IComment, "_id"> {}

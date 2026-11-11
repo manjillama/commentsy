@@ -43,6 +43,6 @@ export interface IUser {
 export interface IUserDocument extends mongoose.Document, Omit<IUser, "_id"> {
   validatePassword(
     candidatePassword: string,
-    hashedPassword: string
+    hashedPassword: string,
   ): Promise<boolean>;
 }

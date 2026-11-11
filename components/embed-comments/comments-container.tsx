@@ -31,37 +31,39 @@ export default function CommentsContainer({
   const [commentData, setCommentData] = useState(data);
 
   return (
-    <CommentMutationsContext.Provider value={{ deleted, onReplyCreated: parentId => {
-      setCommentData(current => ({
-        ...current,
-        commentsCount: current.commentsCount + 1,
-        totalCommentsAndReplies: current.totalCommentsAndReplies + 1,
-        comments: current.comments.map(comment => comment._id === parentId ? { ...comment, repliesCount: comment.repliesCount + 1 } : comment),
-      }));
-    }, onDeleted: (comment, count) => {
-      setCommentData(current => removeDeletedComment(current, comment, count));
-      setDeleted(current => [...current, { id: comment._id, parent: comment.parent ? String(comment.parent) : undefined, count }]);
-    } }}>
-    <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
-      {totalCommentsCount(commentData.totalCommentsAndReplies)}
-      {!user && <LoginHint parentSiteData={parentSiteData} palette={commentData.userCommentStyles} />}
-      <InputComment
-        setCommentData={setCommentData}
-        commentData={commentData}
-        user={user}
-      />
-      <CommentList
-        user={user}
-        comments={commentData.comments}
-        commentData={commentData}
-      />
-      <FetchMoreComments
-        commentData={commentData}
-        params={params}
-        setParams={setParams}
-        setCommentData={setCommentData}
-      />
-    </div>
+    <CommentMutationsContext.Provider value={{
+      deleted, onReplyCreated: parentId => {
+        setCommentData(current => ({
+          ...current,
+          commentsCount: current.commentsCount + 1,
+          totalCommentsAndReplies: current.totalCommentsAndReplies + 1,
+          comments: current.comments.map(comment => comment._id === parentId ? { ...comment, repliesCount: comment.repliesCount + 1 } : comment),
+        }));
+      }, onDeleted: (comment, count) => {
+        setCommentData(current => removeDeletedComment(current, comment, count));
+        setDeleted(current => [...current, { id: comment._id, parent: comment.parent ? String(comment.parent) : undefined, count }]);
+      }
+    }}>
+      <div style={{ lineHeight: "20px", fontSize: "14px", padding: "1rem 0" }}>
+        {totalCommentsCount(commentData.totalCommentsAndReplies)}
+        {!user && <LoginHint parentSiteData={parentSiteData} palette={commentData.userCommentStyles} />}
+        <InputComment
+          setCommentData={setCommentData}
+          commentData={commentData}
+          user={user}
+        />
+        <CommentList
+          user={user}
+          comments={commentData.comments}
+          commentData={commentData}
+        />
+        <FetchMoreComments
+          commentData={commentData}
+          params={params}
+          setParams={setParams}
+          setCommentData={setCommentData}
+        />
+      </div>
     </CommentMutationsContext.Provider>
   );
 }

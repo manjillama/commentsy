@@ -9,26 +9,41 @@ import logger from "@/utils/logger";
 import { validateWriteRequest } from "@/utils/requestBody";
 
 export default function catchAsync(
-  asyncFunction: (req: NextRequest, data?: any) => Promise<Response>
+  asyncFunction: (req: NextRequest, data?: any) => Promise<Response>,
 ) {
   return async (req: NextRequest, data?: any) => {
     const started = Date.now();
-    const context = { requestId: randomUUID(), method: req.method, path: new URL(req.url).pathname };
+    const context = {
+      requestId: randomUUID(),
+      method: req.method,
+      path: new URL(req.url).pathname,
+    };
     return withRequestLogContext(context, async () => {
       let response: Response;
       let failure: unknown;
       try {
-        if (!["GET", "HEAD", "OPTIONS"].includes(req.method) && !context.path.startsWith("/api/auth/"))
+        if (
+          !["GET", "HEAD", "OPTIONS"].includes(req.method) &&
+          !context.path.startsWith("/api/auth/")
+        )
           validateWriteRequest(req);
         response = await asyncFunction(req, data);
       } catch (error: any) {
-        const caught = error instanceof Error ? error : new Error("Non-error rejection");
+        const caught =
+          error instanceof Error ? error : new Error("Non-error rejection");
         failure = caught;
         response = sendError(markOperationalError(caught as AppError));
       }
-      const fields = { ...context, status: response.status, elapsedMs: Date.now() - started };
+      const fields = {
+        ...context,
+        status: response.status,
+        elapsedMs: Date.now() - started,
+      };
       if (response.status >= 500) {
-        logger.error("api.failed", { ...fields, ...(failure ? safeErrorDetails(failure) : {}) });
+        logger.error("api.failed", {
+          ...fields,
+          ...(failure ? safeErrorDetails(failure) : {}),
+        });
       } else if (response.status === 401 || response.status === 403) {
         logger.warn("api.access_denied", fields);
       } else if (response.status === 429) {
@@ -40,7 +55,11 @@ export default function catchAsync(
       }
       const headers = new Headers(response.headers);
       headers.set("X-Request-ID", context.requestId);
-      return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
     });
   };
 }
@@ -60,7 +79,9 @@ function sendError(error: AppError) {
 
   return Response.json(errorResponse, {
     status: error.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
-    ...(error.retryAfter ? { headers: { "Retry-After": String(error.retryAfter) } } : {}),
+    ...(error.retryAfter
+      ? { headers: { "Retry-After": String(error.retryAfter) } }
+      : {}),
   });
 }
 /**

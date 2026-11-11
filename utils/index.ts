@@ -1,6 +1,6 @@
 export function getRelativeTimeString(
   date: Date | number,
-  lang?: string
+  lang?: string,
 ): string {
   // Allow dates or times to be passed
   const timeMs = typeof date === "number" ? date : date.getTime();
@@ -32,7 +32,7 @@ export function getRelativeTimeString(
 
   // Grab the ideal cutoff unit
   const unitIndex = cutoffs.findIndex(
-    (cutoff) => cutoff > Math.abs(deltaSeconds)
+    (cutoff) => cutoff > Math.abs(deltaSeconds),
   );
 
   // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor

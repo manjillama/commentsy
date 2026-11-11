@@ -10,7 +10,7 @@ const MONGODB_URI = keys.MONGODB_URI!;
 
 if (!MONGODB_URI) {
   throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local"
+    "Please define the MONGODB_URI environment variable inside .env.local",
   );
 }
 
@@ -30,9 +30,12 @@ async function dbConnect() {
     };
     const started = Date.now();
     logger.debug("db.connect.started");
-    cached.promise = mongoose.connect(MONGODB_URI, opts)
+    cached.promise = mongoose
+      .connect(MONGODB_URI, opts)
       .then((connection) => {
-        logger.info("db.connect.completed", { elapsedMs: Date.now() - started });
+        logger.info("db.connect.completed", {
+          elapsedMs: Date.now() - started,
+        });
         return connection;
       })
       .catch((error) => {

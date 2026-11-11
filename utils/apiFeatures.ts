@@ -47,7 +47,10 @@ export function parseQueryFilter(queryString: any) {
   let queryStr: any = JSON.stringify(queryObj);
   // ADVANCE FILTERING
   queryStr = JSON.parse(
-    queryStr.replace(/"(gte|gt|lte|lt)"\s*:/g, (_match: string, operator: string) => `"$${operator}":`)
+    queryStr.replace(
+      /"(gte|gt|lte|lt)"\s*:/g,
+      (_match: string, operator: string) => `"$${operator}":`,
+    ),
   );
 
   return queryStr;
@@ -55,7 +58,9 @@ export function parseQueryFilter(queryString: any) {
 
 export function paginationSize(value: unknown) {
   const number = Number(value);
-  return Number.isFinite(number) && number > 0 ? Math.min(40, Math.max(1, Math.floor(number))) : 40;
+  return Number.isFinite(number) && number > 0
+    ? Math.min(40, Math.max(1, Math.floor(number)))
+    : 40;
 }
 
 export default class APIFeatures<T extends Document> {
@@ -73,7 +78,7 @@ export default class APIFeatures<T extends Document> {
       T,
       "find"
     >,
-    private queryString: FilterQuery<T>
+    private queryString: FilterQuery<T>,
   ) {
     this.query = query;
     this.queryString = queryString;
@@ -112,7 +117,10 @@ export default class APIFeatures<T extends Document> {
     // Capping max size to 40
     size = paginationSize(size);
     const requestedPage = Number(this.queryString.page);
-    const page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+    const page =
+      Number.isSafeInteger(requestedPage) && requestedPage > 0
+        ? requestedPage
+        : 1;
     const skip = (page - 1) * size;
     // skip: skip results (offset) and limit: number of results per page
     this.query = this.query.skip(skip).limit(size);
