@@ -64,11 +64,18 @@ const getAllGroupCommentsInitData = async ({
 
   if (!group) {
     try {
-      group = await Group.create({ identifier: groupIdentifier, owner: app.user, app: app._id });
+      group = await Group.create({
+        identifier: groupIdentifier,
+        owner: app.user,
+        app: app._id,
+      });
     } catch (error: any) {
       // Another first visitor may have created the same conversation.
       if (error?.code !== 11000) throw error;
-      group = await Group.findOne({ app: app._id, identifier: groupIdentifier }).lean();
+      group = await Group.findOne({
+        app: app._id,
+        identifier: groupIdentifier,
+      }).lean();
     }
   }
 
@@ -80,7 +87,7 @@ const getAllGroupCommentsInitData = async ({
 
   const [comments, total, size] = await _fetchCommentsWithGroupId(
     group._id,
-    searchParams
+    searchParams,
   );
 
   return {
@@ -102,18 +109,29 @@ const getAllGroupCommentsInitData = async ({
 const getAllGroupComments = async (
   appCode: string,
   groupIdentifier: string,
-  queryParams: any
+  queryParams: any,
 ): Promise<[ICommentDocument[], number, number]> => {
-  if (typeof appCode !== "string" || !appCode || typeof groupIdentifier !== "string" || !groupIdentifier)
-    throw new AppError("Missing app code or page identifier", StatusCodes.BAD_REQUEST);
+  if (
+    typeof appCode !== "string" ||
+    !appCode ||
+    typeof groupIdentifier !== "string" ||
+    !groupIdentifier
+  )
+    throw new AppError(
+      "Missing app code or page identifier",
+      StatusCodes.BAD_REQUEST,
+    );
   const app = await App.findOne({ code: appCode }).lean();
   if (!app) throw new AppError("App not found", StatusCodes.NOT_FOUND);
-  const group = await Group.findOne({ app: app._id, identifier: groupIdentifier }).lean();
+  const group = await Group.findOne({
+    app: app._id,
+    identifier: groupIdentifier,
+  }).lean();
 
   if (!group)
     throw new AppError(
       "Comments group with that id was not found",
-      StatusCodes.BAD_REQUEST
+      StatusCodes.BAD_REQUEST,
     );
 
   return _fetchCommentsWithGroupId(group._id, queryParams);
@@ -121,59 +139,91 @@ const getAllGroupComments = async (
 
 const getAllCommentReplies = async (
   parentCommentId: string,
-  queryParams: any
+  queryParams: any,
 ): Promise<[ICommentDocument[], number, number]> => {
   return _fetchCommentRepliesWithParentId(parentCommentId, queryParams);
 };
 
 const _fetchCommentRepliesWithParentId = (
   parentCommentId: string,
-  queryParams: any
+  queryParams: any,
 ): Promise<[ICommentDocument[], number, number]> => {
   return _fetchComments({ parent: parentCommentId }, queryParams);
 };
 
 const _fetchCommentsWithGroupId = (
   groupId: string,
-  queryParams: any
+  queryParams: any,
 ): Promise<[ICommentDocument[], number, number]> => {
   return _fetchComments({ parent: null, group: groupId }, queryParams);
 };
 
 const _fetchComments = async (options: any, queryParams: any) => {
   const query = _.pick(queryParams, ["limit", "page"]) as {};
-  const sort = queryParams?.sort === "createdAt" ? "createdAt,_id" : "-createdAt,-_id";
+  const sort =
+    queryParams?.sort === "createdAt" ? "createdAt,_id" : "-createdAt,-_id";
 
   const filter = {
     ...options,
-    ...(options.parent === null ? {
-      $or: [
-        { status: COMMENT_STATUS.approved, isSpam: false },
-        { repliesCount: { $gt: 0 }, $or: [{ status: COMMENT_STATUS.deleted }, { isSpam: true }] },
-      ],
-    } : { status: COMMENT_STATUS.approved, isSpam: false }),
+    ...(options.parent === null
+      ? {
+          $or: [
+            { status: COMMENT_STATUS.approved, isSpam: false },
+            {
+              repliesCount: { $gt: 0 },
+              $or: [{ status: COMMENT_STATUS.deleted }, { isSpam: true }],
+            },
+          ],
+        }
+      : { status: COMMENT_STATUS.approved, isSpam: false }),
   };
-  const cursor = queryParams?.after ? { $and: [commentCursorFilter(queryParams.after, sort === "createdAt,_id")] } : {};
+  const cursor = queryParams?.after
+    ? {
+        $and: [
+          commentCursorFilter(queryParams.after, sort === "createdAt,_id"),
+        ],
+      }
+    : {};
   const [comments, total, size] = await factoryService
-    .find(Comment, {
-      limit: 20,
-      ...query,
-      // Cursor requests start at the boundary rather than a mutable page offset.
-      ...(queryParams?.after ? { page: 1 } : {}),
-      sort,
-      ...filter,
-      ...cursor,
-      fields: "_id, parent, status, isSpam, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
-    }, filter)
+    .find(
+      Comment,
+      {
+        limit: 20,
+        ...query,
+        // Cursor requests start at the boundary rather than a mutable page offset.
+        ...(queryParams?.after ? { page: 1 } : {}),
+        sort,
+        ...filter,
+        ...cursor,
+        fields:
+          "_id, parent, status, isSpam, repliesCount, commentUser, user, comment, gif, editedAt, createdAt, anonUser",
+      },
+      filter,
+    )
     .populate({ path: "user", select: "name image avatarBackgroundColor" })
     .exec();
   // Never send removed content or its author details to the public widget.
-  const visible = comments.map(comment => {
-    if (comment.status === COMMENT_STATUS.approved && !comment.isSpam) return comment;
-    return { _id: comment._id, parent: comment.parent, status: "deleted", repliesCount: comment.repliesCount,
-      createdAt: comment.createdAt, comment: "", commentUser: { name: "Deleted comment", avatarBackgroundColor: "#d4d4d4" } };
+  const visible = comments.map((comment) => {
+    if (comment.status === COMMENT_STATUS.approved && !comment.isSpam)
+      return comment;
+    return {
+      _id: comment._id,
+      parent: comment.parent,
+      status: "deleted",
+      repliesCount: comment.repliesCount,
+      createdAt: comment.createdAt,
+      comment: "",
+      commentUser: {
+        name: "Deleted comment",
+        avatarBackgroundColor: "#d4d4d4",
+      },
+    };
   });
-  return [visible as ICommentDocument[], total, size] as [ICommentDocument[], number, number];
+  return [visible as ICommentDocument[], total, size] as [
+    ICommentDocument[],
+    number,
+    number,
+  ];
 };
 
 export default {

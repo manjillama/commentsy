@@ -26,41 +26,54 @@ const commentSchema = new Schema<ICommentDocument>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-    anonUser: new Schema({
-      name: {
-        type: String,
-        trim: true,
-        maxlength: 50,
-        required: [true, "Missing anonymous user name (anonUser.name)"],
-      },
-      email: {
-        type: String,
-        select: false,
-        required: [true, "Missing anonymous user email"],
-        lowercase: true,
-        trim: true,
-        maxlength: 320,
-        match: [
-          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-          "Please enter a valid email address",
-        ],
-      },
-      avatarBackgroundColor: {
-        type: String,
-        enum: {
-          values: AVATAR_BACKGROUND_COLORS,
-          message: "{VALUE} is not supported",
+    anonUser: new Schema(
+      {
+        name: {
+          type: String,
+          trim: true,
+          maxlength: 50,
+          required: [true, "Missing anonymous user name (anonUser.name)"],
         },
-        required: [
-          true,
-          "Missing anonymous user avatar background color (anonUser.avatarBackgroundColor)",
-        ],
+        email: {
+          type: String,
+          select: false,
+          required: [true, "Missing anonymous user email"],
+          lowercase: true,
+          trim: true,
+          maxlength: 320,
+          match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            "Please enter a valid email address",
+          ],
+        },
+        avatarBackgroundColor: {
+          type: String,
+          enum: {
+            values: AVATAR_BACKGROUND_COLORS,
+            message: "{VALUE} is not supported",
+          },
+          required: [
+            true,
+            "Missing anonymous user avatar background color (anonUser.avatarBackgroundColor)",
+          ],
+        },
       },
-    }, {
-      // Also protect newly created documents returned before another DB read.
-      toJSON: { transform: (_doc, result) => { delete result.email; return result; } },
-      toObject: { transform: (_doc, result) => { delete result.email; return result; } },
-    }),
+      {
+        // Also protect newly created documents returned before another DB read.
+        toJSON: {
+          transform: (_doc, result) => {
+            delete result.email;
+            return result;
+          },
+        },
+        toObject: {
+          transform: (_doc, result) => {
+            delete result.email;
+            return result;
+          },
+        },
+      },
+    ),
     pageTitle: {
       type: String,
       maxlength: 1000,
@@ -85,17 +98,28 @@ const commentSchema = new Schema<ICommentDocument>(
       type: String,
       maxLength: 5000,
       default: "",
-      required: [function (this: ICommentDocument) { return !this.gif; }, "Add a comment or choose a GIF"],
+      required: [
+        function (this: ICommentDocument) {
+          return !this.gif;
+        },
+        "Add a comment or choose a GIF",
+      ],
     },
     gif: {
-      type: new Schema({
-        provider: { type: String, enum: ["klipy"], required: true },
-        id: { type: String, required: true, maxlength: 200 },
-        slug: { type: String, required: true, maxlength: 250 },
-        url: { type: String, required: true, maxlength: 4096 },
-        title: { type: String, default: "", maxlength: 300 },
-      }, { _id: false }),
-      validate: { validator: (gif: unknown) => gif == null || isCommentGif(gif), message: "Invalid GIF attachment" },
+      type: new Schema(
+        {
+          provider: { type: String, enum: ["klipy"], required: true },
+          id: { type: String, required: true, maxlength: 200 },
+          slug: { type: String, required: true, maxlength: 250 },
+          url: { type: String, required: true, maxlength: 4096 },
+          title: { type: String, default: "", maxlength: 300 },
+        },
+        { _id: false },
+      ),
+      validate: {
+        validator: (gif: unknown) => gif == null || isCommentGif(gif),
+        message: "Invalid GIF attachment",
+      },
       default: undefined,
     },
     editedAt: Date,
@@ -117,17 +141,22 @@ const commentSchema = new Schema<ICommentDocument>(
     toObject: { virtuals: true },
     toJSON: { virtuals: true },
     timestamps: true,
-  }
+  },
 );
 commentSchema.index({ group: 1, parent: 1, createdAt: -1, _id: -1 });
 commentSchema.index({ parent: 1, status: 1, isSpam: 1, createdAt: 1, _id: 1 });
 commentSchema.index({ app: 1, isSpam: 1, createdAt: -1, _id: -1 });
 commentSchema.index({ user: 1, status: 1, isSpam: 1, createdAt: -1, _id: -1 });
 commentSchema.virtual("commentUser").get(function () {
-  return this.user ?? (this.anonUser ? {
-    name: this.anonUser.name,
-    avatarBackgroundColor: this.anonUser.avatarBackgroundColor,
-  } : undefined);
+  return (
+    this.user ??
+    (this.anonUser
+      ? {
+          name: this.anonUser.name,
+          avatarBackgroundColor: this.anonUser.avatarBackgroundColor,
+        }
+      : undefined)
+  );
 });
 const Comment = createModel<ICommentDocument>("Comment", commentSchema);
 

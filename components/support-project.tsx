@@ -22,8 +22,8 @@ export default function SupportProject() {
         </div>
         <div className={styles.action}>
           <div className={styles.options}>
-          <a href="https://buymeacoffee.com/xmarman" target="_blank" rel="noopener noreferrer" className={styles.button}>Buy me a coffee <ArrowTopRightIcon aria-hidden="true" /></a>
-          <a href="https://patreon.com/xmarman" target="_blank" rel="noopener noreferrer" className={styles.button}>Support on Patreon <ArrowTopRightIcon aria-hidden="true" /></a>
+            <a href="https://buymeacoffee.com/xmarman" target="_blank" rel="noopener noreferrer" className={styles.button}>Buy me a coffee <ArrowTopRightIcon aria-hidden="true" /></a>
+            <a href="https://patreon.com/xmarman" target="_blank" rel="noopener noreferrer" className={styles.button}>Support on Patreon <ArrowTopRightIcon aria-hidden="true" /></a>
           </div>
           <span>Always optional. Always appreciated.</span>
         </div>

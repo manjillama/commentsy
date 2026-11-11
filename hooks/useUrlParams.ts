@@ -12,7 +12,7 @@ import { useCallback } from "react";
 export function useUrlSearchParams(): [
   ReadonlyURLSearchParams,
   (key: string, value: string) => void,
-  (key: string, value: string) => void
+  (key: string, value: string) => void,
 ] {
   const router = useRouter();
   const pathname = usePathname();
@@ -25,7 +25,7 @@ export function useUrlSearchParams(): [
 
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   const setSearchParams = (key: string, value: string) => {

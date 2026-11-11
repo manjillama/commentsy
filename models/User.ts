@@ -39,8 +39,16 @@ const userSchema = new Schema<IUserDocument>(
     },
     password: {
       type: String,
-      required: [function (this: IUserDocument) { return this.provider === EProviders.credentials; }, "Missing password"],
-      validate: { validator: (value: string) => Buffer.byteLength(value, "utf8") <= 72, message: "Password must be at most 72 UTF-8 bytes" },
+      required: [
+        function (this: IUserDocument) {
+          return this.provider === EProviders.credentials;
+        },
+        "Missing password",
+      ],
+      validate: {
+        validator: (value: string) => Buffer.byteLength(value, "utf8") <= 72,
+        message: "Password must be at most 72 UTF-8 bytes",
+      },
       minlength: 8,
       maxLength: 100,
       select: false,
@@ -75,7 +83,7 @@ const userSchema = new Schema<IUserDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 userSchema.pre<IUserDocument>("save", async function (next) {
@@ -86,7 +94,7 @@ userSchema.pre<IUserDocument>("save", async function (next) {
 });
 userSchema.methods.validatePassword = function (
   candidatePassword: string,
-  hashedPassword: string
+  hashedPassword: string,
 ) {
   return bcrypt.compare(candidatePassword, hashedPassword);
 };

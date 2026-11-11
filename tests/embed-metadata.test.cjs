@@ -1,91 +1,205 @@
-const { test, assert, load } = require('./helpers.cjs');
-const vm = require('node:vm');
+const { test, assert, load } = require("./helpers.cjs");
+const vm = require("node:vm");
 
-test('generated embed snippet sends the complete host page URL with query and fragment', () => {
-  const JsCode = load('components/code-snippets/js-code.tsx', {
-    './copy-button': { CopyButton: () => null },
-    'react-syntax-highlighter': { Prism: () => null },
-  }, { process: { env: { NEXT_PUBLIC_SITE_URL: 'https://comments.example.com' } } }).default;
+test("generated embed snippet sends the complete host page URL with query and fragment", () => {
+  const JsCode = load(
+    "components/code-snippets/js-code.tsx",
+    {
+      "./copy-button": { CopyButton: () => null },
+      "react-syntax-highlighter": { Prism: () => null },
+    },
+    {
+      process: {
+        env: { NEXT_PUBLIC_SITE_URL: "https://comments.example.com" },
+      },
+    },
+  ).default;
   const view = JsCode();
-  const code = view.props.children[1].props.children.replace(/^<script>\s*|\s*<\/script>$/g, '');
+  const code = view.props.children[1].props.children.replace(
+    /^<script>\s*|\s*<\/script>$/g,
+    "",
+  );
   for (const pageUrl of [
-    'https://blog.example.com/?post=my-article',
-    'https://blog.example.com/articles/my-article?language=en#discussion',
-    'https://blog.example.com/articles/my-article',
+    "https://blog.example.com/?post=my-article",
+    "https://blog.example.com/articles/my-article?language=en#discussion",
+    "https://blog.example.com/articles/my-article",
   ]) {
     let listener;
     let metadata;
-    const iframe = { contentWindow: { postMessage: (data, origin) => { metadata = data; assert.equal(origin, 'https://comments.example.com'); } } };
+    const iframe = {
+      contentWindow: {
+        postMessage: (data, origin) => {
+          metadata = data;
+          assert.equal(origin, "https://comments.example.com");
+        },
+      },
+    };
     vm.runInNewContext(code, {
-      window: { location: { href: pageUrl }, addEventListener: (_type, handler) => { listener = handler; } },
-      document: { title: 'My article', getElementById: () => iframe },
+      window: {
+        location: { href: pageUrl },
+        addEventListener: (_type, handler) => {
+          listener = handler;
+        },
+      },
+      document: { title: "My article", getElementById: () => iframe },
     });
-    listener({ source: iframe.contentWindow, origin: 'https://comments.example.com', data: { type: 'pingCommentsyParent' } });
+    listener({
+      source: iframe.contentWindow,
+      origin: "https://comments.example.com",
+      data: { type: "pingCommentsyParent" },
+    });
     assert.equal(metadata.url, pageUrl);
-    assert.equal(metadata.title, 'My article');
+    assert.equal(metadata.title, "My article");
   }
 });
 
-test('stored page URLs normalize Unicode and spaces without changing escaped URL structure', () => {
-  const { normalizePageUrl } = load('utils/pageUrl.ts');
-  const normalized = normalizePageUrl('https://example.com/café space?post=a%26b&tag=one&tag=two#my section');
-  assert.equal(normalized, 'https://example.com/caf%C3%A9%20space?post=a%26b&tag=one&tag=two#my%20section');
+test("stored page URLs normalize Unicode and spaces without changing escaped URL structure", () => {
+  const { normalizePageUrl } = load("utils/pageUrl.ts");
+  const normalized = normalizePageUrl(
+    "https://example.com/café space?post=a%26b&tag=one&tag=two#my section",
+  );
+  assert.equal(
+    normalized,
+    "https://example.com/caf%C3%A9%20space?post=a%26b&tag=one&tag=two#my%20section",
+  );
   assert.equal(normalizePageUrl(normalized), normalized);
-  assert.equal(new URL(normalized).searchParams.get('post'), 'a&b');
-  assert.deepEqual(new URL(normalized).searchParams.getAll('tag'), ['one', 'two']);
-  for (const invalid of [null, 123, '/relative', 'javascript:alert(1)', 'ftp://example.com', 'https://user:password@example.com', 'https://example.com/%oops', 'https://example.com/\npath']) {
+  assert.equal(new URL(normalized).searchParams.get("post"), "a&b");
+  assert.deepEqual(new URL(normalized).searchParams.getAll("tag"), [
+    "one",
+    "two",
+  ]);
+  for (const invalid of [
+    null,
+    123,
+    "/relative",
+    "javascript:alert(1)",
+    "ftp://example.com",
+    "https://user:password@example.com",
+    "https://example.com/%oops",
+    "https://example.com/\npath",
+  ]) {
     assert.equal(normalizePageUrl(invalid), null);
   }
 });
 
-test('comment model normalizes saved URLs and rejects unsupported schemes', () => {
-  const { Comment, base } = require('./helpers.cjs');
-  const document = new Comment({ ...base, comment: 'hello', pageUrl: 'https://example.com/my page?post=a%26b#discussion' });
+test("comment model normalizes saved URLs and rejects unsupported schemes", () => {
+  const { Comment, base } = require("./helpers.cjs");
+  const document = new Comment({
+    ...base,
+    comment: "hello",
+    pageUrl: "https://example.com/my page?post=a%26b#discussion",
+  });
   assert.equal(document.validateSync(), undefined);
-  assert.equal(document.pageUrl, 'https://example.com/my%20page?post=a%26b#discussion');
-  assert.ok(new Comment({ ...base, comment: 'hello', pageUrl: 'javascript:alert(1)' }).validateSync()?.errors.pageUrl);
+  assert.equal(
+    document.pageUrl,
+    "https://example.com/my%20page?post=a%26b#discussion",
+  );
+  assert.ok(
+    new Comment({
+      ...base,
+      comment: "hello",
+      pageUrl: "javascript:alert(1)",
+    }).validateSync()?.errors.pageUrl,
+  );
 });
 
-test('submission requests current parent metadata rather than a cached initial URL', async () => {
+test("submission requests current parent metadata rather than a cached initial URL", async () => {
   let handler;
   let removed = false;
-  const fullUrl = 'https://example.com/?chapter=1&page=12#comments';
-  const parent = { postMessage: message => {
-    assert.equal(message.type, 'pingCommentsyParent');
-    handler({ source: {}, data: { type: 'commentsyParentSiteData', title: 'Wrong frame', url: 'https://wrong.example/' } });
-    handler({ source: parent, data: { type: 'commentsyParentSiteData', title: 'Chapter 1 · Page 12', url: fullUrl } });
-  } };
-  const page = load('utils/parentPageData.ts', {}, {
-    window: { parent, addEventListener: (_type, listener) => { handler = listener; }, removeEventListener: () => { removed = true; } },
-    setTimeout, clearTimeout,
-  });
+  const fullUrl = "https://example.com/?chapter=1&page=12#comments";
+  const parent = {
+    postMessage: (message) => {
+      assert.equal(message.type, "pingCommentsyParent");
+      handler({
+        source: {},
+        data: {
+          type: "commentsyParentSiteData",
+          title: "Wrong frame",
+          url: "https://wrong.example/",
+        },
+      });
+      handler({
+        source: parent,
+        data: {
+          type: "commentsyParentSiteData",
+          title: "Chapter 1 · Page 12",
+          url: fullUrl,
+        },
+      });
+    },
+  };
+  const page = load(
+    "utils/parentPageData.ts",
+    {},
+    {
+      window: {
+        parent,
+        addEventListener: (_type, listener) => {
+          handler = listener;
+        },
+        removeEventListener: () => {
+          removed = true;
+        },
+      },
+      setTimeout,
+      clearTimeout,
+    },
+  );
   const current = await page.requestParentPageData();
   assert.equal(current.url, fullUrl);
-  assert.equal(current.title, 'Chapter 1 · Page 12');
+  assert.equal(current.title, "Chapter 1 · Page 12");
   assert.equal(removed, true);
 });
 
-test('host integration ignores messages from other windows, foreign origins, and invalid heights', () => {
-  const JsCode = load('components/code-snippets/js-code.tsx', {
-    './copy-button': { CopyButton: () => null },
-    'react-syntax-highlighter': { Prism: () => null },
-  }, { process: { env: { NEXT_PUBLIC_SITE_URL: 'https://comments.example.com' } } }).default;
-  const code = JsCode().props.children[1].props.children.replace(/^<script>\s*|\s*<\/script>$/g, '');
+test("host integration ignores messages from other windows, foreign origins, and invalid heights", () => {
+  const JsCode = load(
+    "components/code-snippets/js-code.tsx",
+    {
+      "./copy-button": { CopyButton: () => null },
+      "react-syntax-highlighter": { Prism: () => null },
+    },
+    {
+      process: {
+        env: { NEXT_PUBLIC_SITE_URL: "https://comments.example.com" },
+      },
+    },
+  ).default;
+  const code = JsCode().props.children[1].props.children.replace(
+    /^<script>\s*|\s*<\/script>$/g,
+    "",
+  );
   let handler;
   let messages = 0;
-  const iframe = { style: {}, contentWindow: { postMessage: () => { messages++; } } };
+  const iframe = {
+    style: {},
+    contentWindow: {
+      postMessage: () => {
+        messages++;
+      },
+    },
+  };
   vm.runInNewContext(code, {
-    window: { addEventListener: (_type, callback) => { handler = callback; }, location: { href: 'https://blog.example.com' } },
-    document: { title: 'Post', getElementById: () => iframe },
+    window: {
+      addEventListener: (_type, callback) => {
+        handler = callback;
+      },
+      location: { href: "https://blog.example.com" },
+    },
+    document: { title: "Post", getElementById: () => iframe },
   });
-  const event = { source: iframe.contentWindow, origin: 'https://comments.example.com', data: { type: 'pingCommentsyParent' } };
+  const event = {
+    source: iframe.contentWindow,
+    origin: "https://comments.example.com",
+    data: { type: "pingCommentsyParent" },
+  };
   handler({ ...event, source: {} });
-  handler({ ...event, origin: 'https://evil.example' });
+  handler({ ...event, origin: "https://evil.example" });
   assert.equal(messages, 0);
   handler(event);
   assert.equal(messages, 1);
-  for (const height of ['300', -1, Infinity, 100001]) handler({ ...event, data: { type: 'commentsyResize', height } });
+  for (const height of ["300", -1, Infinity, 100001])
+    handler({ ...event, data: { type: "commentsyResize", height } });
   assert.equal(iframe.style.height, undefined);
-  handler({ ...event, data: { type: 'commentsyResize', height: 300 } });
-  assert.equal(iframe.style.height, '300px');
+  handler({ ...event, data: { type: "commentsyResize", height: 300 } });
+  assert.equal(iframe.style.height, "300px");
 });

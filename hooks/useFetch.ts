@@ -23,14 +23,17 @@ export function useFetch<T>(url: string): [boolean, T | null, string | null] {
     setFetching(true);
     setError(null);
     setData(null);
-    api.get<T>(sanitizedUrl, { signal: controller.signal }).then(response => {
+    api.get<T>(sanitizedUrl, { signal: controller.signal }).then((response) => {
       // Older results must not replace data for a newer URL.
       if (!active) return;
       if (response.status === "success") setData(response.data);
       else setError(response.message);
       setFetching(false);
     });
-    return () => { active = false; controller.abort(); };
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [url]);
 
   return [fetching, data, error];

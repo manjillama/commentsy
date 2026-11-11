@@ -16,5 +16,4 @@ export interface IGroup {
   updatedAt: Date;
 }
 export interface IGroupDocument
-  extends mongoose.Document,
-    Omit<IGroup, "_id"> {}
+  extends mongoose.Document, Omit<IGroup, "_id"> {}

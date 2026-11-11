@@ -30,7 +30,7 @@ const groupSchema = new Schema<IGroupDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 groupSchema.index(
@@ -40,7 +40,7 @@ groupSchema.index(
   },
   {
     unique: true,
-  }
+  },
 );
 
 const Group = createModel<IGroupDocument>("Group", groupSchema);

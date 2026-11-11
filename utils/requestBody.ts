@@ -5,14 +5,24 @@ import { webOrigin } from "@/utils/origin";
 export function validateWriteRequest(req: Request) {
   const expected = webOrigin(process.env.NEXTAUTH_URL ?? req.url);
   const origin = req.headers.get("origin");
-  if ((origin && origin !== expected) || req.headers.get("sec-fetch-site") === "cross-site")
+  if (
+    (origin && origin !== expected) ||
+    req.headers.get("sec-fetch-site") === "cross-site"
+  )
     throw new AppError("Invalid request origin", 403);
-  if (["POST", "PATCH", "PUT"].includes(req.method) && req.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json")
+  if (
+    ["POST", "PATCH", "PUT"].includes(req.method) &&
+    req.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !==
+      "application/json"
+  )
     throw new AppError("Send an application/json request", 415);
 }
 
 /** Bound request size before parsing and reject non-object JSON bodies. */
-export async function readJsonBody(req: Request, maxBytes = 32_768): Promise<Record<string, any>> {
+export async function readJsonBody(
+  req: Request,
+  maxBytes = 32_768,
+): Promise<Record<string, any>> {
   if (!req.body) throw new AppError("Missing request body", 400);
   const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];
@@ -28,10 +38,16 @@ export async function readJsonBody(req: Request, maxBytes = 32_768): Promise<Rec
       }
       chunks.push(value);
     }
-  } finally { reader.releaseLock(); }
+  } finally {
+    reader.releaseLock();
+  }
   let body;
-  try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); }
-  catch { throw new AppError("Enter valid JSON", 400); }
-  if (!body || typeof body !== "object" || Array.isArray(body)) throw new AppError("Send a JSON object", 400);
+  try {
+    body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
+  } catch {
+    throw new AppError("Enter valid JSON", 400);
+  }
+  if (!body || typeof body !== "object" || Array.isArray(body))
+    throw new AppError("Send a JSON object", 400);
   return body;
 }

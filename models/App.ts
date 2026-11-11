@@ -52,13 +52,14 @@ const appSchema = new Schema<IAppDocument>(
             return false;
           }
         },
-        message: "Invalid comment colors. Use three- or six-digit hex colors for both themes.",
+        message:
+          "Invalid comment colors. Use three- or six-digit hex colors for both themes.",
       },
     },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const App = createModel<IAppDocument>("App", appSchema);

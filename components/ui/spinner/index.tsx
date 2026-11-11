@@ -13,13 +13,12 @@ export const Spinner = ({
     style={{
       ...{ transform: size === "sm" ? "scale(0.2)" : "scale(0.3)" },
     }}
-    className={`${spinnerStyles.ldsSpinner} ${
-      color
+    className={`${spinnerStyles.ldsSpinner} ${color
         ? color === "dark"
           ? spinnerStyles.ldsSpinnerDark
           : spinnerStyles.ldsSpinnerLight
         : {}
-    }`}
+      }`}
   >
     <div style={styles}></div>
     <div style={styles}></div>
